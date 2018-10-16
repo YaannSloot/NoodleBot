@@ -10,6 +10,12 @@ To run the bot, enter this command in a bash shell or windows cmd
 
 ```java -jar <path to bot jar file> <bot token> <wolfram app id>```
 
+## Important links for contributors
+
+[Discord4J Documentation](https://discord4j.readthedocs.io/en/latest/)
+[Discord4J Javadoc](https://jitpack.io/com/github/austinv11/Discord4J/2.9.3/javadoc/)
+[WolframAlpha Java API Javadoc](https://products.wolframalpha.com/api/libraries/java/)
+
 ## TODO
 In no particular order
 * Get the bot playing music complete with volume control
