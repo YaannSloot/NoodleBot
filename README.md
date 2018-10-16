@@ -15,9 +15,11 @@ In no particular order
 * Get the bot playing music complete with volume control
 * Integrate google and wikipedia into command functionality
 * Games? Maybe? IDK
+
 Server-related
 * Proper logging
 * Proper exception handling
+
 General
 * Fix any possible bugs (Top priority)
 
