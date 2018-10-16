@@ -36,7 +36,7 @@ WolframAlpha Java API Documentation:
 
 ## TODO
 In no particular order
-* Get the bot playing music complete with volume control
+* Get the bot playing music complete with volume control (Hopefully with lavaplayer)
 * Integrate google and wikipedia into command functionality
 * Games? Maybe? IDK
 
