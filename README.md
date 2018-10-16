@@ -3,7 +3,7 @@
 ## How to run the bot
 Requirements:
 * A Discord bot to run the program on
-* A WolframAlphaAPI app id
+* A WolframAlphaAPI AppID
 * Java JRE or JDK
 
 To run the bot, enter this command in a bash shell or windows cmd
