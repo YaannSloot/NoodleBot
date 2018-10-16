@@ -1,7 +1,7 @@
 # THICCBot4Java
 
 ## Info
-𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that my bot needed an upgrade. This version of my bot is designed to run on minimal hardware power i.e. a raspberry pi. I mean try to run this on a computer from the early 2000s. It just might work.
+𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that an upgrade was needed. This version of my bot is designed to run on minimal hardware power i.e. a raspberry pi. I mean try to run this on a computer from the early 2000s. It just might work.
 
 ## How to run the bot
 Requirements:
@@ -20,7 +20,7 @@ Minimum hardware requirements:
 * A computer that can run the jar without crashing (If this happens your JRE might be too out of date)
 
 Recommended hardware requirements:
-* >= 1GB of ram
+* 1GB or more of ram
 * A processor with more than one core (Helps with some minor multithreading)
 * Java 8 or greater
 
