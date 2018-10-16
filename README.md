@@ -12,9 +12,13 @@ To run the bot, enter this command in a bash shell or windows cmd
 
 ## Important links for contributors
 
-[Discord4J Documentation](https://discord4j.readthedocs.io/en/latest/)
-[Discord4J Javadoc](https://jitpack.io/com/github/austinv11/Discord4J/2.9.3/javadoc/)
-[WolframAlpha Java API Javadoc](https://products.wolframalpha.com/api/libraries/java/)
+Discord4J Documentation:
+
+[ReadTheDocs](https://discord4j.readthedocs.io/en/latest/) | [Javadoc](https://jitpack.io/com/github/austinv11/Discord4J/2.9.3/javadoc/)
+
+WolframAlpha Java API Documentation:
+
+[Javadoc](https://products.wolframalpha.com/api/libraries/java/)
 
 ## TODO
 In no particular order
