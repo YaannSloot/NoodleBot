@@ -3,17 +3,23 @@ import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.util.audio.AudioPlayer;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
+import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
+import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.sapher.youtubedl.YoutubeDL;
 import com.sapher.youtubedl.YoutubeDLException;
 import com.sapher.youtubedl.YoutubeDLRequest;
 import com.sapher.youtubedl.YoutubeDLResponse;
-
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import sx.blah.discord.handle.audio.IAudioManager;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
@@ -73,41 +79,51 @@ public class Events {
 	        	if(voiceChannel != null) {
 	        		voiceChannel.join();
 	        		String videoURL = event.getMessage().getContent().substring(13);
-	        		YoutubeDLRequest request = new YoutubeDLRequest('\"' + videoURL + '\"');
+	        		String directory = System.getProperty("user.home");
+	        		new File(directory + "/thicctemp").mkdirs();
+	        		YoutubeDLRequest request = new YoutubeDLRequest('\"' + videoURL + '\"', directory + "/thicctemp");
 	        		request.setOption("default-search", "auto");
-	        		request.setOption("format", "bestaudio");
-	        		request.setOption("dump-json");
-	        		request.setOption("simulate");
+	        		request.setOption("format", "mp3/bestaudio");
+	        		request.setOption("print-json");
+	        		request.setOption("output", event.getGuild().getStringID() + ".mp3");
 	        		YoutubeDLResponse response;
-	        		
+	        		/*try {
+						PlayerManager manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
+						manager.getManager();
+						
+						Player newPlayer = manager.getPlayer(event.getGuild().getStringID());
+						newPlayer.stop();
+						try {
+							newPlayer.resolve(event.getMessage().getContent().substring(13));
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					} catch (UnknownBindingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+	        		*/
 					try {
 						response = YoutubeDL.execute(request);
 						System.out.println("Request performed");
 						System.out.println(response.getOut());
 						ytdlOutputProcessor vInfo = new ytdlOutputProcessor(response.getOut());
 						System.out.println(vInfo.getUploader());
-						System.out.println(vInfo.getUrl());
 						System.out.println(vInfo.getVideoUrl());
 						System.out.println(vInfo.getDuration());
 						AudioPlayer audioP = AudioPlayer.getAudioPlayerForGuild(event.getGuild());
 						audioP.clear();
-						URL url;
 						try {
-							url = new URL(vInfo.getUrl());
-							try {
-								audioP.queue(url);
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (UnsupportedAudioFileException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						} catch (MalformedURLException e) {
+							audioP.queue(new File(directory + "/thicctemp/" + event.getGuild().getStringID() + ".mp3"));
+						} catch (IOException | UnsupportedAudioFileException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						
 					} catch (YoutubeDLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
