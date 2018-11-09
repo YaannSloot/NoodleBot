@@ -2,6 +2,7 @@ package main;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.util.audio.AudioPlayer;
+import threadbox.AutoLeaveCounter;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,7 +154,12 @@ public class Events {
     public void onUserLeavesVoice(UserVoiceChannelLeaveEvent event) {
     	try {
 	    	if(event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getVoiceChannel().getStringID())) {
-	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " disconnected from connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + event.getVoiceChannel().getConnectedUsers().size());
+	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " disconnected from connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + (event.getVoiceChannel().getConnectedUsers().size() - 1));
+	    		if(event.getVoiceChannel().getConnectedUsers().size() == 1) {
+	    			System.out.println("No more users are currently connected. Auto-Leave countdown has been started.");
+	    			AutoLeaveCounter counter = new AutoLeaveCounter(event.getGuild().getConnectedVoiceChannel());
+	    			counter.start();
+	    		}
 	    	}
     	} catch (NullPointerException e) {}
     }
@@ -161,7 +167,21 @@ public class Events {
     public void onUserMovesOutOfVoice(UserVoiceChannelMoveEvent event) {
     	try {
 	    	if(event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getOldChannel().getStringID())) {
-	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " moved out of connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + event.getOldChannel().getConnectedUsers().size());
+	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " moved out of connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + (event.getOldChannel().getConnectedUsers().size() - 1));
+	    		if(event.getOldChannel().getConnectedUsers().size() == 1) {
+	    			System.out.println("No more users are currently connected. Auto-Leave countdown has been started.");
+	    			AutoLeaveCounter counter = new AutoLeaveCounter(event.getGuild().getConnectedVoiceChannel());
+	    			counter.start();
+	    		}
+	    	}
+	    	else if(event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getNewChannel().getStringID())) {
+	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " moved in to connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + (event.getNewChannel().getConnectedUsers().size() - 1));
+	    		for(AutoLeaveCounter counter : AutoLeaveCounter.getAllRunningCounters()) {
+	    			if(counter.getChannel().getStringID().equals(event.getGuild().getConnectedVoiceChannel().getStringID())) {
+	    				counter.stopCountDown();
+	    				System.out.println("Auto-Leave counter has been stopped.");
+	    			}
+	    		}
 	    	}
     	} catch (NullPointerException e) {}
     }
