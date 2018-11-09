@@ -23,6 +23,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import sx.blah.discord.handle.audio.IAudioManager;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
 import sx.blah.discord.handle.impl.events.shard.LoginEvent;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.IVoiceChannel;
@@ -85,6 +88,7 @@ public class Events {
 	        		request.setOption("default-search", "auto");
 	        		request.setOption("format", "mp3/bestaudio");
 	        		request.setOption("print-json");
+	        		request.setOption("no-playlist");
 	        		request.setOption("output", event.getGuild().getStringID() + ".mp3");
 	        		YoutubeDLResponse response;
 	        		/*try {
@@ -109,6 +113,12 @@ public class Events {
 					}
 	        		*/
 					try {
+						PlayerManager manager;
+						manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
+						manager.getManager();
+						Player newPlayer = manager.getPlayer(event.getGuild().getStringID());
+						newPlayer.stop();
+						new File(directory + "/thicctemp/" + event.getGuild().getStringID() + ".mp3").delete();
 						response = YoutubeDL.execute(request);
 						System.out.println("Request performed");
 						System.out.println(response.getOut());
@@ -116,15 +126,11 @@ public class Events {
 						System.out.println(vInfo.getUploader());
 						System.out.println(vInfo.getVideoUrl());
 						System.out.println(vInfo.getDuration());
-						AudioPlayer audioP = AudioPlayer.getAudioPlayerForGuild(event.getGuild());
-						audioP.clear();
-						try {
-							audioP.queue(new File(directory + "/thicctemp/" + event.getGuild().getStringID() + ".mp3"));
-						} catch (IOException | UnsupportedAudioFileException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						newPlayer.queue((AudioTrack) new File(directory + "/thicctemp/" + event.getGuild().getStringID() + ".mp3"));
 					} catch (YoutubeDLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (UnknownBindingException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -143,4 +149,20 @@ public class Events {
 		System.out.println("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, "thicc4j help");
 	}
+    @EventSubscriber
+    public void onUserLeavesVoice(UserVoiceChannelLeaveEvent event) {
+    	try {
+	    	if(event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getVoiceChannel().getStringID())) {
+	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " disconnected from connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + event.getVoiceChannel().getConnectedUsers().size());
+	    	}
+    	} catch (NullPointerException e) {}
+    }
+    @EventSubscriber
+    public void onUserMovesOutOfVoice(UserVoiceChannelMoveEvent event) {
+    	try {
+	    	if(event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getOldChannel().getStringID())) {
+	    		System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')' + " moved out of connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:" + event.getGuild().getLongID() + "). Remaining users: " + event.getOldChannel().getConnectedUsers().size());
+	    	}
+    	} catch (NullPointerException e) {}
+    }
 }
