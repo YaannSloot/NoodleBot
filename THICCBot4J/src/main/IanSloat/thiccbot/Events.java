@@ -121,6 +121,7 @@ public class Events {
 		        			  @Override
 		        			  public void noMatches() {
 		        			    // Notify the user that we've got nothing
+		        				  System.out.println("nothin");
 		        			  }
 
 		        			  @Override
