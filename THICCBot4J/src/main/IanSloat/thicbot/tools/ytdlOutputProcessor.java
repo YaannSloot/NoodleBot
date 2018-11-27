@@ -1,4 +1,4 @@
-package main.IanSloat.thiccbot;
+package main.IanSloat.thicbot.tools;
 
 public class ytdlOutputProcessor {
 	

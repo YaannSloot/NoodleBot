@@ -1,4 +1,4 @@
-package main.IanSloat.thiccbot;
+package main.IanSloat.thicbot.tools;
 import com.wolfram.alpha.WAEngine;
 import com.wolfram.alpha.WAException;
 import com.wolfram.alpha.WAPlainText;
@@ -17,7 +17,7 @@ public class WolframController {
 	private WAEngine engine = new WAEngine();
 	private String appID;
 	
-	WolframController(String appID){
+	public WolframController(String appID){
 		this.appID = appID;
 		engine.setAppID(this.appID);
 		engine.addFormat("plaintext");

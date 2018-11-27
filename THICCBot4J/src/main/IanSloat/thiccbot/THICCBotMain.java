@@ -1,5 +1,5 @@
 package main.IanSloat.thiccbot;
-import main.IanSloat.thiccbot.WolframController;
+import main.IanSloat.thicbot.tools.WolframController;
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.obj.ActivityType;
