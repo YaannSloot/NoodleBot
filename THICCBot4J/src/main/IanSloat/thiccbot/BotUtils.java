@@ -1,4 +1,4 @@
-package main;
+package main.IanSloat.thiccbot;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;

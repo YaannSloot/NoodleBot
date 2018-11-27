@@ -1,14 +1,15 @@
-package main;
+package main.IanSloat.thiccbot;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.util.audio.AudioPlayer;
-import threadbox.AutoLeaveCounter;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -22,8 +23,16 @@ import com.sapher.youtubedl.YoutubeDL;
 import com.sapher.youtubedl.YoutubeDLException;
 import com.sapher.youtubedl.YoutubeDLRequest;
 import com.sapher.youtubedl.YoutubeDLResponse;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import main.IanSloat.thiccbot.THICCBotMain;
+import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
 import sx.blah.discord.handle.audio.IAudioManager;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelEvent;
@@ -31,16 +40,17 @@ import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeave
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
 import sx.blah.discord.handle.impl.events.shard.LoginEvent;
 import sx.blah.discord.handle.obj.ActivityType;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.EmbedBuilder;
+import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
-import main.THICCBotMain;
 
 public class Events {
 	
 	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
-	
     @EventSubscriber
     public void onMessageReceived(MessageReceivedEvent event){
     	if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
@@ -76,7 +86,7 @@ public class Events {
 	        	response.appendField("Current server location", "University of Illinois at Urbana-Champaign", false);
 	        	response.appendField("Powered by", "Java", false);
 	        	response.appendField("Bot Version", "v0.6alpha", false);
-	        	response.appendField("Status", "Currently being ported from python build\nAwaiting deployment to main bot", false);
+	        	response.appendField("Status", "Currently being fixed up. May need more duct tape", false);
 	        	response.appendField("Current shard count", event.getClient().getShardCount() + " Shards active", false);
 	        	response.appendField("Current amount of threads running on server", Thread.activeCount() + " Active threads", false);
 	        	response.withTitle("Bot Info");
@@ -89,69 +99,45 @@ public class Events {
 	        		IVoiceChannel voiceChannel = event.getAuthor().getVoiceStateForGuild(event.getGuild()).getChannel();
 		        	if(voiceChannel != null) {
 		        		voiceChannel.join();
-		        		String directory = System.getProperty("user.home");
-		        		new File(directory + "/thicctemp").mkdirs();
-		        		YoutubeDLRequest request = new YoutubeDLRequest('\"' + videoURL + '\"', directory + "/thicctemp");
-		        		request.setOption("default-search", "auto");
-		        		request.setOption("format", "worstaudio/mp3");
-		        		request.setOption("print-json");
-		        		request.setOption("no-playlist");
-		        		request.setOption("output", event.getGuild().getStringID() + ".mp3");
-		        		YoutubeDLResponse response;
-		        		/*try {
-							PlayerManager manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-							manager.getManager();
-							
-							Player newPlayer = manager.getPlayer(event.getGuild().getStringID());
-							newPlayer.stop();
-							try {
-								newPlayer.resolve(event.getMessage().getContent().substring(13));
-							} catch (ExecutionException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							
-						} catch (UnknownBindingException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-		        		*/
-						try {
-							//PlayerManager manager;
-							//manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-							//manager.getManager();
-							//Player newPlayer = manager.getPlayer(event.getGuild().getStringID());
-							AudioPlayer audioP = AudioPlayer.getAudioPlayerForGuild(event.getGuild());
-							audioP.clear();
-							
-							new File(directory + "/thicctemp/" + event.getGuild().getStringID() + ".mp3").delete();
-							response = YoutubeDL.execute(request);
-							System.out.println("Request performed");
-							System.out.println(response.getOut());
-							ytdlOutputProcessor vInfo = new ytdlOutputProcessor(response.getOut());
-							System.out.println(vInfo.getUploader());
-							System.out.println(vInfo.getVideoUrl());
-							System.out.println(vInfo.getDuration());
-							try {
-								audioP.queue(new File(directory + "/thicctemp/" + event.getGuild().getStringID() + ".mp3"));
-							} catch (IOException | UnsupportedAudioFileException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						} catch (YoutubeDLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+		        		AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+		        		AudioSourceManagers.registerRemoteSources(playerManager);
+		        		PlayerManager manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
+		        		manager.getManager();
+		        		Player player =  manager.getPlayer(event.getGuild().getStringID());
+		        		playerManager.loadItem(videoURL, new AudioLoadResultHandler() {
+		        			  @Override
+		        			  public void trackLoaded(AudioTrack track) {
+		        			    player.queue(track);
+		        			  }
+
+		        			  @Override
+		        			  public void playlistLoaded(AudioPlaylist playlist) {
+		        			    for (AudioTrack track : playlist.getTracks()) {
+		        			      player.queue(track);
+		        			    }
+		        			  }
+
+		        			  @Override
+		        			  public void noMatches() {
+		        			    // Notify the user that we've got nothing
+		        			  }
+
+		        			  @Override
+		        			  public void loadFailed(FriendlyException throwable) {
+		        			    // Notify the user that everything exploded
+		        			  }
+		        			});
+		        		player.play();
 		        	}
 		        	else {
 		        		event.getChannel().sendMessage("Get in a voice channel first");
 		        	}
 	        	} catch (java.lang.StringIndexOutOfBoundsException e) {
 	        		event.getChannel().sendMessage("Play what?");
-	        	}
+	        	} catch (UnknownBindingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	        }
 	        else if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "leave")) {
 	        	IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();

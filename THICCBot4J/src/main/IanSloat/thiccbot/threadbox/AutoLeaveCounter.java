@@ -1,4 +1,4 @@
-package threadbox;
+package main.IanSloat.thiccbot.threadbox;
 
 import java.util.ArrayList;
 

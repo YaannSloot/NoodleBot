@@ -1,4 +1,4 @@
-package main;
+package main.IanSloat.thiccbot;
 import com.wolfram.alpha.WAEngine;
 import com.wolfram.alpha.WAException;
 import com.wolfram.alpha.WAPlainText;
