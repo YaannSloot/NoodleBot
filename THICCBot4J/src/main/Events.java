@@ -93,7 +93,7 @@ public class Events {
 		        		new File(directory + "/thicctemp").mkdirs();
 		        		YoutubeDLRequest request = new YoutubeDLRequest('\"' + videoURL + '\"', directory + "/thicctemp");
 		        		request.setOption("default-search", "auto");
-		        		request.setOption("format", "mp3/bestaudio");
+		        		request.setOption("format", "worstaudio/mp3");
 		        		request.setOption("print-json");
 		        		request.setOption("no-playlist");
 		        		request.setOption("output", event.getGuild().getStringID() + ".mp3");
