@@ -9,7 +9,7 @@ import sx.blah.discord.util.RequestBuffer;
 class BotUtils {
 
     // Constants for use throughout the bot
-    static String BOT_PREFIX = "thicc4j ";
+    static String BOT_PREFIX = "thicc ";
 
     // Handles the creation and getting of a IDiscordClient object for a token
     static IDiscordClient getBuiltDiscordClient(String token){
