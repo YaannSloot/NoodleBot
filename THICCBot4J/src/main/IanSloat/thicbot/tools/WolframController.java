@@ -50,7 +50,7 @@ public class WolframController {
                     }
                 }
                 response.withAuthorName("WolframAlpha");
-                response.withAuthorIcon("https://www.iconsdb.com/icons/preview/soylent-red/wolfram-alpha-xxl.png");
+                response.withAuthorIcon("http://thiccbot.site/boticons/wolframalphaicon.png");
                 response.withColor(255, 127, 0);
         	}
         }

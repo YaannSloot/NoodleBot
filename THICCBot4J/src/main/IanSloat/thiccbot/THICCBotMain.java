@@ -1,10 +1,6 @@
 package main.IanSloat.thiccbot;
-import main.IanSloat.thicbot.tools.WolframController;
 import sx.blah.discord.api.*;
-import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.handle.obj.ActivityType;
-import sx.blah.discord.handle.obj.StatusType;
-import sx.blah.discord.handle.impl.events.shard.LoginEvent;
+
 
 public class THICCBotMain {
 
