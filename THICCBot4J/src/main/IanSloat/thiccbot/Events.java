@@ -10,12 +10,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.springframework.util.FileSystemUtils;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
@@ -45,6 +47,7 @@ import main.IanSloat.thiccbot.THICCBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
 import sx.blah.discord.handle.audio.IAudioManager;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
+import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
@@ -65,6 +68,7 @@ public class Events {
 	private AudioPlayerManager playerManager;
 	private PlayerManager manager;
 	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
+	private static List<String> knownGuildIds = new ArrayList<String>();
 
 	@EventSubscriber
 	public void onMessageReceived(MessageReceivedEvent event) {
@@ -91,7 +95,8 @@ public class Events {
 					&& BotUtils.checkForWords(event.getMessage().getContent(), THICCBotMain.questionIDs, false, true)) {
 				System.out.println(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()));
 				WolframController waClient = new WolframController(THICCBotMain.waAppID);
-				waClient.askQuestionAndSend(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()), event.getChannel());
+				waClient.askQuestionAndSend(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()),
+						event.getChannel());
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "info")) {
 				EmbedBuilder response = new EmbedBuilder();
 				response.appendField("Current server location", "University of Illinois at Urbana-Champaign", false);
@@ -107,7 +112,8 @@ public class Events {
 				RequestBuffer.request(() -> event.getChannel().sendMessage(response.build()));
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
 				try {
-					String videoURL = event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "play ").length());
+					String videoURL = event.getMessage().getContent()
+							.substring((BotUtils.BOT_PREFIX + "play ").length());
 					IVoiceChannel voiceChannel = event.getAuthor().getVoiceStateForGuild(event.getGuild()).getChannel();
 					if (voiceChannel != null) {
 						voiceChannel.join();
@@ -137,11 +143,13 @@ public class Events {
 								player.queue(track);
 								player.play();
 								EmbedBuilder response = new EmbedBuilder();
-								if(track.getSourceManager().getSourceName().equals("youtube")) {
+								if (track.getSourceManager().getSourceName().equals("youtube")) {
 									System.out.println("Youtube is result");
-									response.appendField("Now playing: ", '[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
+									response.appendField("Now playing: ",
+											'[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
 									response.appendField("Uploaded by:", track.getInfo().author, true);
-									String duration = DurationFormatUtils.formatDuration(track.getInfo().length, "**H:mm:ss**", true);
+									String duration = DurationFormatUtils.formatDuration(track.getInfo().length,
+											"**H:mm:ss**", true);
 									response.appendField("Duration: ", duration, false);
 									response.withAuthorName("YouTube");
 									response.withAuthorIcon("http://thiccbot.site/boticons/youtubeicon.png");
@@ -154,23 +162,24 @@ public class Events {
 							public void playlistLoaded(AudioPlaylist playlist) {
 								System.out.println("we have playlist");
 								player.stop();
-								if(!URI.startsWith("ytsearch:")) {
+								if (!URI.startsWith("ytsearch:")) {
 									for (AudioTrack track : playlist.getTracks()) {
 										player.queue(track);
 									}
-								}
-								else {
+								} else {
 									System.out.println("Was a search so only one track was loaded");
 									player.queue(playlist.getTracks().get(0));
 								}
 								player.play();
 								EmbedBuilder response = new EmbedBuilder();
 								AudioTrack track = player.getPlayingTrack().getTrack();
-								if(track.getSourceManager().getSourceName().equals("youtube")) {
+								if (track.getSourceManager().getSourceName().equals("youtube")) {
 									System.out.println("Youtube is result");
-									response.appendField("Now playing: ", '[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
+									response.appendField("Now playing: ",
+											'[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
 									response.appendField("Uploaded by:", track.getInfo().author, true);
-									String duration = DurationFormatUtils.formatDuration(track.getInfo().length, "**H:mm:ss**", true);
+									String duration = DurationFormatUtils.formatDuration(track.getInfo().length,
+											"**H:mm:ss**", true);
 									response.appendField("Duration: ", duration, false);
 									response.withAuthorName("YouTube");
 									response.withAuthorIcon("http://thiccbot.site/boticons/youtubeicon.png");
@@ -219,11 +228,12 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "volume ")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					String volume = event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "volume ").length());
+					String volume = event.getMessage().getContent()
+							.substring((BotUtils.BOT_PREFIX + "volume ").length());
 					Player player = manager.getPlayer(event.getGuild().getStringID());
 					try {
-					player.setVolume(Integer.parseInt(volume));
-					event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
+						player.setVolume(Integer.parseInt(volume));
+						event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
 					} catch (java.lang.NumberFormatException e) {
 						event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
 					}
@@ -237,12 +247,6 @@ public class Events {
 	@EventSubscriber
 	public void onBotLogin(LoginEvent event) {
 		System.out.println("Logged in.");
-		for(IGuild guild : event.getClient().getGuilds()) {
-			File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings" + BotUtils.PATH_SEPARATOR + guild.getStringID());
-			SettingDirectory.mkdirs();
-			System.out.println("Settings directory added for guild " + guild.getStringID() + "at path " + SettingDirectory.getAbsolutePath());
-		}
-		System.out.println("Settings files located in " + System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
 		try {
 			manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
@@ -250,23 +254,68 @@ public class Events {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		class loadSettings extends Thread {
+			public void run() {
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				for (IGuild guild : event.getClient().getGuilds()) {
+					File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR
+							+ "guildSettings" + BotUtils.PATH_SEPARATOR + guild.getStringID());
+					if (!(SettingDirectory.exists())) {
+						SettingDirectory.mkdirs();
+						System.out.println("Settings directory added for guild " + guild.getStringID() + " at path "
+								+ SettingDirectory.getAbsolutePath());
+					}
+				}
+				System.out.println("Settings files located in " + System.getProperty("user.dir")
+						+ BotUtils.PATH_SEPARATOR + "guildSettings");
+				for (IGuild guild : event.getClient().getGuilds()) {
+					knownGuildIds.add(guild.getStringID());
+				}
+			}
+		}
+		System.out.println("Loading guild settings...");
+		new loadSettings().run();
 	}
+
 	@EventSubscriber
 	public void onJoinNewGuild(GuildCreateEvent event) {
 		try {
-			event.getGuild().getChannels().get(0).sendMessage("Hello! Thanks for adding me to your server.\nFor a list of commands, type \"thicc help\"");
-			System.out.println("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getStringID() + ")");
-			File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings" + BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
-			if(SettingDirectory.exists()) {
-				SettingDirectory.delete();
-				SettingDirectory.mkdirs();
-			} else {
-				SettingDirectory.mkdirs();
+			if (!(knownGuildIds.contains(event.getGuild().getStringID()))) {
+				event.getGuild().getChannels().get(0).sendMessage(
+						"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"thicc help\"");
+				System.out.println("Added to new guild. Guild: " + event.getGuild().getName() + "(id:"
+						+ event.getGuild().getStringID() + ")");
+				File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR
+						+ "guildSettings" + BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
+				if (SettingDirectory.exists()) {
+					SettingDirectory.delete();
+					SettingDirectory.mkdirs();
+				} else {
+					SettingDirectory.mkdirs();
+				}
+				knownGuildIds.add(event.getGuild().getStringID());
 			}
 		} catch (sx.blah.discord.util.DiscordException e) {
-			
+
 		}
 	}
+
+	@EventSubscriber
+	public void onLeaveGuild(GuildLeaveEvent event) {
+		File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings"
+				+ BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
+		if (SettingDirectory.exists()) {
+			FileSystemUtils.deleteRecursively(SettingDirectory);
+		}
+		knownGuildIds.remove(event.getGuild().getStringID());
+		System.out.println("Removed from guild " + event.getGuild().getStringID() + ". Removed settings files");
+	}
+
 	@EventSubscriber
 	public void onUserLeavesVoice(UserVoiceChannelLeaveEvent event) {
 		try {
