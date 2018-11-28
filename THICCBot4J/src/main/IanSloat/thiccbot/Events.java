@@ -55,7 +55,7 @@ public class Events {
 	private PlayerManager manager;
 	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
 	private static List<String> knownGuildIds = new ArrayList<String>();
-	private final Logger logger = LoggerFactory.getLogger(Events.class);
+	private static final Logger logger = LoggerFactory.getLogger(Events.class);
 
 	@EventSubscriber
 	public void onMessageReceived(MessageReceivedEvent event) {
@@ -253,12 +253,12 @@ public class Events {
 							+ "guildSettings" + BotUtils.PATH_SEPARATOR + guild.getStringID());
 					if (!(SettingDirectory.exists())) {
 						SettingDirectory.mkdirs();
-						logger.info("Settings directory added for guild:" + guild.getName() + "(id:" + guild.getStringID() + ") at path "
-								+ SettingDirectory.getAbsolutePath());
+						logger.info("Settings directory added for guild:" + guild.getName() + "(id:"
+								+ guild.getStringID() + ") at path " + SettingDirectory.getAbsolutePath());
 					}
 				}
-				logger.info("Settings files loaded successfully. Settings files located in " + System.getProperty("user.dir")
-						+ BotUtils.PATH_SEPARATOR + "guildSettings");
+				logger.info("Settings files loaded successfully. Settings files located in "
+						+ System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings");
 				for (IGuild guild : event.getClient().getGuilds()) {
 					knownGuildIds.add(guild.getStringID());
 				}

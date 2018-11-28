@@ -17,7 +17,7 @@ import main.IanSloat.thiccbot.BotUtils;
 
 public class GeoLocator {
 
-	private final Logger logger = LoggerFactory.getLogger(GeoLocator.class);
+	private static final Logger logger = LoggerFactory.getLogger(GeoLocator.class);
 	private File geoDatabase = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "resources"
 			+ BotUtils.PATH_SEPARATOR + "geoLiteCity" + BotUtils.PATH_SEPARATOR + "GeoLiteCity.dat");
 	private File geoResourceDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "resources"

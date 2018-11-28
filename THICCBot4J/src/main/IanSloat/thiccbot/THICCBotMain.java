@@ -8,58 +8,64 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
-import main.IanSloat.thiccbot.tools.GeoLocator;
-import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class THICCBotMain {
 
 	static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
 	static String waAppID;
-	
+	private static final Logger logger = LoggerFactory.getLogger(THICCBotMain.class);
+
 	public static void main(String[] args) {
 
-		File logConfig = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging" + BotUtils.PATH_SEPARATOR + "log4j.properties");
+		File logConfig = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging"
+				+ BotUtils.PATH_SEPARATOR + "log4j.properties");
 		File logDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging");
-		if(!(logConfig.exists())) {
+		if (!(logConfig.exists())) {
 			try {
-				if(!(logDir.exists())) {
+				logger.info("No log4j.properties file found. Creating new log4j.properties file");
+				if (!(logDir.exists())) {
 					logDir.mkdirs();
+					logger.info("Created " + logDir.getAbsolutePath() + " directory successfully");
 				}
 				logConfig.createNewFile();
-				FileWriter fileWriter = new FileWriter(logConfig.getAbsolutePath());
-				fileWriter.write("log4j.rootLogger=INFO, STDOUT\n");
-				fileWriter.write("log4j.logger.deng=ERROR\n");
-				fileWriter.write("log4j.appender.STDOUT=org.apache.log4j.ConsoleAppender\n");
-				fileWriter.write("log4j.appender.STDOUT.layout=org.apache.log4j.PatternLayout\n");
-				fileWriter.write("log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\n");
-				fileWriter.close();
+				logger.info("Created log4j.properties file successfully");
+				try {
+					FileWriter fileWriter = new FileWriter(logConfig.getAbsolutePath());
+					fileWriter.write("log4j.rootLogger=INFO, STDOUT\n");
+					fileWriter.write("log4j.logger.deng=ERROR\n");
+					fileWriter.write("log4j.appender.STDOUT=org.apache.log4j.ConsoleAppender\n");
+					fileWriter.write("log4j.appender.STDOUT.layout=org.apache.log4j.PatternLayout\n");
+					fileWriter.write(
+							"log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\n");
+					fileWriter.close();
+					logger.info("Wrote default settings to log4j.properties file successfully");
+				} catch (IOException e) {
+					logger.error("Could not write to log4j.properties file");
+				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Could not create log4j.properties file");
 			}
 		}
 		String log4JPropertyFile = logConfig.getAbsolutePath();
 		Properties p = new Properties();
-		
-		try {
-		    p.load(new FileInputStream(log4JPropertyFile));
-		    PropertyConfigurator.configure(p);
-		} catch (IOException e) {
-		    //DAMN! I'm not....
 
+		try {
+			logger.info("Loading log4j.properties file");
+			p.load(new FileInputStream(log4JPropertyFile));
+			PropertyConfigurator.configure(p);
+			logger.info("Successfully loaded log4j.properties file");
+		} catch (IOException e) {
+			logger.error("Could not set " + logConfig.getAbsolutePath() + " as properties file");
 		}
-		
+
 		String token = args[0];
 
 		waAppID = args[1];
 
-		GeoLocator locator = new GeoLocator(new WolframController(waAppID).getServerIP());
-		System.out.println(locator.getIPAddress());
-		System.out.println(locator.getCity() + ',' + locator.getRegion() + ',' + locator.getCountry());
-
 		IDiscordClient client;
-		
 
 		client = BotUtils.getBuiltDiscordClient(token);
 
