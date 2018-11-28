@@ -52,6 +52,7 @@ import sx.blah.discord.handle.impl.events.shard.LoginEvent;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.EmbedBuilder;
@@ -61,7 +62,7 @@ import sx.blah.discord.util.RequestBuffer;
 public class Events {
 
 	private AudioPlayerManager playerManager;
-
+	private PlayerManager manager;
 	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
 
 	@EventSubscriber
@@ -109,6 +110,10 @@ public class Events {
 					IVoiceChannel voiceChannel = event.getAuthor().getVoiceStateForGuild(event.getGuild()).getChannel();
 					if (voiceChannel != null) {
 						voiceChannel.join();
+						EmbedBuilder thinkingMsg = new EmbedBuilder();
+						thinkingMsg.withTitle("Loading audio...");
+						thinkingMsg.withColor(192, 255, 0);
+						IMessage message = event.getChannel().sendMessage(thinkingMsg.build());
 						playerManager = new DefaultAudioPlayerManager();
 						playerManager.registerSourceManager(new YoutubeAudioSourceManager());
 						playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
@@ -118,9 +123,6 @@ public class Events {
 						playerManager.registerSourceManager(new BeamAudioSourceManager());
 						playerManager.registerSourceManager(new HttpAudioSourceManager());
 						playerManager.registerSourceManager(new LocalAudioSourceManager());
-						PlayerManager manager = PlayerManager
-								.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-						manager.getManager();
 						if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://"))) {
 							videoURL = "ytsearch:" + videoURL;
 						}
@@ -142,8 +144,9 @@ public class Events {
 									response.appendField("Duration: ", duration, false);
 									response.withAuthorName("YouTube");
 									response.withAuthorIcon("http://thiccbot.site/boticons/youtubeicon.png");
+									response.withColor(238, 36, 21);
 								}
-								event.getChannel().sendMessage(response.build());
+								RequestBuffer.request(() -> message.edit(response.build()));
 							}
 
 							@Override
@@ -170,8 +173,9 @@ public class Events {
 									response.appendField("Duration: ", duration, false);
 									response.withAuthorName("YouTube");
 									response.withAuthorIcon("http://thiccbot.site/boticons/youtubeicon.png");
+									response.withColor(238, 36, 21);
 								}
-								event.getChannel().sendMessage(response.build());
+								RequestBuffer.request(() -> message.edit(response.build()));
 							}
 
 							@Override
@@ -191,25 +195,13 @@ public class Events {
 					}
 				} catch (java.lang.StringIndexOutOfBoundsException e) {
 					event.getChannel().sendMessage("Play what?");
-				} catch (UnknownBindingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "leave")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					PlayerManager manager;
-					try {
-						manager = PlayerManager
-								.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-						manager.getManager();
-						Player player = manager.getPlayer(event.getGuild().getStringID());
-						player.stop();
-						event.getChannel().sendMessage("Leaving voice channel");
-					} catch (UnknownBindingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					Player player = manager.getPlayer(event.getGuild().getStringID());
+					player.stop();
+					event.getChannel().sendMessage("Leaving voice channel");
 					voiceChannel.leave();
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
@@ -217,18 +209,9 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "stop")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					PlayerManager manager;
-					try {
-						manager = PlayerManager
-								.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-						manager.getManager();
-						Player player = manager.getPlayer(event.getGuild().getStringID());
-						player.stop();
-						event.getChannel().sendMessage("Stopped the current track");
-					} catch (UnknownBindingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					Player player = manager.getPlayer(event.getGuild().getStringID());
+					player.stop();
+					event.getChannel().sendMessage("Stopped the current track");
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
 				}
@@ -236,21 +219,12 @@ public class Events {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
 					String volume = event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "volume ").length());
-					PlayerManager manager;
+					Player player = manager.getPlayer(event.getGuild().getStringID());
 					try {
-						manager = PlayerManager
-								.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-						manager.getManager();
-						Player player = manager.getPlayer(event.getGuild().getStringID());
-						try {
-						player.setVolume(Integer.parseInt(volume));
-						event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
-						} catch (java.lang.NumberFormatException e) {
-							event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
-						}
-					} catch (UnknownBindingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					player.setVolume(Integer.parseInt(volume));
+					event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
+					} catch (java.lang.NumberFormatException e) {
+						event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
 					}
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
@@ -263,6 +237,13 @@ public class Events {
 	public void onBotLogin(LoginEvent event) {
 		System.out.println("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
+		System.out.println(System.getProperty("user.dir"));
+		try {
+			manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
+		} catch (UnknownBindingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@EventSubscriber
