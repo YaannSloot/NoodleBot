@@ -25,13 +25,13 @@ public class THICCBotMain {
 		File logDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging");
 		if (!(logConfig.exists())) {
 			try {
-				logger.info("No log4j.properties file found. Creating new log4j.properties file");
+				System.out.println("No log4j.properties file found. Creating new log4j.properties file");
 				if (!(logDir.exists())) {
 					logDir.mkdirs();
-					logger.info("Created " + logDir.getAbsolutePath() + " directory successfully");
+					System.out.println("Created " + logDir.getAbsolutePath() + " directory successfully");
 				}
 				logConfig.createNewFile();
-				logger.info("Created log4j.properties file successfully");
+				System.out.println("Created log4j.properties file successfully");
 				try {
 					FileWriter fileWriter = new FileWriter(logConfig.getAbsolutePath());
 					fileWriter.write("log4j.rootLogger=INFO, STDOUT\n");
@@ -41,24 +41,24 @@ public class THICCBotMain {
 					fileWriter.write(
 							"log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\n");
 					fileWriter.close();
-					logger.info("Wrote default settings to log4j.properties file successfully");
+					System.out.println("Wrote default settings to log4j.properties file successfully");
 				} catch (IOException e) {
-					logger.error("Could not write to log4j.properties file");
+					System.out.println("ERROR: Could not write to log4j.properties file");
 				}
 			} catch (IOException e) {
-				logger.error("Could not create log4j.properties file");
+				System.out.println("ERROR: Could not create log4j.properties file");
 			}
 		}
 		String log4JPropertyFile = logConfig.getAbsolutePath();
 		Properties p = new Properties();
 
 		try {
-			logger.info("Loading log4j.properties file");
+			System.out.println("Loading log4j.properties file");
 			p.load(new FileInputStream(log4JPropertyFile));
 			PropertyConfigurator.configure(p);
 			logger.info("Successfully loaded log4j.properties file");
 		} catch (IOException e) {
-			logger.error("Could not set " + logConfig.getAbsolutePath() + " as properties file");
+			System.out.println("ERROR: Could not set " + logConfig.getAbsolutePath() + " as properties file");
 		}
 
 		String token = args[0];
