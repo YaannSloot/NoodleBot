@@ -58,7 +58,7 @@ public class Events {
 	private static final Logger logger = LoggerFactory.getLogger(Events.class);
 
 	@EventSubscriber
-	public void onMessageReceived(MessageReceivedEvent event) {
+	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
 			logger.info("Message recieved from: " + event.getAuthor().getName() + " server="
 					+ event.getGuild().getName() + " Content=\"" + event.getMessage() + "\"");
@@ -231,7 +231,7 @@ public class Events {
 	}
 
 	@EventSubscriber
-	public void onBotLogin(LoginEvent event) {
+	public void BotLoginEvent(LoginEvent event) {
 		logger.info("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
 		try {
@@ -269,7 +269,7 @@ public class Events {
 	}
 
 	@EventSubscriber
-	public void onJoinNewGuild(GuildCreateEvent event) {
+	public void GuildJoinEvent(GuildCreateEvent event) {
 		try {
 			if (!(knownGuildIds.contains(event.getGuild().getStringID()))) {
 				event.getGuild().getChannels().get(0).sendMessage(
@@ -292,7 +292,7 @@ public class Events {
 	}
 
 	@EventSubscriber
-	public void onLeaveGuild(GuildLeaveEvent event) {
+	public void GuildLeaveEvent(GuildLeaveEvent event) {
 		File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings"
 				+ BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
 		if (SettingDirectory.exists()) {
@@ -303,7 +303,7 @@ public class Events {
 	}
 
 	@EventSubscriber
-	public void onUserLeavesVoice(UserVoiceChannelLeaveEvent event) {
+	public void UserLeftVoiceEvent(UserVoiceChannelLeaveEvent event) {
 		try {
 			if (event.getGuild().getConnectedVoiceChannel().getStringID()
 					.equals(event.getVoiceChannel().getStringID())) {
@@ -323,7 +323,7 @@ public class Events {
 	}
 
 	@EventSubscriber
-	public void onUserMovesOutOfVoice(UserVoiceChannelMoveEvent event) {
+	public void UserMovedOutOfVoiceEvent(UserVoiceChannelMoveEvent event) {
 		try {
 			if (event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getOldChannel().getStringID())) {
 				logger.info("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')'
