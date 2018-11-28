@@ -1,7 +1,7 @@
 # THICCBot4Java
 
 ## Info
-𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that an upgrade was needed. This version of my bot is designed to run on minimal hardware power i.e. a raspberry pi. I mean try to run this on a computer from the early 2000s. It just might work.
+𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that an upgrade was needed. This version of my bot is designed to run on minimal hardware power, i.e. a raspberry pi.
 
 ## How to run the bot
 Requirements:
@@ -36,7 +36,7 @@ WolframAlpha Java API Documentation:
 
 ## TODO
 In no particular order
-* Get the bot playing music complete with volume control (Hopefully with lavaplayer)
+* Get the bot playing music complete with volume control (Youtube currently works, adding support for other links)
 * Integrate google and wikipedia into command functionality
 * Games? Maybe? IDK
 
