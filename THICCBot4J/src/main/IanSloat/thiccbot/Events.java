@@ -44,6 +44,7 @@ import main.IanSloat.thicbot.tools.WolframController;
 import main.IanSloat.thiccbot.THICCBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
 import sx.blah.discord.handle.audio.IAudioManager;
+import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
@@ -236,8 +237,13 @@ public class Events {
 	@EventSubscriber
 	public void onBotLogin(LoginEvent event) {
 		System.out.println("Logged in.");
+		for(IGuild guild : event.getClient().getGuilds()) {
+			File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings" + BotUtils.PATH_SEPARATOR + guild.getStringID());
+			SettingDirectory.mkdirs();
+			System.out.println("Settings directory added for guild " + guild.getStringID() + "at path " + SettingDirectory.getAbsolutePath());
+		}
+		System.out.println("Settings files located in " + System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
-		System.out.println(System.getProperty("user.dir"));
 		try {
 			manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
 		} catch (UnknownBindingException e) {
@@ -245,7 +251,22 @@ public class Events {
 			e.printStackTrace();
 		}
 	}
-
+	@EventSubscriber
+	public void onJoinNewGuild(GuildCreateEvent event) {
+		try {
+			event.getGuild().getChannels().get(0).sendMessage("Hello! Thanks for adding me to your server.\nFor a list of commands, type \"thicc help\"");
+			System.out.println("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getStringID() + ")");
+			File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings" + BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
+			if(SettingDirectory.exists()) {
+				SettingDirectory.delete();
+				SettingDirectory.mkdirs();
+			} else {
+				SettingDirectory.mkdirs();
+			}
+		} catch (sx.blah.discord.util.DiscordException e) {
+			
+		}
+	}
 	@EventSubscriber
 	public void onUserLeavesVoice(UserVoiceChannelLeaveEvent event) {
 		try {

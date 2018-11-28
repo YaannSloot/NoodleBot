@@ -10,7 +10,7 @@ class BotUtils {
 
     // Constants for use throughout the bot
     static String BOT_PREFIX = "thicc ";
-
+    static String PATH_SEPARATOR = System.getProperty("file.separator");
     // Handles the creation and getting of a IDiscordClient object for a token
     static IDiscordClient getBuiltDiscordClient(String token){
 
