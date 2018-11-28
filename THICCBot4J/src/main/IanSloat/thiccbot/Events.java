@@ -1,20 +1,10 @@
 package main.IanSloat.thiccbot;
 
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.util.audio.AudioPlayer;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.util.FileSystemUtils;
@@ -23,11 +13,9 @@ import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Player;
-import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.beam.BeamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
@@ -36,32 +24,30 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import main.IanSloat.thiccbot.THICCBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
+import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.WolframController;
-import sx.blah.discord.handle.audio.IAudioManager;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
 import sx.blah.discord.handle.impl.events.shard.LoginEvent;
 import sx.blah.discord.handle.obj.ActivityType;
-import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.EmbedBuilder;
-import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Events {
 
@@ -69,15 +55,15 @@ public class Events {
 	private PlayerManager manager;
 	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
 	private static List<String> knownGuildIds = new ArrayList<String>();
+	private final Logger logger = LoggerFactory.getLogger(Events.class);
 
 	@EventSubscriber
 	public void onMessageReceived(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
-
-			System.out.println("Message recieved from: " + event.getAuthor().getName() + " server="
+			logger.info("Message recieved from: " + event.getAuthor().getName() + " server="
 					+ event.getGuild().getName() + " Content=\"" + event.getMessage() + "\"");
 			if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping"))
-				BotUtils.sendMessage(event.getChannel(), "pong");
+				event.getChannel().sendMessage("Pong!");
 
 			else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "help")) {
 
@@ -88,12 +74,12 @@ public class Events {
 						+ "what <question> - Asks ThiccBot a question\n" + "info - Prints info about the bot\n\n"
 						+ "Reminder: the calling word \'thicc\' is not case sensitive\n"
 						+ "This is to accommodate for mobile users";
-				BotUtils.sendMessage(event.getChannel(), help);
+				event.getChannel().sendMessage(help);
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "die")) {
-				BotUtils.sendMessage(event.getChannel(), "no u");
+				event.getChannel().sendMessage("no u");
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
 					&& BotUtils.checkForWords(event.getMessage().getContent(), THICCBotMain.questionIDs, false, true)) {
-				System.out.println(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()));
+				logger.info(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()));
 				WolframController waClient = new WolframController(THICCBotMain.waAppID);
 				waClient.askQuestionAndSend(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()),
 						event.getChannel());
@@ -138,13 +124,13 @@ public class Events {
 						playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 							@Override
 							public void trackLoaded(AudioTrack track) {
-								System.out.println("we have vid");
+								logger.info("we have vid");
 								player.stop();
 								player.queue(track);
 								player.play();
 								EmbedBuilder response = new EmbedBuilder();
 								if (track.getSourceManager().getSourceName().equals("youtube")) {
-									System.out.println("Youtube is result");
+									logger.info("Youtube is result");
 									response.appendField("Now playing: ",
 											'[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
 									response.appendField("Uploaded by:", track.getInfo().author, true);
@@ -160,21 +146,21 @@ public class Events {
 
 							@Override
 							public void playlistLoaded(AudioPlaylist playlist) {
-								System.out.println("we have playlist");
+								logger.info("we have playlist");
 								player.stop();
 								if (!URI.startsWith("ytsearch:")) {
 									for (AudioTrack track : playlist.getTracks()) {
 										player.queue(track);
 									}
 								} else {
-									System.out.println("Was a search so only one track was loaded");
+									logger.info("Was a search so only one track was loaded");
 									player.queue(playlist.getTracks().get(0));
 								}
 								player.play();
 								EmbedBuilder response = new EmbedBuilder();
 								AudioTrack track = player.getPlayingTrack().getTrack();
 								if (track.getSourceManager().getSourceName().equals("youtube")) {
-									System.out.println("Youtube is result");
+									logger.info("Youtube is result");
 									response.appendField("Now playing: ",
 											'[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
 									response.appendField("Uploaded by:", track.getInfo().author, true);
@@ -191,13 +177,13 @@ public class Events {
 							@Override
 							public void noMatches() {
 								// Notify the user that we've got nothing
-								System.out.println("nothin");
+								logger.info("nothin");
 							}
 
 							@Override
 							public void loadFailed(FriendlyException throwable) {
 								// Notify the user that everything exploded
-								System.out.println("explosion");
+								logger.info("explosion");
 							}
 						});
 					} else {
@@ -246,7 +232,7 @@ public class Events {
 
 	@EventSubscriber
 	public void onBotLogin(LoginEvent event) {
-		System.out.println("Logged in.");
+		logger.info("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
 		try {
 			manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
@@ -257,7 +243,7 @@ public class Events {
 		class loadSettings extends Thread {
 			public void run() {
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -267,18 +253,18 @@ public class Events {
 							+ "guildSettings" + BotUtils.PATH_SEPARATOR + guild.getStringID());
 					if (!(SettingDirectory.exists())) {
 						SettingDirectory.mkdirs();
-						System.out.println("Settings directory added for guild " + guild.getStringID() + " at path "
+						logger.info("Settings directory added for guild:" + guild.getName() + "(id:" + guild.getStringID() + ") at path "
 								+ SettingDirectory.getAbsolutePath());
 					}
 				}
-				System.out.println("Settings files located in " + System.getProperty("user.dir")
+				logger.info("Settings files loaded successfully. Settings files located in " + System.getProperty("user.dir")
 						+ BotUtils.PATH_SEPARATOR + "guildSettings");
 				for (IGuild guild : event.getClient().getGuilds()) {
 					knownGuildIds.add(guild.getStringID());
 				}
 			}
 		}
-		System.out.println("Loading guild settings...");
+		logger.info("Loading guild settings...");
 		new loadSettings().run();
 	}
 
@@ -288,7 +274,7 @@ public class Events {
 			if (!(knownGuildIds.contains(event.getGuild().getStringID()))) {
 				event.getGuild().getChannels().get(0).sendMessage(
 						"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"thicc help\"");
-				System.out.println("Added to new guild. Guild: " + event.getGuild().getName() + "(id:"
+				logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:"
 						+ event.getGuild().getStringID() + ")");
 				File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR
 						+ "guildSettings" + BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
@@ -313,7 +299,7 @@ public class Events {
 			FileSystemUtils.deleteRecursively(SettingDirectory);
 		}
 		knownGuildIds.remove(event.getGuild().getStringID());
-		System.out.println("Removed from guild " + event.getGuild().getStringID() + ". Removed settings files");
+		logger.info("Removed from guild " + event.getGuild().getStringID() + ". Removed settings files");
 	}
 
 	@EventSubscriber
@@ -321,12 +307,12 @@ public class Events {
 		try {
 			if (event.getGuild().getConnectedVoiceChannel().getStringID()
 					.equals(event.getVoiceChannel().getStringID())) {
-				System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')'
+				logger.info("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')'
 						+ " disconnected from connected voice channel on guild \"" + event.getGuild().getName()
 						+ "\"(id:" + event.getGuild().getLongID() + "). Remaining users: "
 						+ (event.getVoiceChannel().getConnectedUsers().size() - 1));
 				if (event.getVoiceChannel().getConnectedUsers().size() == 1) {
-					System.out.println("No more users are currently connected. Auto-Leave countdown has been started.");
+					logger.info("No more users are currently connected. Auto-Leave countdown has been started.");
 					AutoLeaveCounter counter = new AutoLeaveCounter(event.getGuild().getConnectedVoiceChannel());
 					counter.start();
 					counters.add(counter);
@@ -340,12 +326,12 @@ public class Events {
 	public void onUserMovesOutOfVoice(UserVoiceChannelMoveEvent event) {
 		try {
 			if (event.getGuild().getConnectedVoiceChannel().getStringID().equals(event.getOldChannel().getStringID())) {
-				System.out.println("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')'
+				logger.info("User: " + event.getUser().getName() + "(id:" + event.getUser().getStringID() + ')'
 						+ " moved out of connected voice channel on guild \"" + event.getGuild().getName() + "\"(id:"
 						+ event.getGuild().getLongID() + "). Remaining users: "
 						+ (event.getOldChannel().getConnectedUsers().size() - 1));
 				if (event.getOldChannel().getConnectedUsers().size() == 1) {
-					System.out.println("No more users are currently connected. Auto-Leave countdown has been started.");
+					logger.info("No more users are currently connected. Auto-Leave countdown has been started.");
 					AutoLeaveCounter counter = new AutoLeaveCounter(event.getGuild().getConnectedVoiceChannel());
 					counter.start();
 					counters.add(counter);

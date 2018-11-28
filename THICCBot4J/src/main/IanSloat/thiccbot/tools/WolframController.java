@@ -5,22 +5,25 @@ import com.wolfram.alpha.WAPlainText;
 import com.wolfram.alpha.WAPod;
 import com.wolfram.alpha.WAQuery;
 import com.wolfram.alpha.WAQueryResult;
-import com.wolfram.alpha.WASubpod;
-import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WolframController {
 	
+	private final Logger logger = LoggerFactory.getLogger(WolframController.class);
 	private WAEngine engine = new WAEngine();
 	private String appID;
+	private String serverIP;
 	
 	public WolframController(String appID){
 		this.appID = appID;
 		engine.setAppID(this.appID);
 		engine.addFormat("plaintext");
+		serverIP = engine.getIP();
 	}
 	
 	public EmbedBuilder askQuestion(String question) {
@@ -40,7 +43,7 @@ public class WolframController {
                 response.withColor(255, 0, 0);
         	}
         	else {
-        		System.out.println("Response:");
+        		logger.info("Wolfram Controller successfully retrieved response");
                 for (WAPod pod : queryResult.getPods()) {
                     if (!pod.isError()) {
                     	Object queryPod = pod.getSubpods()[0].getContents()[0];
@@ -86,4 +89,9 @@ public class WolframController {
 		askingThread ask = new askingThread();
 		ask.start();
 	}
+	
+	public String getServerIP() {
+		return serverIP;
+	}
+	
 }

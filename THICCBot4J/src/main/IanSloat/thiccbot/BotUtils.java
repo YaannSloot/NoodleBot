@@ -1,82 +1,60 @@
 package main.IanSloat.thiccbot;
+
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.RateLimitException;
-import sx.blah.discord.util.RequestBuffer;
 
-class BotUtils {
+public class BotUtils {
 
-    // Constants for use throughout the bot
-    static String BOT_PREFIX = "thicc ";
-    static String PATH_SEPARATOR = System.getProperty("file.separator");
-    // Handles the creation and getting of a IDiscordClient object for a token
-    static IDiscordClient getBuiltDiscordClient(String token){
+	// Constants for use throughout the bot
+	public static String BOT_PREFIX = "thicc ";
+	public static String PATH_SEPARATOR = System.getProperty("file.separator");
 
-        // The ClientBuilder object is where you will attach your params for configuring the instance of your bot.
-        // Such as withToken, setDaemon etc
-        return new ClientBuilder()
-                .withToken(token)
-                .withRecommendedShardCount()
-                .build();
+	// Handles the creation and getting of a IDiscordClient object for a token
+	static IDiscordClient getBuiltDiscordClient(String token) {
 
-    }
+		// The ClientBuilder object is where you will attach your params for configuring
+		// the instance of your bot.
+		// Such as withToken, setDaemon etc
+		return new ClientBuilder().withToken(token).withRecommendedShardCount().build();
 
-    // Helper functions to make certain aspects of the bot easier to use.
-    static void sendMessage(IChannel channel, String message){
+	}
 
-        // This might look weird but it'll be explained in another page.
-        RequestBuffer.request(() -> {
-            try{
-                channel.sendMessage(message);
-            } catch (DiscordException e){
-                System.err.println("Message could not be sent with error: ");
-                e.printStackTrace();
-            }
-        });
+	// Helpful input processing methods
+	public static boolean checkForWords(String inputSentence, String[] Wordlist, boolean isCaseSensitive,
+			boolean insertSpaces) {
+		boolean isTrue = false;
+		if (!isCaseSensitive) {
+			inputSentence = inputSentence.toLowerCase();
+			for (int i = 0; i < Wordlist.length; i++)
+				Wordlist[i] = Wordlist[i].toLowerCase();
+		}
+		for (String word : Wordlist) {
+			if (insertSpaces)
+				word = " " + word + " ";
+			if (inputSentence.contains(word))
+				isTrue = true;
+		}
+		return isTrue;
+	}
 
-        /*
-        // The below example is written to demonstrate sending a message if you want to catch the RLE for logging purposes
-        RequestBuffer.request(() -> {
-            try{
-                channel.sendMessage(message);
-            } catch (RateLimitException e){
-                System.out.println("Do some logging");
-                throw e;
-            }
-        });
-        */
+	public static boolean checkForWords(String inputSentence, String[] Wordlist, boolean isCaseSensitive) {
+		boolean isTrue = false;
+		if (!isCaseSensitive) {
+			inputSentence = inputSentence.toLowerCase();
+			for (int i = 0; i < Wordlist.length; i++)
+				Wordlist[i] = Wordlist[i].toLowerCase();
+		}
+		for (String word : Wordlist)
+			if (inputSentence.contains(word))
+				isTrue = true;
+		return isTrue;
+	}
 
-    }
-    
-    static boolean checkForWords(String input, String[] list, boolean isCaseSensitive, boolean insertSpaces) {
-    	boolean isTrue = false;
-    	if(!isCaseSensitive) {
-    		input = input.toLowerCase();
-    		for(int i = 0; i < list.length; i++) list[i] = list[i].toLowerCase();
-    	}
-    	for(String word : list) {
-    		if(insertSpaces) word = " " + word + " ";
-    		if(input.contains(word)) isTrue = true;
-    	}
-    	return isTrue;
-    }
-    
-    static boolean checkForWords(String input, String[] list, boolean isCaseSensitive) {
-    	boolean isTrue = false;
-    	if(!isCaseSensitive) {
-    		input = input.toLowerCase();
-    		for(int i = 0; i < list.length; i++) list[i] = list[i].toLowerCase();
-    	}
-    	for(String word : list) if(input.contains(word)) isTrue = true;
-    	return isTrue;
-    }
-    
-    static boolean checkForWords(String input, String[] list) {
-    	boolean isTrue = false;
-    	for(String word : list) if(input.contains(word)) isTrue = true;
-    	return isTrue;
-    }
+	public static boolean checkForWords(String inputSentence, String[] Wordlist) {
+		boolean isTrue = false;
+		for (String word : Wordlist)
+			if (inputSentence.contains(word))
+				isTrue = true;
+		return isTrue;
+	}
 }
-
