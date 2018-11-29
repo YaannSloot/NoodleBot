@@ -22,7 +22,7 @@ Recommended hardware requirements:
 * Quad core processor
 * Java 8 or greater
 
-Remember that the hardware load has a potential to increase with each new guild that the bot is added to.
+Remember that the hardware load has a potential to increase with each new guild that the bot is added to. You should try running this bot on a dedicated machine if possible with an ethernet connection to your router to minimize latency
 
 ## Important links for contributors
 
