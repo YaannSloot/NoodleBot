@@ -144,11 +144,13 @@ public class Events {
 									}
 								} else {
 									logger.info("Was a search so only one track was loaded");
-									manager.getPlayer(event.getGuild().getStringID()).queue(playlist.getTracks().get(0));
+									manager.getPlayer(event.getGuild().getStringID())
+											.queue(playlist.getTracks().get(0));
 								}
 								manager.getPlayer(event.getGuild().getStringID()).play();
 								EmbedBuilder response = new EmbedBuilder();
-								AudioTrack track = manager.getPlayer(event.getGuild().getStringID()).getPlayingTrack().getTrack();
+								AudioTrack track = manager.getPlayer(event.getGuild().getStringID()).getPlayingTrack()
+										.getTrack();
 								if (track.getSourceManager().getSourceName().equals("youtube")) {
 									logger.info("Youtube is result");
 									response.appendField("Now playing: ",
