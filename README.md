@@ -18,7 +18,7 @@ Minimum hardware requirements:
 * A computer that can run the jar without crashing (If this happens your JRE might be too out of date)
 
 Recommended hardware requirements:
-* 4GB or more of ram
+* 4 GB or more of ram
 * Quad core processor
 * Java 8 or greater
 
