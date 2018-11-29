@@ -41,7 +41,7 @@ In no particular order
 * Games? Maybe? IDK
 
 Server-related
-* Proper logging
+* ~Proper logging~(done)
 * Proper exception handling
 
 General
