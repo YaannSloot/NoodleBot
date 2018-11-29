@@ -57,4 +57,24 @@ public class BotUtils {
 				isTrue = true;
 		return isTrue;
 	}
+
+	public static String normalizeSentence(String input) {
+		String output = "";
+		if (input.length() != 0) {
+			input = input.trim();
+			char previousChar = input.charAt(0);
+			for (char c : input.toCharArray()) {
+				if (previousChar == ' ') {
+					if (c != previousChar) {
+						output += c;
+					}
+				} else {
+					output += c;
+				}
+				previousChar = c;
+			}
+		}
+		return output;
+	}
+
 }

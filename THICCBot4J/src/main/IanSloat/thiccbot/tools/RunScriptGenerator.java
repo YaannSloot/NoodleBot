@@ -32,15 +32,10 @@ public class RunScriptGenerator {
 				script.setExecutable(true);
 				try {
 					FileWriter fileWriter = new FileWriter(script);
-					if(makeBat == true) {
-						fileWriter.write("cls\n");
-						fileWriter.write("@echo off\n");
-						fileWriter.write("echo Starting bot...\n");
-						fileWriter.write("java -jar thiccbot.jar");
+					if (makeBat == true) {
+						fileWriter.write("cls\r\n@echo off\r\necho Starting bot...\r\njava -jar thiccbot.jar");
 					} else {
-						fileWriter.write("#!/bin/bash\n");
-						fileWriter.write("echo \"Starting bot...\"\n");
-						fileWriter.write("java -jar thiccbot.jar");
+						fileWriter.write("#!/bin/bash\r\necho \"Starting bot...\"\r\njava -jar thiccbot.jar");
 					}
 					fileWriter.close();
 					System.exit(0);

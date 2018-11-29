@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Scanner;
 
 import org.apache.log4j.PropertyConfigurator;
 
@@ -39,12 +40,12 @@ public class ThiccBotMain {
 				System.out.println("Created log4j.properties file successfully");
 				try {
 					FileWriter fileWriter = new FileWriter(logConfig);
-					fileWriter.write("log4j.rootLogger=INFO, STDOUT\n");
-					fileWriter.write("log4j.logger.deng=ERROR\n");
-					fileWriter.write("log4j.appender.STDOUT=org.apache.log4j.ConsoleAppender\n");
-					fileWriter.write("log4j.appender.STDOUT.layout=org.apache.log4j.PatternLayout\n");
+					fileWriter.write("log4j.rootLogger=INFO, STDOUT\r\n");
+					fileWriter.write("log4j.logger.deng=ERROR\r\n");
+					fileWriter.write("log4j.appender.STDOUT=org.apache.log4j.ConsoleAppender\r\n");
+					fileWriter.write("log4j.appender.STDOUT.layout=org.apache.log4j.PatternLayout\r\n");
 					fileWriter.write(
-							"log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\n");
+							"log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\r\n");
 					fileWriter.close();
 					System.out.println("Wrote default settings to log4j.properties file successfully");
 				} catch (IOException e) {
@@ -85,6 +86,23 @@ public class ThiccBotMain {
 
 		client.login();
 
+		Scanner readLine = new Scanner(System.in);
+		
+		String command = "";
+		
+		while(!(command.equals("shutdown"))) {
+			try {
+			command = readLine.nextLine();
+			} catch (java.util.NoSuchElementException e) {}
+			
+		}
+		
+		logger.info("Bot is shutting down...");
+		
+		readLine.close();
+		
+		System.exit(0);
+		
 	}
 
 }

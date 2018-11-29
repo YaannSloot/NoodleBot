@@ -29,6 +29,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
+import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
@@ -58,8 +59,8 @@ public class Events {
 	@EventSubscriber
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
-			logger.info("Message recieved from: " + event.getAuthor().getName() + " server="
-					+ event.getGuild().getName() + " Content=\"" + event.getMessage() + "\"");
+			logger.info("Message recieved from: " + event.getAuthor().getName() + ", server="
+					+ event.getGuild().getName() + ", Content=\"" + event.getMessage() + "\"");
 			if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping"))
 				event.getChannel().sendMessage("Pong!");
 
@@ -69,7 +70,10 @@ public class Events {
 						+ "play <video> - Plays a youtube video. You can enter the video name or the video URL\n"
 						+ "volume <0-150> - Changes the volume of the video thats playing. Volume ranges from 0-150\n"
 						+ "stop - Stops the current playing video\n" + "leave - Leaves the voice chat\n"
-						+ "what <question> - Asks ThiccBot a question\n" + "info - Prints info about the bot\n\n"
+						+ "what, how, why, etc. <question> - Asks ThiccBot a question\n" 
+						+ "settings/list settings - Lists the current personalized settings for this server\n"
+						+ "set <setting> - Sets a new value for one of this servers settings\n"
+						+ "info - Prints info about the bot\n\n"
 						+ "Reminder: the calling word \'thicc\' is not case sensitive\n"
 						+ "This is to accommodate for mobile users";
 				event.getChannel().sendMessage(help);
@@ -89,8 +93,8 @@ public class Events {
 									+ ThiccBotMain.locator.getRegion() + ", " + ThiccBotMain.locator.getCountry(),
 							false);
 				response.appendField("Powered by", "Java", false);
-				response.appendField("Bot Version", "thiccbot-v0.7alpha", false);
-				response.appendField("Status", "Currently being fixed up. May need more duct tape", false);
+				response.appendField("Bot Version", "thiccbot-v0.8alpha", false);
+				response.appendField("Status", "Getting close to v1.0 alpha, just not quite there yet", false);
 				response.appendField("Current shard count", event.getClient().getShardCount() + " Shards active",
 						false);
 				response.appendField("Current amount of threads running on server",
@@ -112,6 +116,10 @@ public class Events {
 						if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://"))) {
 							videoURL = "ytsearch:" + videoURL;
 						}
+						GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+						if(setMgr.GetSetting("volume").equals(""))
+							setMgr.SetSetting("volume", "100");
+						manager.getPlayer(event.getGuild().getStringID()).setVolume(Integer.parseInt(setMgr.GetSetting("volume")));
 						final String URI = videoURL;
 						playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 							@Override
@@ -217,6 +225,60 @@ public class Events {
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
 				}
+			} else if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "list settings")
+					|| event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "settings")) {
+				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+				if (setMgr.GetSetting("volume").equals("")) {
+					setMgr.SetSetting("volume", "100");
+				}
+				EmbedBuilder response = new EmbedBuilder();
+				response.withColor(0, 200, 0);
+				response.withTitle("Settings | " + event.getGuild().getName());
+				response.appendField("Voice channel settings", "Default volume = " + setMgr.GetSetting("volume"),
+						false);
+				RequestBuffer.request(() -> event.getChannel().sendMessage(response.build()));
+			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "set ")) {
+				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+				String command = BotUtils.normalizeSentence(
+						event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "set").length()));
+				String[] words = command.split(" ");
+				if (command.toLowerCase().startsWith("default volume ") || words[0].equals("volume")
+						|| command.toLowerCase().startsWith("default volume to ")
+						|| command.toLowerCase().startsWith("volume to ")) {
+					try {
+						int value;
+						if (command.toLowerCase().startsWith("default volume ")
+								|| command.toLowerCase().startsWith("volume to ")) {
+							value = Integer.parseInt(words[2]);
+						} else if (command.toLowerCase().startsWith("default volume to ")) {
+							value = Integer.parseInt(words[3]);
+						} else {
+							value = Integer.parseInt(words[1]);
+						}
+						setMgr.SetSetting("volume", Integer.toString(value));
+						event.getChannel().sendMessage("Changed default volume to " + value);
+					} catch (NumberFormatException e) {
+						event.getChannel().sendMessage("The value provided is not valid for that setting");
+					}
+				} else {
+					event.getChannel().sendMessage("That is not a valid setting");
+				}
+			}
+
+			else {
+				int random = (int) (Math.random() * 5 + 1);
+				if (random == 1) {
+					event.getChannel().sendMessage("What?");
+				} else if (random == 2) {
+					event.getChannel().sendMessage("What are you saying?");
+				} else if (random == 3) {
+					event.getChannel().sendMessage("What language is that?");
+				} else if (random == 4) {
+					event.getChannel().sendMessage("Are you ok?");
+				} else {
+					event.getChannel().sendMessage("What you're saying makes no sense.");
+				}
+				logger.info("Message did not match any commands");
 			}
 		}
 	}
@@ -248,17 +310,9 @@ public class Events {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				for (IGuild guild : event.getClient().getGuilds()) {
-					File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR
-							+ "guildSettings" + BotUtils.PATH_SEPARATOR + guild.getStringID());
-					if (!(SettingDirectory.exists())) {
-						SettingDirectory.mkdirs();
-						logger.info("Settings directory added for guild:" + guild.getName() + "(id:"
-								+ guild.getStringID() + ") at path " + SettingDirectory.getAbsolutePath());
-					}
-				}
+				GuildSettingsManager.CreateSettingsDirectoriesForGuilds(event.getClient().getGuilds());
 				logger.info("Settings files loaded successfully. Settings files located in "
-						+ System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings");
+						+ System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "GuildSettings");
 				for (IGuild guild : event.getClient().getGuilds()) {
 					knownGuildIds.add(guild.getStringID());
 				}
@@ -276,14 +330,8 @@ public class Events {
 						"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"thicc help\"");
 				logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:"
 						+ event.getGuild().getStringID() + ")");
-				File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR
-						+ "guildSettings" + BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
-				if (SettingDirectory.exists()) {
-					SettingDirectory.delete();
-					SettingDirectory.mkdirs();
-				} else {
-					SettingDirectory.mkdirs();
-				}
+				GuildSettingsManager sManager = new GuildSettingsManager(event.getGuild());
+				sManager.CreateSettings();
 				knownGuildIds.add(event.getGuild().getStringID());
 			}
 		} catch (sx.blah.discord.util.DiscordException e) {
@@ -293,12 +341,9 @@ public class Events {
 
 	@EventSubscriber
 	public void GuildLeaveEvent(GuildLeaveEvent event) {
-		File SettingDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "guildSettings"
-				+ BotUtils.PATH_SEPARATOR + event.getGuild().getStringID());
-		if (SettingDirectory.exists()) {
-			FileSystemUtils.deleteRecursively(SettingDirectory);
-		}
 		knownGuildIds.remove(event.getGuild().getStringID());
+		GuildSettingsManager sManager = new GuildSettingsManager(event.getGuild());
+		sManager.RemoveSettings();
 		logger.info("Removed from guild " + event.getGuild().getStringID() + ". Removed settings files");
 	}
 

@@ -16,7 +16,7 @@ import main.IanSloat.thiccbot.BotUtils;
 public class MainConfigEditor {
 
 	private File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
-			+ BotUtils.PATH_SEPARATOR + "settings.cfg");
+			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	private static final Logger logger = LoggerFactory.getLogger(MainConfigEditor.class);
 
@@ -55,9 +55,7 @@ public class MainConfigEditor {
 				ip = "ip=" + ip;
 				try {
 					FileWriter fileWriter = new FileWriter(configFile);
-					fileWriter.write(token + '\n');
-					fileWriter.write(appID + '\n');
-					fileWriter.write(ip);
+					fileWriter.write(token + "\r\n" + appID + "\r\n" + ip);
 					fileWriter.close();
 					System.out.println("Done.");
 				} catch (IOException e) {
@@ -78,9 +76,11 @@ public class MainConfigEditor {
 			int ch;
 			String line = "";
 			while ((ch = fileReader.read()) != -1) {
-				if ((char) ch == '\n') {
-					lines.add(line);
-					line = "";
+				if ((char) ch == '\n' || (char) ch == '\r') {
+					if (!(line.equals(""))) {
+						lines.add(line);
+						line = "";
+					}
 				} else {
 					line += (char) ch;
 				}
@@ -92,18 +92,18 @@ public class MainConfigEditor {
 		} catch (FileNotFoundException e) {
 			logger.error("Could find config file");
 		} catch (IOException e) {
-			logger.error("Could not read token from config file");
+			logger.error("Could not read settings from config file");
 		}
 		return lines;
 	}
-	
+
 	private void writeSettings(ArrayList<String> settings) {
 		try {
 			configFile.delete();
 			configFile.createNewFile();
 			FileWriter fileWriter = new FileWriter(configFile);
-			for(String line : settings) {
-				fileWriter.write(line + '\n');
+			for (String line : settings) {
+				fileWriter.write(line + "\r\n");
 			}
 			fileWriter.close();
 		} catch (IOException e) {
@@ -113,38 +113,38 @@ public class MainConfigEditor {
 
 	public String getToken() {
 		String token = null;
-		for(String line : getConfigFileLines()) {
-			if(line.contains("token=")) {
+		for (String line : getConfigFileLines()) {
+			if (line.contains("token=")) {
 				token = line.replace("token=", "");
 			}
 		}
 		return token;
 	}
-	
+
 	public String getAppID() {
 		String appID = null;
-		for(String line : getConfigFileLines()) {
-			if(line.contains("appid=")) {
+		for (String line : getConfigFileLines()) {
+			if (line.contains("appid=")) {
 				appID = line.replace("appid=", "");
 			}
 		}
 		return appID;
 	}
-	
+
 	public String getIP() {
 		String ip = null;
-		for(String line : getConfigFileLines()) {
-			if(line.contains("ip=")) {
+		for (String line : getConfigFileLines()) {
+			if (line.contains("ip=")) {
 				ip = line.replace("ip=", "");
 			}
 		}
 		return ip;
 	}
-	
+
 	public void setToken(String newToken) {
 		ArrayList<String> settings = getConfigFileLines();
-		for(int i = 0; i < settings.size(); i++) {
-			if(settings.get(i).contains("token=")) {
+		for (int i = 0; i < settings.size(); i++) {
+			if (settings.get(i).contains("token=")) {
 				settings.remove(i);
 				settings.add(i, "token=" + newToken);
 				break;
@@ -152,11 +152,11 @@ public class MainConfigEditor {
 		}
 		writeSettings(settings);
 	}
-	
+
 	public void setAppID(String newAppID) {
 		ArrayList<String> settings = getConfigFileLines();
-		for(int i = 0; i < settings.size(); i++) {
-			if(settings.get(i).contains("appid=")) {
+		for (int i = 0; i < settings.size(); i++) {
+			if (settings.get(i).contains("appid=")) {
 				settings.remove(i);
 				settings.add(i, "appid=" + newAppID);
 				break;
@@ -164,11 +164,11 @@ public class MainConfigEditor {
 		}
 		writeSettings(settings);
 	}
-	
+
 	public void setIP(String newIP) {
 		ArrayList<String> settings = getConfigFileLines();
-		for(int i = 0; i < settings.size(); i++) {
-			if(settings.get(i).contains("ip=")) {
+		for (int i = 0; i < settings.size(); i++) {
+			if (settings.get(i).contains("ip=")) {
 				settings.remove(i);
 				settings.add(i, "ip=" + newIP);
 				break;
@@ -178,9 +178,9 @@ public class MainConfigEditor {
 	}
 
 	public void printCfgFile() {
-		for(String line : getConfigFileLines()) {
+		for (String line : getConfigFileLines()) {
 			System.out.println(": " + line);
 		}
 	}
-	
+
 }
