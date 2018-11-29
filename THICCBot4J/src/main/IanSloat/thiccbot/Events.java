@@ -107,27 +107,17 @@ public class Events {
 						thinkingMsg.withTitle("Loading audio...");
 						thinkingMsg.withColor(192, 255, 0);
 						IMessage message = event.getChannel().sendMessage(thinkingMsg.build());
-						playerManager = new DefaultAudioPlayerManager();
-						playerManager.registerSourceManager(new YoutubeAudioSourceManager());
-						playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
-						playerManager.registerSourceManager(new BandcampAudioSourceManager());
-						playerManager.registerSourceManager(new VimeoAudioSourceManager());
-						playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
-						playerManager.registerSourceManager(new BeamAudioSourceManager());
-						playerManager.registerSourceManager(new HttpAudioSourceManager());
-						playerManager.registerSourceManager(new LocalAudioSourceManager());
 						if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://"))) {
 							videoURL = "ytsearch:" + videoURL;
 						}
-						Player player = manager.getPlayer(event.getGuild().getStringID());
 						final String URI = videoURL;
 						playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 							@Override
 							public void trackLoaded(AudioTrack track) {
 								logger.info("we have vid");
-								player.stop();
-								player.queue(track);
-								player.play();
+								manager.getPlayer(event.getGuild().getStringID()).stop();
+								manager.getPlayer(event.getGuild().getStringID()).queue(track);
+								manager.getPlayer(event.getGuild().getStringID()).play();
 								EmbedBuilder response = new EmbedBuilder();
 								if (track.getSourceManager().getSourceName().equals("youtube")) {
 									logger.info("Youtube is result");
@@ -147,18 +137,18 @@ public class Events {
 							@Override
 							public void playlistLoaded(AudioPlaylist playlist) {
 								logger.info("we have playlist");
-								player.stop();
+								manager.getPlayer(event.getGuild().getStringID()).stop();
 								if (!URI.startsWith("ytsearch:")) {
 									for (AudioTrack track : playlist.getTracks()) {
-										player.queue(track);
+										manager.getPlayer(event.getGuild().getStringID()).queue(track);
 									}
 								} else {
 									logger.info("Was a search so only one track was loaded");
-									player.queue(playlist.getTracks().get(0));
+									manager.getPlayer(event.getGuild().getStringID()).queue(playlist.getTracks().get(0));
 								}
-								player.play();
+								manager.getPlayer(event.getGuild().getStringID()).play();
 								EmbedBuilder response = new EmbedBuilder();
-								AudioTrack track = player.getPlayingTrack().getTrack();
+								AudioTrack track = manager.getPlayer(event.getGuild().getStringID()).getPlayingTrack().getTrack();
 								if (track.getSourceManager().getSourceName().equals("youtube")) {
 									logger.info("Youtube is result");
 									response.appendField("Now playing: ",
@@ -195,8 +185,7 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "leave")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					Player player = manager.getPlayer(event.getGuild().getStringID());
-					player.stop();
+					manager.getPlayer(event.getGuild().getStringID()).stop();
 					event.getChannel().sendMessage("Leaving voice channel");
 					voiceChannel.leave();
 				} else {
@@ -205,8 +194,7 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "stop")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					Player player = manager.getPlayer(event.getGuild().getStringID());
-					player.stop();
+					manager.getPlayer(event.getGuild().getStringID()).stop();
 					event.getChannel().sendMessage("Stopped the current track");
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
@@ -216,9 +204,8 @@ public class Events {
 				if (voiceChannel != null) {
 					String volume = event.getMessage().getContent()
 							.substring((BotUtils.BOT_PREFIX + "volume ").length());
-					Player player = manager.getPlayer(event.getGuild().getStringID());
 					try {
-						player.setVolume(Integer.parseInt(volume));
+						manager.getPlayer(event.getGuild().getStringID()).setVolume(Integer.parseInt(volume));
 						event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
 					} catch (java.lang.NumberFormatException e) {
 						event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
@@ -235,6 +222,15 @@ public class Events {
 		logger.info("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
 		try {
+			playerManager = new DefaultAudioPlayerManager();
+			playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+			playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
+			playerManager.registerSourceManager(new BandcampAudioSourceManager());
+			playerManager.registerSourceManager(new VimeoAudioSourceManager());
+			playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
+			playerManager.registerSourceManager(new BeamAudioSourceManager());
+			playerManager.registerSourceManager(new HttpAudioSourceManager());
+			playerManager.registerSourceManager(new LocalAudioSourceManager());
 			manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
 		} catch (UnknownBindingException e) {
 			// TODO Auto-generated catch block
