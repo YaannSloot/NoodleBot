@@ -27,7 +27,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-import main.IanSloat.thiccbot.THICCBotMain;
+import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
@@ -76,17 +76,17 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "die")) {
 				event.getChannel().sendMessage("no u");
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
-					&& BotUtils.checkForWords(event.getMessage().getContent(), THICCBotMain.questionIDs, false, true)) {
+					&& BotUtils.checkForWords(event.getMessage().getContent(), ThiccBotMain.questionIDs, false, true)) {
 				logger.info(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()));
-				WolframController waClient = new WolframController(THICCBotMain.waAppID);
+				WolframController waClient = new WolframController(ThiccBotMain.waAppID);
 				waClient.askQuestionAndSend(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()),
 						event.getChannel());
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "info")) {
 				EmbedBuilder response = new EmbedBuilder();
-				if (!(THICCBotMain.locator.getIPAddress().equals("")))
+				if (!(ThiccBotMain.locator.getIPAddress().equals("")))
 					response.appendField(
-							"Current server location", THICCBotMain.locator.getCity() + ", "
-									+ THICCBotMain.locator.getRegion() + ", " + THICCBotMain.locator.getCountry(),
+							"Current server location", ThiccBotMain.locator.getCity() + ", "
+									+ ThiccBotMain.locator.getRegion() + ", " + ThiccBotMain.locator.getCountry(),
 							false);
 				response.appendField("Powered by", "Java", false);
 				response.appendField("Bot Version", "thiccbot-v0.7alpha", false);

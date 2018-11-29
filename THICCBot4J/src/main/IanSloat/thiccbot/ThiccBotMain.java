@@ -16,11 +16,11 @@ import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.MainConfigEditor;
 import main.IanSloat.thiccbot.tools.RunScriptGenerator;
 
-public class THICCBotMain {
+public class ThiccBotMain {
 
 	static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
 	static String waAppID;
-	private static final Logger logger = LoggerFactory.getLogger(THICCBotMain.class);
+	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	static GeoLocator locator;
 
 	public static void main(String[] args) {
