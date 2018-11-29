@@ -35,24 +35,25 @@ WolframAlpha Java API Documentation:
 [Javadoc](https://products.wolframalpha.com/api/libraries/java/)
 
 ## Change log
+```
 * v0.6alpha  
-  – Bot works. Basic functionality i.e. receiving/sending messages has been fully implemented  
+  –  Bot works. Basic functionality i.e. receiving/sending messages has been fully implemented  
 * v0.7alpha  
-  – Lavaplayer finally implemented after fixing a dependency issue.  
-  – Converted project to maven project  
-  – YouTube music playing has been implemented  
-  – Added log4j logging via slf4j  
+  –  Lavaplayer finally implemented after fixing a dependency issue.  
+  –  Converted project to maven project  
+  –  YouTube music playing has been implemented  
+  –  Added log4j logging via slf4j  
  * v0.8alpha  
-  – Changed how the bot retrieves required information for launch  
-  – Implemented bot launch settings being retrieved from a launch file. Currently the things stored are:  
-    – The bots token  
-    – The Wolfram Alpha API App ID  
-    – The local machines public ip(optional)  
-  – Added the bot setup wizard. Runs on first time startup or if the save file was deleted  
-  – Made it so that the bot generates a .sh or .bat run file automatically after it is executed for the first time  
-  – Added Guild settings. Guilds now have individual save files and settings files saved within their own settings directory  
-  – Added the default volume setting to the guild settings list  
-
+  –  Changed how the bot retrieves required information for launch  
+  –  Implemented bot launch settings being retrieved from a launch file. Currently the things stored are:  
+    –  The bots token  
+    –  The Wolfram Alpha API App ID  
+    –  The local machines public ip(optional)  
+  –  Added the bot setup wizard. Runs on first time startup or if the save file was deleted  
+  –  Bot now generates a .sh or .bat run file automatically after it is executed for the first time  
+  –  Guilds now have individual save files and settings files saved within their own settings directory  
+  –  Added the default volume setting to the guild settings list  
+```
 ## TODO
 In no particular order
 * Get the bot playing music complete with volume control (Youtube currently works, adding support for other links)
