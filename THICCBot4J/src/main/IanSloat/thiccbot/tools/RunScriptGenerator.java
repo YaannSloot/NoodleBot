@@ -38,7 +38,7 @@ public class RunScriptGenerator {
 						fileWriter.write("echo Starting bot...\n");
 						fileWriter.write("java -jar thiccbot.jar");
 					} else {
-						fileWriter.write("#!/bin/bash");
+						fileWriter.write("#!/bin/bash\n");
 						fileWriter.write("echo \"Starting bot...\"\n");
 						fileWriter.write("java -jar thiccbot.jar");
 					}
