@@ -12,6 +12,9 @@ import sx.blah.discord.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.thiccbot.tools.MainConfigEditor;
+import main.IanSloat.thiccbot.tools.RunScriptGenerator;
+
 public class THICCBotMain {
 
 	static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
@@ -33,7 +36,7 @@ public class THICCBotMain {
 				logConfig.createNewFile();
 				System.out.println("Created log4j.properties file successfully");
 				try {
-					FileWriter fileWriter = new FileWriter(logConfig.getAbsolutePath());
+					FileWriter fileWriter = new FileWriter(logConfig);
 					fileWriter.write("log4j.rootLogger=INFO, STDOUT\n");
 					fileWriter.write("log4j.logger.deng=ERROR\n");
 					fileWriter.write("log4j.appender.STDOUT=org.apache.log4j.ConsoleAppender\n");
@@ -60,15 +63,20 @@ public class THICCBotMain {
 		} catch (IOException e) {
 			System.out.println("ERROR: Could not set " + logConfig.getAbsolutePath() + " as properties file");
 		}
+		
+		RunScriptGenerator scriptGen = new RunScriptGenerator();
+		scriptGen.generate();
 
-		String token = args[0];
+		MainConfigEditor cfgEdit = new MainConfigEditor();
+		
+		String token = cfgEdit.getToken();
 
-		waAppID = args[1];
+		waAppID = cfgEdit.getAppID();
 
 		IDiscordClient client;
 
 		client = BotUtils.getBuiltDiscordClient(token);
-
+		
 		client.getDispatcher().registerListener(new Events());
 
 		client.login();

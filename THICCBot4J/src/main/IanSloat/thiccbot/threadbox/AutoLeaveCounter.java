@@ -19,7 +19,6 @@ public class AutoLeaveCounter extends Thread{
 			e.printStackTrace();
 		}
 	}
-	
 	public AutoLeaveCounter(IVoiceChannel voiceChannel) {
 		this.voiceChannel = voiceChannel;
 	}
