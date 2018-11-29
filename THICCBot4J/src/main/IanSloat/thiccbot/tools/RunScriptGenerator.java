@@ -36,11 +36,11 @@ public class RunScriptGenerator {
 						fileWriter.write("cls\n");
 						fileWriter.write("@echo off\n");
 						fileWriter.write("echo Starting bot...\n");
-						fileWriter.write("java --illegal-access=deny -jar thiccbot.jar");
+						fileWriter.write("java -jar thiccbot.jar");
 					} else {
 						fileWriter.write("#!/bin/bash");
 						fileWriter.write("echo \"Starting bot...\"\n");
-						fileWriter.write("java --illegal-access=deny -jar thiccbot.jar");
+						fileWriter.write("java -jar thiccbot.jar");
 					}
 					fileWriter.close();
 					System.exit(0);
