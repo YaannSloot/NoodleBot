@@ -13,14 +13,16 @@ Requirements:
 
 Minimum hardware requirements:
 * An internet connection
-* 256MB of ram
+* 1 GB of ram
 * A computer that actually runs java
 * A computer that can run the jar without crashing (If this happens your JRE might be too out of date)
 
 Recommended hardware requirements:
-* 1GB or more of ram
-* A processor with more than one core (Helps with some minor multithreading)
+* 4GB or more of ram
+* Quad core processor
 * Java 8 or greater
+
+Remember that the hardware load has a potential to increase with each new guild that the bot is added to.
 
 ## Important links for contributors
 
