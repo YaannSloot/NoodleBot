@@ -12,6 +12,7 @@ import sx.blah.discord.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.MainConfigEditor;
 import main.IanSloat.thiccbot.tools.RunScriptGenerator;
 
@@ -20,6 +21,7 @@ public class THICCBotMain {
 	static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
 	static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(THICCBotMain.class);
+	static GeoLocator locator;
 
 	public static void main(String[] args) {
 
@@ -72,6 +74,8 @@ public class THICCBotMain {
 		String token = cfgEdit.getToken();
 
 		waAppID = cfgEdit.getAppID();
+		
+		locator = new GeoLocator(cfgEdit.getIP());
 
 		IDiscordClient client;
 

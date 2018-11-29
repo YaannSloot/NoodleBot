@@ -12,7 +12,6 @@ import org.springframework.util.FileSystemUtils;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
-import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -30,7 +29,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import main.IanSloat.thiccbot.THICCBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
-import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
@@ -85,9 +83,13 @@ public class Events {
 						event.getChannel());
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "info")) {
 				EmbedBuilder response = new EmbedBuilder();
-				response.appendField("Current server location", "University of Illinois at Urbana-Champaign", false);
+				if (!(THICCBotMain.locator.getIPAddress().equals("")))
+					response.appendField(
+							"Current server location", THICCBotMain.locator.getCity() + ", "
+									+ THICCBotMain.locator.getRegion() + ", " + THICCBotMain.locator.getCountry(),
+							false);
 				response.appendField("Powered by", "Java", false);
-				response.appendField("Bot Version", "v0.7alpha", false);
+				response.appendField("Bot Version", "thiccbot-v0.7alpha", false);
 				response.appendField("Status", "Currently being fixed up. May need more duct tape", false);
 				response.appendField("Current shard count", event.getClient().getShardCount() + " Shards active",
 						false);
