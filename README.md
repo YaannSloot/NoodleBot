@@ -49,7 +49,7 @@ WolframAlpha Java API Documentation:
     – The Wolfram Alpha API App ID  
     – The local machines public ip(optional)  
   – Added the bot setup wizard. Runs on first time startup or if the save file was deleted  
-  – Made it so that the bot generates a .sh or .bat file automatically so that it can be run properly after it is executed for the first time  
+  – Made it so that the bot generates a .sh or .bat run file automatically after it is executed for the first time  
   – Added Guild settings. Guilds now have individual save files and settings files saved within their own settings directory
   – Added the default volume setting to the guild settings list
 
