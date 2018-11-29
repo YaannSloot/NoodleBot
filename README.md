@@ -1,4 +1,4 @@
-# THICCBot4Java
+# ThiccBot4Java
 
 ## Info
 𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that an upgrade was needed. This version of my bot is designed to run on minimal hardware power, i.e. a raspberry pi.
@@ -9,9 +9,7 @@ Requirements:
 * A WolframAlphaAPI AppID
 * Java JRE or JDK
 
-To run the bot, enter this command in a bash shell or windows cmd
-
-```java -jar <path to bot jar file> <bot token> <wolfram app id>```
+To run the bot, open the jarfile located inside this repository. A .sh or .bat file will be created automatically, and you can then open that file and follow the instructions printed in the command shell. The rest is pretty self-explanatory
 
 Minimum hardware requirements:
 * An internet connection
