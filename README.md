@@ -35,14 +35,14 @@ WolframAlpha Java API Documentation:
 [Javadoc](https://products.wolframalpha.com/api/libraries/java/)
 
 ## Changes
-* v0.6alpha
+* v0.6alpha  
   – Bot works. Basic functionality i.e. receiving/sending messages has been fully implemented  
-* v0.7alpha
+* v0.7alpha  
   – Lavaplayer finally implemented after fixing a dependency issue.  
   – Converted project to maven project  
   – YouTube music playing has been implemented  
   – Added log4j logging via slf4j  
- * v0.8alpha
+ * v0.8alpha  
   – Changed how the bot retrieves required information for launch  
   – Implemented bot launch settings being retrieved from a launch file. Currently the things stored are:  
     – The bots token  
