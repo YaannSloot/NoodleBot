@@ -24,7 +24,7 @@ Recommended hardware requirements:
 
 Remember that the hardware load has a potential to increase with each new guild that the bot is added to. You should try running this bot on a dedicated machine if possible, with an ethernet connection to your router to minimize latency
 
-## Important links for contributors
+## Important links for those wanting to modify source code
 
 Discord4J Documentation:
 
