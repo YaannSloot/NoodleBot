@@ -34,7 +34,7 @@ WolframAlpha Java API Documentation:
 
 [Javadoc](https://products.wolframalpha.com/api/libraries/java/)
 
-## Changes
+## Change log
 * v0.6alpha  
   – Bot works. Basic functionality i.e. receiving/sending messages has been fully implemented  
 * v0.7alpha  
