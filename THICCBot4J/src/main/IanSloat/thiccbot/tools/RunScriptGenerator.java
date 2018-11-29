@@ -43,11 +43,12 @@ public class RunScriptGenerator {
 						fileWriter.write("java --illegal-access=deny -jar thiccbot.jar");
 					}
 					fileWriter.close();
+					System.exit(0);
 				} catch (IOException e) {
-					logger.error("Could not write to new runfile");
+					System.exit(0);
 				}
 			} catch (IOException e) {
-				logger.error("Could not create runfile " + script.getName());
+				System.exit(0);
 			}
 		} else {
 			logger.info("Run script already exists so no new files were created");

@@ -66,7 +66,7 @@ public class THICCBotMain {
 		
 		RunScriptGenerator scriptGen = new RunScriptGenerator();
 		scriptGen.generate();
-
+		
 		MainConfigEditor cfgEdit = new MainConfigEditor();
 		
 		String token = cfgEdit.getToken();
