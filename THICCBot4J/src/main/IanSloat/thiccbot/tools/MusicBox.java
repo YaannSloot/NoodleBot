@@ -5,13 +5,13 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
 import sx.blah.discord.api.IDiscordClient;
 
-public class musicBox {
+public class MusicBox {
 
 	private AudioPlayerManager playerManager;
 	private PlayerManager manager;
 	private IDiscordClient client;
 	
-	public musicBox (IDiscordClient client) {
+	public MusicBox (IDiscordClient client) {
 		this.client = client;
 	}
 	
