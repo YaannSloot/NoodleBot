@@ -41,7 +41,7 @@ public class Player extends AudioEventAdapter {
 
     private Player() {
     }
-
+    
     @Override
     public void onEvent(AudioEvent event) {
         if (CRASHED.get())

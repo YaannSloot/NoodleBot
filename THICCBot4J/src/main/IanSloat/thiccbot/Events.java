@@ -12,6 +12,7 @@ import org.springframework.util.FileSystemUtils;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -30,6 +31,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
+import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
@@ -50,10 +52,11 @@ import org.slf4j.LoggerFactory;
 
 public class Events {
 
-	private AudioPlayerManager playerManager;
-	private PlayerManager manager;
+	private static AudioPlayerManager playerManager;
+	static PlayerManager manager;
 	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
 	private static List<String> knownGuildIds = new ArrayList<String>();
+	private static List<TrackScheduler> schedulers = new ArrayList<TrackScheduler>();
 	private static final Logger logger = LoggerFactory.getLogger(Events.class);
 
 	@EventSubscriber
@@ -70,9 +73,9 @@ public class Events {
 						+ "play <video> - Plays a youtube video. You can enter the video name or the video URL\n"
 						+ "volume <0-150> - Changes the volume of the video thats playing. Volume ranges from 0-150\n"
 						+ "stop - Stops the current playing video\n" + "leave - Leaves the voice chat\n"
-						+ "what, how, why, etc. <question> - Asks ThiccBot a question\n" 
+						+ "what, how, why, etc. <question> - Asks ThiccBot a question\n"
 						+ "settings/list settings - Lists the current personalized settings for this server\n"
-						+ "set <setting> - Sets a new value for one of this servers settings\n"
+						+ "set <setting> <value> - Sets a new value for one of this servers settings\n"
 						+ "info - Prints info about the bot\n\n"
 						+ "Reminder: the calling word \'thicc\' is not case sensitive\n"
 						+ "This is to accommodate for mobile users";
@@ -113,14 +116,38 @@ public class Events {
 						thinkingMsg.withTitle("Loading audio...");
 						thinkingMsg.withColor(192, 255, 0);
 						IMessage message = event.getChannel().sendMessage(thinkingMsg.build());
+
 						if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://"))) {
 							videoURL = "ytsearch:" + videoURL;
 						}
 						GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-						if(setMgr.GetSetting("volume").equals(""))
+						if (setMgr.GetSetting("volume").equals(""))
 							setMgr.SetSetting("volume", "100");
-						manager.getPlayer(event.getGuild().getStringID()).setVolume(Integer.parseInt(setMgr.GetSetting("volume")));
+						manager.getPlayer(event.getGuild().getStringID())
+								.setVolume(Integer.parseInt(setMgr.GetSetting("volume")));
 						final String URI = videoURL;
+						if (schedulers.isEmpty()) {
+							TrackScheduler tsch = new TrackScheduler(event.getChannel());
+							schedulers.add(tsch);
+							manager.getPlayer(event.getGuild().getStringID()).addEventListener(tsch);
+						} else {
+							boolean doesExist = false;
+							for (int i = 0; i < schedulers.size(); i++) {
+								if (schedulers.get(i).getGuild().equals(event.getGuild())) {
+									doesExist = true;
+								}
+							}
+							if (doesExist == false) {
+								TrackScheduler tsch = new TrackScheduler(event.getChannel());
+								schedulers.add(tsch);
+								manager.getPlayer(event.getGuild().getStringID()).addEventListener(tsch);
+							}
+						}
+						for (int i = 0; i < schedulers.size(); i++) {
+							if (schedulers.get(i).getGuild().equals(event.getGuild())) {
+								schedulers.get(i).setChannel(event.getChannel());
+							}
+						}
 						playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 							@Override
 							public void trackLoaded(AudioTrack track) {
@@ -128,52 +155,42 @@ public class Events {
 								manager.getPlayer(event.getGuild().getStringID()).stop();
 								manager.getPlayer(event.getGuild().getStringID()).queue(track);
 								manager.getPlayer(event.getGuild().getStringID()).play();
-								EmbedBuilder response = new EmbedBuilder();
-								if (track.getSourceManager().getSourceName().equals("youtube")) {
-									logger.info("Youtube is result");
-									response.appendField("Now playing: ",
-											'[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
-									response.appendField("Uploaded by:", track.getInfo().author, true);
-									String duration = DurationFormatUtils.formatDuration(track.getInfo().length,
-											"**H:mm:ss**", true);
-									response.appendField("Duration: ", duration, false);
-									response.withAuthorName("YouTube");
-									response.withAuthorIcon("http://thiccbot.site/boticons/youtubeicon.png");
-									response.withColor(238, 36, 21);
+								message.delete();
+								for (int i = 0; i < schedulers.size(); i++) {
+									if (schedulers.get(i).getGuild().equals(event.getGuild())) {
+										schedulers.get(i).setBannerMode(TrackScheduler.VIDEO);
+									}
 								}
-								RequestBuffer.request(() -> message.edit(response.build()));
 							}
 
 							@Override
 							public void playlistLoaded(AudioPlaylist playlist) {
 								logger.info("we have playlist");
 								manager.getPlayer(event.getGuild().getStringID()).stop();
-								if (!URI.startsWith("ytsearch:")) {
+								GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+								if (!URI.startsWith("ytsearch:") || setMgr.GetSetting("autoplay").equals("on")) {
+									RequestBuffer.request(() -> event.getChannel()
+											.sendMessage("Loaded " + playlist.getTracks().size() + " tracks"));
+									for (int i = 0; i < schedulers.size(); i++) {
+										if (schedulers.get(i).getGuild().equals(event.getGuild())) {
+											schedulers.get(i).setBannerMode(TrackScheduler.PLAYLIST);
+										}
+									}
 									for (AudioTrack track : playlist.getTracks()) {
 										manager.getPlayer(event.getGuild().getStringID()).queue(track);
 									}
 								} else {
+									for (int i = 0; i < schedulers.size(); i++) {
+										if (schedulers.get(i).getGuild().equals(event.getGuild())) {
+											schedulers.get(i).setBannerMode(TrackScheduler.VIDEO);
+										}
+									}
 									logger.info("Was a search so only one track was loaded");
 									manager.getPlayer(event.getGuild().getStringID())
 											.queue(playlist.getTracks().get(0));
 								}
 								manager.getPlayer(event.getGuild().getStringID()).play();
-								EmbedBuilder response = new EmbedBuilder();
-								AudioTrack track = manager.getPlayer(event.getGuild().getStringID()).getPlayingTrack()
-										.getTrack();
-								if (track.getSourceManager().getSourceName().equals("youtube")) {
-									logger.info("Youtube is result");
-									response.appendField("Now playing: ",
-											'[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
-									response.appendField("Uploaded by:", track.getInfo().author, true);
-									String duration = DurationFormatUtils.formatDuration(track.getInfo().length,
-											"**H:mm:ss**", true);
-									response.appendField("Duration: ", duration, false);
-									response.withAuthorName("YouTube");
-									response.withAuthorIcon("http://thiccbot.site/boticons/youtubeicon.png");
-									response.withColor(238, 36, 21);
-								}
-								RequestBuffer.request(() -> message.edit(response.build()));
+								message.delete();
 							}
 
 							@Override
@@ -207,6 +224,11 @@ public class Events {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
 					manager.getPlayer(event.getGuild().getStringID()).stop();
+					for (int i = 0; i < schedulers.size(); i++) {
+						if (schedulers.get(i).getGuild().equals(event.getGuild())) {
+							schedulers.get(i).getLastMessage().delete();
+						}
+					}
 					event.getChannel().sendMessage("Stopped the current track");
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
@@ -231,11 +253,14 @@ public class Events {
 				if (setMgr.GetSetting("volume").equals("")) {
 					setMgr.SetSetting("volume", "100");
 				}
+				if (setMgr.GetSetting("autoplay").equals("")) {
+					setMgr.SetSetting("autoplay", "off");
+				}
 				EmbedBuilder response = new EmbedBuilder();
 				response.withColor(0, 200, 0);
 				response.withTitle("Settings | " + event.getGuild().getName());
-				response.appendField("Voice channel settings", "Default volume = " + setMgr.GetSetting("volume"),
-						false);
+				response.appendField("Voice channel settings", "Default volume = " + setMgr.GetSetting("volume")
+						+ "\nAutoPlay = " + setMgr.GetSetting("autoplay"), false);
 				RequestBuffer.request(() -> event.getChannel().sendMessage(response.build()));
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "set ")) {
 				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
@@ -260,8 +285,25 @@ public class Events {
 					} catch (NumberFormatException e) {
 						event.getChannel().sendMessage("The value provided is not valid for that setting");
 					}
+				} else if (command.toLowerCase().startsWith("autoplay ") && words.length >= 2) {
+					if (words[1].toLowerCase().equals("on")) {
+						setMgr.SetSetting("autoplay", "on");
+						event.getChannel().sendMessage("Set AutoPlay to \'on\'");
+					} else if (words[1].toLowerCase().equals("off")) {
+						setMgr.SetSetting("autoplay", "off");
+						event.getChannel().sendMessage("Set AutoPlay to \'off\'");
+					} else {
+						event.getChannel().sendMessage("The value provided is not valid for that setting");
+					}
 				} else {
 					event.getChannel().sendMessage("That is not a valid setting");
+				}
+			} else if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show queue")) {
+				if (manager.getPlayer(event.getGuild().getStringID()).getPlaylist().size() > 0) {
+					List<Track> tracks = new ArrayList<Track>(
+							manager.getPlayer(event.getGuild().getStringID()).getPlaylist());
+					RequestBuffer.request(() -> event.getChannel().sendMessage(MusicEmbedFactory
+							.generatePlaylistList("Playlist | " + event.getGuild().getName(), tracks)));
 				}
 			}
 
