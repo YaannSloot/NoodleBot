@@ -1,7 +1,5 @@
 package main.IanSloat.thiccbot;
 
-import com.arsenarsen.lavaplayerbridge.player.Playlist;
-import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -16,21 +14,22 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TrackScheduler extends AudioEventAdapter {
 
 	private IChannel channel;
 	private IMessage message;
-	private IMessage playlistMessage;
-	private String playlistTitle = "";
 	private IGuild guild;
-	public static final int PLAYLIST = 1;
-	public static final int VIDEO = 0;
-	private int bannerMode = 0;
+	private final BlockingQueue<AudioTrack> queue;
+	private final AudioPlayer player;
 
-	public TrackScheduler(IChannel channel) {
+	public TrackScheduler(IChannel channel, AudioPlayer player) {
 		this.channel = channel;
 		this.guild = channel.getGuild();
+		this.player = player;
+		this.queue = new LinkedBlockingQueue<>();
 	}
 
 	public void setChannel(IChannel channel) {
@@ -40,7 +39,38 @@ public class TrackScheduler extends AudioEventAdapter {
 			this.channel = channel;
 		}
 	}
-	
+
+	public void queue(AudioTrack track) {
+		// Calling startTrack with the noInterrupt set to true will start the track only
+		// if nothing is currently playing. If
+		// something is playing, it returns false and does nothing. In that case the
+		// player was already playing so this
+		// track goes to the queue instead.
+		if (!player.startTrack(track, true)) {
+			queue.offer(track);
+		}
+	}
+
+	public List<AudioTrack> getPlaylist() {
+		return new ArrayList<AudioTrack>(queue);
+	}
+
+	public void stop() {
+		player.stopTrack();
+		queue.clear();
+		if (message != null) {
+			message.delete();
+		}
+	}
+
+	public void nextTrack() {
+		// Start the next track, regardless of if something is already playing or not.
+		// In case queue was empty, we are
+		// giving null to startTrack, which is a valid argument and will simply stop the
+		// player.
+		player.startTrack(queue.poll(), false);
+	}
+
 	public IMessage getLastMessage() {
 		return message;
 	}
@@ -49,14 +79,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		return guild;
 	}
 
-	public void setBannerMode(int mode) {
-		bannerMode = mode;
-	}
-
-	public void setPlaylistMessage(IMessage message) {
-		playlistMessage = message;
-	}
-	
 	@Override
 	public void onPlayerPause(AudioPlayer player) {
 		// Player was paused
@@ -84,12 +106,9 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-		if (endReason == AudioTrackEndReason.FINISHED) {
-			if (Events.manager.getPlayer(channel.getGuild().getStringID()).getPlaylist().size() + bannerMode == 0) {
-				message.delete();
-			}
+		if (endReason.mayStartNext) {
+			nextTrack();
 		}
-
 		// endReason == FINISHED: A track finished or died by an exception (mayStartNext
 		// = true).
 		// endReason == LOAD_FAILED: Loading of a track failed (mayStartNext = true).

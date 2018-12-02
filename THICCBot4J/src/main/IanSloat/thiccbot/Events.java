@@ -4,15 +4,13 @@ import sx.blah.discord.api.events.EventSubscriber;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.util.FileSystemUtils;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
-import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
-import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
-import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -29,6 +27,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import main.IanSloat.thiccbot.ThiccBotMain;
+import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
 import main.IanSloat.thiccbot.threadbox.AutoLeaveCounter;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
@@ -40,6 +39,7 @@ import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeave
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
 import sx.blah.discord.handle.impl.events.shard.LoginEvent;
 import sx.blah.discord.handle.obj.ActivityType;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IVoiceChannel;
@@ -52,12 +52,27 @@ import org.slf4j.LoggerFactory;
 
 public class Events {
 
-	private static AudioPlayerManager playerManager;
-	static PlayerManager manager;
-	private static ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
-	private static List<String> knownGuildIds = new ArrayList<String>();
-	private static List<TrackScheduler> schedulers = new ArrayList<TrackScheduler>();
-	private static final Logger logger = LoggerFactory.getLogger(Events.class);
+	private AudioPlayerManager playerManager;
+	private final Map<Long, GuildMusicManager> musicManagers = new HashMap<>();;
+	private ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
+	private List<String> knownGuildIds = new ArrayList<String>();
+	private final Logger logger = LoggerFactory.getLogger(Events.class);
+
+	private synchronized GuildMusicManager getGuildAudioPlayer(IGuild guild, IChannel channel) {
+		long guildId = guild.getLongID();
+		GuildMusicManager musicManager = musicManagers.get(guildId);
+
+		if (musicManager == null) {
+			musicManager = new GuildMusicManager(playerManager, channel);
+			musicManagers.put(guildId, musicManager);
+		} else {
+			musicManager.setPlayingMessageChannel(channel);
+		}
+
+		guild.getAudioManager().setAudioProvider(musicManager.getAudioProvider());
+
+		return musicManager;
+	}
 
 	@EventSubscriber
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
@@ -116,80 +131,39 @@ public class Events {
 						thinkingMsg.withTitle("Loading audio...");
 						thinkingMsg.withColor(192, 255, 0);
 						IMessage message = event.getChannel().sendMessage(thinkingMsg.build());
-
+						GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 						if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://"))) {
 							videoURL = "ytsearch:" + videoURL;
 						}
 						GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
 						if (setMgr.GetSetting("volume").equals(""))
 							setMgr.SetSetting("volume", "100");
-						manager.getPlayer(event.getGuild().getStringID())
-								.setVolume(Integer.parseInt(setMgr.GetSetting("volume")));
+						musicManager.player.setVolume(Integer.parseInt(setMgr.GetSetting("volume")));
 						final String URI = videoURL;
-						if (schedulers.isEmpty()) {
-							TrackScheduler tsch = new TrackScheduler(event.getChannel());
-							schedulers.add(tsch);
-							manager.getPlayer(event.getGuild().getStringID()).addEventListener(tsch);
-						} else {
-							boolean doesExist = false;
-							for (int i = 0; i < schedulers.size(); i++) {
-								if (schedulers.get(i).getGuild().equals(event.getGuild())) {
-									doesExist = true;
-								}
-							}
-							if (doesExist == false) {
-								TrackScheduler tsch = new TrackScheduler(event.getChannel());
-								schedulers.add(tsch);
-								manager.getPlayer(event.getGuild().getStringID()).addEventListener(tsch);
-							}
-						}
-						for (int i = 0; i < schedulers.size(); i++) {
-							if (schedulers.get(i).getGuild().equals(event.getGuild())) {
-								schedulers.get(i).setChannel(event.getChannel());
-							}
-						}
 						playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 							@Override
 							public void trackLoaded(AudioTrack track) {
 								logger.info("we have vid");
-								manager.getPlayer(event.getGuild().getStringID()).stop();
-								manager.getPlayer(event.getGuild().getStringID()).queue(track);
-								manager.getPlayer(event.getGuild().getStringID()).play();
+								musicManager.scheduler.stop();
+								musicManager.scheduler.queue(track);
 								message.delete();
-								for (int i = 0; i < schedulers.size(); i++) {
-									if (schedulers.get(i).getGuild().equals(event.getGuild())) {
-										schedulers.get(i).setBannerMode(TrackScheduler.VIDEO);
-									}
-								}
 							}
 
 							@Override
 							public void playlistLoaded(AudioPlaylist playlist) {
 								logger.info("we have playlist");
-								manager.getPlayer(event.getGuild().getStringID()).stop();
+								musicManager.scheduler.stop();
 								GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
 								if (!URI.startsWith("ytsearch:") || setMgr.GetSetting("autoplay").equals("on")) {
 									RequestBuffer.request(() -> event.getChannel()
 											.sendMessage("Loaded " + playlist.getTracks().size() + " tracks"));
-									for (int i = 0; i < schedulers.size(); i++) {
-										if (schedulers.get(i).getGuild().equals(event.getGuild())) {
-											schedulers.get(i).setBannerMode(TrackScheduler.PLAYLIST);
-										}
-									}
 									for (AudioTrack track : playlist.getTracks()) {
-										manager.getPlayer(event.getGuild().getStringID()).queue(track);
+										musicManager.scheduler.queue(track);
 									}
 								} else {
-									for (int i = 0; i < schedulers.size(); i++) {
-										if (schedulers.get(i).getGuild().equals(event.getGuild())) {
-											schedulers.get(i).setBannerMode(TrackScheduler.VIDEO);
-										}
-									}
 									logger.info("Was a search so only one track was loaded");
-									manager.getPlayer(event.getGuild().getStringID())
-											.queue(playlist.getTracks().get(0));
+									musicManager.scheduler.queue(playlist.getTracks().get(0));
 								}
-								manager.getPlayer(event.getGuild().getStringID()).play();
 								message.delete();
 							}
 
@@ -214,7 +188,8 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "leave")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					manager.getPlayer(event.getGuild().getStringID()).stop();
+					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+					musicManager.scheduler.stop();
 					event.getChannel().sendMessage("Leaving voice channel");
 					voiceChannel.leave();
 				} else {
@@ -223,12 +198,8 @@ public class Events {
 			} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "stop")) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
-					manager.getPlayer(event.getGuild().getStringID()).stop();
-					for (int i = 0; i < schedulers.size(); i++) {
-						if (schedulers.get(i).getGuild().equals(event.getGuild())) {
-							schedulers.get(i).getLastMessage().delete();
-						}
-					}
+					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+					musicManager.scheduler.stop();
 					event.getChannel().sendMessage("Stopped the current track");
 				} else {
 					event.getChannel().sendMessage("Not currently connected to any voice channels");
@@ -239,7 +210,8 @@ public class Events {
 					String volume = event.getMessage().getContent()
 							.substring((BotUtils.BOT_PREFIX + "volume ").length());
 					try {
-						manager.getPlayer(event.getGuild().getStringID()).setVolume(Integer.parseInt(volume));
+						GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+						musicManager.player.setVolume(Integer.parseInt(volume));
 						event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
 					} catch (java.lang.NumberFormatException e) {
 						event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
@@ -299,11 +271,10 @@ public class Events {
 					event.getChannel().sendMessage("That is not a valid setting");
 				}
 			} else if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show queue")) {
-				if (manager.getPlayer(event.getGuild().getStringID()).getPlaylist().size() > 0) {
-					List<Track> tracks = new ArrayList<Track>(
-							manager.getPlayer(event.getGuild().getStringID()).getPlaylist());
+				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+				if (musicManager.scheduler.getPlaylist().size() > 0) {
 					RequestBuffer.request(() -> event.getChannel().sendMessage(MusicEmbedFactory
-							.generatePlaylistList("Playlist | " + event.getGuild().getName(), tracks)));
+							.generatePlaylistList("Playlist | " + event.getGuild().getName(), musicManager.scheduler.getPlaylist())));
 				}
 			}
 
@@ -329,21 +300,15 @@ public class Events {
 	public void BotLoginEvent(LoginEvent event) {
 		logger.info("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
-		try {
-			playerManager = new DefaultAudioPlayerManager();
-			playerManager.registerSourceManager(new YoutubeAudioSourceManager());
-			playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
-			playerManager.registerSourceManager(new BandcampAudioSourceManager());
-			playerManager.registerSourceManager(new VimeoAudioSourceManager());
-			playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
-			playerManager.registerSourceManager(new BeamAudioSourceManager());
-			playerManager.registerSourceManager(new HttpAudioSourceManager());
-			playerManager.registerSourceManager(new LocalAudioSourceManager());
-			manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(event.getClient()));
-		} catch (UnknownBindingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		playerManager = new DefaultAudioPlayerManager();
+		playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+		playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
+		playerManager.registerSourceManager(new BandcampAudioSourceManager());
+		playerManager.registerSourceManager(new VimeoAudioSourceManager());
+		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
+		playerManager.registerSourceManager(new BeamAudioSourceManager());
+		playerManager.registerSourceManager(new HttpAudioSourceManager());
+		playerManager.registerSourceManager(new LocalAudioSourceManager());
 		class loadSettings extends Thread {
 			public void run() {
 				try {
