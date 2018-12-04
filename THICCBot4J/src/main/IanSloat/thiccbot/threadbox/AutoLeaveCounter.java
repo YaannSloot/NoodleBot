@@ -1,7 +1,5 @@
 package main.IanSloat.thiccbot.threadbox;
 
-import java.util.ArrayList;
-
 import sx.blah.discord.handle.obj.IVoiceChannel;
 
 public class AutoLeaveCounter extends Thread{

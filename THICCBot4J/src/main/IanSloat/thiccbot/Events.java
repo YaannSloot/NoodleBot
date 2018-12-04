@@ -2,18 +2,16 @@ package main.IanSloat.thiccbot;
 
 import sx.blah.discord.api.events.EventSubscriber;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.springframework.util.FileSystemUtils;
-
+import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.beam.BeamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
@@ -52,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 public class Events {
 
-	private AudioPlayerManager playerManager;
+	private final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();;
 	private final Map<Long, GuildMusicManager> musicManagers = new HashMap<>();;
 	private ArrayList<AutoLeaveCounter> counters = new ArrayList<AutoLeaveCounter>();
 	private List<String> knownGuildIds = new ArrayList<String>();
@@ -300,15 +298,7 @@ public class Events {
 	public void BotLoginEvent(LoginEvent event) {
 		logger.info("Logged in.");
 		event.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, BotUtils.BOT_PREFIX + "help");
-		playerManager = new DefaultAudioPlayerManager();
-		playerManager.registerSourceManager(new YoutubeAudioSourceManager());
-		playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
-		playerManager.registerSourceManager(new BandcampAudioSourceManager());
-		playerManager.registerSourceManager(new VimeoAudioSourceManager());
-		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
-		playerManager.registerSourceManager(new BeamAudioSourceManager());
-		playerManager.registerSourceManager(new HttpAudioSourceManager());
-		playerManager.registerSourceManager(new LocalAudioSourceManager());
+		AudioSourceManagers.registerRemoteSources(playerManager);
 		class loadSettings extends Thread {
 			public void run() {
 				try {
