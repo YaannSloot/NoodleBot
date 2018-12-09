@@ -13,16 +13,17 @@ import sx.blah.discord.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.thiccbot.events.Events;
 import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.MainConfigEditor;
 import main.IanSloat.thiccbot.tools.RunScriptGenerator;
 
 public class ThiccBotMain {
 
-	static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
-	static String waAppID;
+	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
+	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
-	static GeoLocator locator;
+	public static GeoLocator locator;
 
 	public static void main(String[] args) {
 
