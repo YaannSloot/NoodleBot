@@ -1,4 +1,4 @@
-package main.IanSloat.thiccbot;
+package main.IanSloat.thiccbot.lavaplayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;

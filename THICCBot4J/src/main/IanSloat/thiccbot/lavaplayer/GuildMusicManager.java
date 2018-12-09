@@ -3,7 +3,6 @@ package main.IanSloat.thiccbot.lavaplayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
-import main.IanSloat.thiccbot.TrackScheduler;
 import sx.blah.discord.handle.obj.IChannel;
 
 /**
