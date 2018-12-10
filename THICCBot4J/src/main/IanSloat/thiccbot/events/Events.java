@@ -27,15 +27,15 @@ public class Events {
 	private Login loginEvent = new Login();
 	private GuildJoin guildJoinEvent = new GuildJoin();
 	private UserLeftVoice userLeftVoiceEvent = new UserLeftVoice();
-	GuildLeave guildLeaveEvent = new GuildLeave();
-	UserMovedOutOfVoice userMovedOutOfVoiceEvent = new UserMovedOutOfVoice();
-	CommandHandler commandHandler = new CommandHandler();
+	private GuildLeave guildLeaveEvent = new GuildLeave();
+	private UserMovedOutOfVoice userMovedOutOfVoiceEvent = new UserMovedOutOfVoice();
+	private CommandHandler commandHandler = new CommandHandler();
 
 	@EventSubscriber
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		commandHandler.MessageReceivedEvent(event);
 	}
-	
+
 	@EventSubscriber
 	public void BotLoginEvent(LoginEvent event) {
 		loginEvent.BotLoginEvent(event);
