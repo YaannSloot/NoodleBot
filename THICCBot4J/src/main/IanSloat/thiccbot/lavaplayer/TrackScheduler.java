@@ -62,6 +62,14 @@ public class TrackScheduler extends AudioEventAdapter {
 			message.delete();
 		}
 	}
+	
+	public void pauseTrack() {
+		player.setPaused(true);
+	}
+	
+	public void stopTrack() {
+		player.stopTrack();
+	}
 
 	public void nextTrack() {
 		// Start the next track, regardless of if something is already playing or not.

@@ -344,10 +344,12 @@ public class CommandHandler {
 				List<AudioTrack> tracks = musicManager.scheduler.getPlaylist();
 				if (tracks.isEmpty()) {
 					if (musicManager.player.getPlayingTrack() != null) {
+						musicManager.scheduler.pauseTrack();
 						musicManager.scheduler.nextTrack();
 						event.getChannel().sendMessage("Track skipped");
 					}
 				} else if (tracks.size() > 0) {
+					musicManager.scheduler.pauseTrack();
 					musicManager.scheduler.nextTrack();
 					event.getChannel().sendMessage("Track skipped");
 				} else {
