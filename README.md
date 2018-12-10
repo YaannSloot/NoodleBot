@@ -58,7 +58,7 @@ WolframAlpha Java API Documentation:
 In no particular order
 * Get the bot playing music complete with volume control (Youtube currently works, adding support for other links)
 * Integrate google and wikipedia into command functionality
-* Games? Maybe? IDK
+* Auto-Mod support. Moderate your server for you
 
 Server-related
 * ~Proper logging~(done)
