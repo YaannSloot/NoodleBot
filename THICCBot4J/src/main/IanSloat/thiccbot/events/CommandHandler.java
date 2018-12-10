@@ -23,7 +23,6 @@ import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.util.List;
-import java.util.ArrayList;
 
 public class CommandHandler {
 
@@ -59,7 +58,8 @@ public class CommandHandler {
 
 			boolean commandMatch = (helpCommand(event) || questionCommand(event) || infoCommand(event)
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
-					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event));
+					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event)
+					|| skipCommand(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -329,6 +329,32 @@ public class CommandHandler {
 			if (musicManager.scheduler.getPlaylist().size() > 0) {
 				RequestBuffer.request(() -> event.getChannel().sendMessage(MusicEmbedFactory.generatePlaylistList(
 						"Playlist | " + event.getGuild().getName(), musicManager.scheduler.getPlaylist())));
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean skipCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "skip")) {
+			IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
+			if (voiceChannel != null) {
+				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+				List<AudioTrack> tracks = musicManager.scheduler.getPlaylist();
+				if (tracks.isEmpty()) {
+					if (musicManager.player.getPlayingTrack() != null) {
+						musicManager.scheduler.nextTrack();
+						event.getChannel().sendMessage("Track skipped");
+					}
+				} else if (tracks.size() > 0) {
+					musicManager.scheduler.nextTrack();
+					event.getChannel().sendMessage("Track skipped");
+				} else {
+					event.getChannel().sendMessage("No tracks are playing or queued");
+				}
+			} else {
+				event.getChannel().sendMessage("Not currently connected to any voice channels");
 			}
 			return true;
 		} else {
