@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
+import main.IanSloat.thiccbot.threadbox.BulkMessageDeletionJob;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
 import main.IanSloat.thiccbot.tools.WolframController;
@@ -19,9 +20,14 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.util.EmbedBuilder;
+import sx.blah.discord.util.PermissionUtils;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 public class CommandHandler {
@@ -59,8 +65,8 @@ public class CommandHandler {
 			boolean commandMatch = (helpCommand(event) || questionCommand(event) || infoCommand(event)
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event)
-					|| skipCommand(event));
-
+					|| skipCommand(event) || clearMessageHistoryCommand(event));
+			
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
 				if (random == 1) {
@@ -364,4 +370,15 @@ public class CommandHandler {
 		}
 	}
 
+	private boolean clearMessageHistoryCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "clear message history")) {
+			final Instant currentTime = Instant.now().minus(7, ChronoUnit.DAYS);
+			BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(), currentTime);
+			job.startJob();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }
