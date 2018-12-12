@@ -154,7 +154,7 @@ public class CommandHandler {
 					thinkingMsg.withColor(192, 255, 0);
 					IMessage message = event.getChannel().sendMessage(thinkingMsg.build());
 					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
-					if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://"))) {
+					if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://") || videoURL.startsWith("scsearch:"))) {
 						videoURL = "ytsearch:" + videoURL;
 					}
 					GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
@@ -165,7 +165,7 @@ public class CommandHandler {
 					Events.playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 						@Override
 						public void trackLoaded(AudioTrack track) {
-							logger.info("we have vid");
+							logger.info("A track was loaded");
 							musicManager.scheduler.stop();
 							musicManager.scheduler.queue(track);
 							message.delete();
@@ -173,17 +173,17 @@ public class CommandHandler {
 
 						@Override
 						public void playlistLoaded(AudioPlaylist playlist) {
-							logger.info("we have playlist");
+							logger.info("A track playlist was loaded");
 							musicManager.scheduler.stop();
 							GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-							if (!URI.startsWith("ytsearch:") || setMgr.GetSetting("autoplay").equals("on")) {
+							if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:") || setMgr.GetSetting("autoplay").equals("on")) {
 								RequestBuffer.request(() -> event.getChannel()
 										.sendMessage("Loaded " + playlist.getTracks().size() + " tracks"));
 								for (AudioTrack track : playlist.getTracks()) {
 									musicManager.scheduler.queue(track);
 								}
 							} else {
-								logger.info("Was a search so only one track was loaded");
+								logger.info("Was a search and autoplay is off so only one track was loaded");
 								musicManager.scheduler.queue(playlist.getTracks().get(0));
 							}
 							message.delete();
@@ -192,13 +192,23 @@ public class CommandHandler {
 						@Override
 						public void noMatches() {
 							// Notify the user that we've got nothing
-							logger.info("nothin");
+							EmbedBuilder newMsg = new EmbedBuilder();
+							newMsg.withTitle("No results found");
+							newMsg.withColor(255, 0, 0);
+							message.edit(newMsg.build());
+							logger.info("Audio track search returned no results");
 						}
 
 						@Override
 						public void loadFailed(FriendlyException throwable) {
 							// Notify the user that everything exploded
-							logger.info("explosion");
+							EmbedBuilder newMsg = new EmbedBuilder();
+							newMsg.withTitle("An error occurred while attempting to load the requested audio\n"
+									+ "The URL may be invalid\n"
+									+ "If the URL is a stream, the stream can only be played if it is live");
+							newMsg.withColor(255, 0, 0);
+							message.edit(newMsg.build());
+							logger.info("An error occurred while attempting to load an audio track");
 						}
 					});
 				} else {
@@ -339,6 +349,8 @@ public class CommandHandler {
 			if (musicManager.scheduler.getPlaylist().size() > 0) {
 				RequestBuffer.request(() -> event.getChannel().sendMessage(MusicEmbedFactory.generatePlaylistList(
 						"Playlist | " + event.getGuild().getName(), musicManager.scheduler.getPlaylist())));
+			} else {
+				RequestBuffer.request(() -> event.getChannel().sendMessage("Queue is currently empty"));
 			}
 			return true;
 		} else {
@@ -354,12 +366,12 @@ public class CommandHandler {
 				List<AudioTrack> tracks = musicManager.scheduler.getPlaylist();
 				if (tracks.isEmpty()) {
 					if (musicManager.player.getPlayingTrack() != null) {
-						musicManager.scheduler.pauseTrack();
+						musicManager.player.playTrack(null);
 						musicManager.scheduler.nextTrack();
 						event.getChannel().sendMessage("Track skipped");
 					}
 				} else if (tracks.size() > 0) {
-					musicManager.scheduler.pauseTrack();
+					musicManager.player.playTrack(null);
 					musicManager.scheduler.nextTrack();
 					event.getChannel().sendMessage("Track skipped");
 				} else {
