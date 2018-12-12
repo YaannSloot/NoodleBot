@@ -1,5 +1,7 @@
 package main.IanSloat.thiccbot;
 
+import java.util.List;
+
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 
@@ -54,6 +56,14 @@ public class BotUtils {
 		boolean isTrue = false;
 		for (String word : Wordlist)
 			if (inputSentence.contains(word))
+				isTrue = true;
+		return isTrue;
+	}
+	
+	public static boolean checkForWords(List<String> inputList, String[] Wordlist) {
+		boolean isTrue = false;
+		for (String word : Wordlist)
+			if (inputList.contains(word))
 				isTrue = true;
 		return isTrue;
 	}

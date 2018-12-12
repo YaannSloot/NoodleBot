@@ -25,9 +25,13 @@ import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.PermissionUtils;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class CommandHandler {
@@ -64,9 +68,9 @@ public class CommandHandler {
 
 			boolean commandMatch = (helpCommand(event) || questionCommand(event) || infoCommand(event)
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
-					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event)
-					|| skipCommand(event) || clearMessageHistoryCommand(event));
-			
+					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
+					|| clearMessageHistoryCommand(event) || deleteMessagesByAgeCommand(event));
+
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
 				if (random == 1) {
@@ -373,12 +377,105 @@ public class CommandHandler {
 	private boolean clearMessageHistoryCommand(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "clear message history")) {
 			final Instant currentTime = Instant.now().minus(7, ChronoUnit.DAYS);
-			BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(), currentTime);
+			BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(),
+					currentTime);
 			job.startJob();
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
+	private boolean deleteMessagesByAgeCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase()
+				.startsWith(BotUtils.BOT_PREFIX + "delete messages older than ")) {
+			String ageString = event.getMessage().getContent().toLowerCase()
+					.replace(BotUtils.BOT_PREFIX + "delete messages older than ", "");
+			ageString = ageString.replace(',', ' ');
+			ageString = BotUtils.normalizeSentence(ageString);
+			List<String> words = new ArrayList<String>();
+			for (String word : ageString.split(" ")) {
+				if (word.equals("day")) {
+					word = "days";
+				} else if (word.equals("week")) {
+					word = "weeks";
+				} else if (word.equals("month")) {
+					word = "months";
+				} else if (word.equals("year")) {
+					word = "years";
+				}
+				words.add(word);
+			}
+			Calendar date = new GregorianCalendar();
+			String[] ageWords = { "days", "weeks", "months", "years" };
+			int days = 0;
+			int weeks = 0;
+			int months = 0;
+			int years = 0;
+			while (BotUtils.checkForWords(words, ageWords)) {
+				if (words.contains("days") && words.indexOf("days") != 0) {
+					try {
+						int amount = Integer.parseInt(words.get(words.indexOf("days") - 1));
+						words.remove(words.get(words.indexOf("days") - 1));
+						words.remove("days");
+						date.roll(Calendar.DAY_OF_YEAR, amount * -1);
+						days += amount;
+					} catch (NumberFormatException e) {
+						words.remove("days");
+					}
+				} else if (words.contains("weeks") && words.indexOf("weeks") != 0) {
+					try {
+						int amount = Integer.parseInt(words.get(words.indexOf("weeks") - 1));
+						words.remove(words.get(words.indexOf("weeks") - 1));
+						words.remove("weeks");
+						date.roll(Calendar.WEEK_OF_YEAR, amount * -1);
+						weeks += amount;
+					} catch (NumberFormatException e) {
+						words.remove("weeks");
+					}
+				} else if (words.contains("months") && words.indexOf("months") != 0) {
+					try {
+						int amount = Integer.parseInt(words.get(words.indexOf("months") - 1));
+						words.remove(words.get(words.indexOf("months") - 1));
+						words.remove("months");
+						date.roll(Calendar.MONTH, amount * -1);
+						months += amount;
+					} catch (NumberFormatException e) {
+						words.remove("months");
+					}
+				} else if (words.contains("years") && words.indexOf("years") != 0) {
+					try {
+						int amount = Integer.parseInt(words.get(words.indexOf("years") - 1));
+						words.remove(words.get(words.indexOf("years") - 1));
+						words.remove("years");
+						date.roll(Calendar.YEAR, amount * -1);
+						years += amount;
+					} catch (NumberFormatException e) {
+						words.remove("years");
+					}
+				} else if (words.indexOf("days") == 0 || words.indexOf("weeks") == 0 || words.indexOf("months") == 0
+						|| words.indexOf("years") == 0) {
+					words.remove(0);
+				}
+				//System.out.println(String.join(" ", words));
+			}
+			if (days > 0 || weeks > 0 || months > 0 || years > 0) {
+				BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(),
+						date.toInstant());
+				SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+				final String dateString = dateFormatter.format(date.getTime());
+				RequestBuffer
+						.request(() -> event.getChannel().sendMessage("Finding messages older than " + dateString));
+				job.startJob();
+			} else {
+				RequestBuffer
+						.request(() -> event.getChannel().sendMessage("Not sure what kind of calendar you are using,\n"
+								+ "but I cannot understand what you just said"));
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

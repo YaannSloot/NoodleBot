@@ -39,7 +39,6 @@ public class BulkMessageDeletionJob {
 
 	public synchronized void stopJob() {
 		if (jobThread.isAlive()) {
-			System.out.println("Hey its running");
 			jobThread.interrupt();
 		}
 	}
@@ -72,28 +71,36 @@ public class BulkMessageDeletionJob {
 		public void run() {
 			logger.info("A new message deletion job has been started");
 			try {
-				channel.sendMessage("Deleting messages older than one week.\nThis may take a while...");
-				final Instant currentTime = endDate;
 				List<IMessage> history = RequestBuffer.request(() -> {
-					return channel.getMessageHistoryFrom(currentTime);
+					return channel.getMessageHistoryFrom(endDate, 2001);
 				}).get();
-				long deletes = 0;
-				IMessage status = channel.sendMessage("Status:");
-				for (IMessage message : history) {
-					boolean deleteSuccess = false;
-					while (deleteSuccess == false) {
-						try {
-							message.delete();
-							deleteSuccess = true;
-							deletes++;
-							final long deletesCopy = deletes;
-							status.edit("Status: " + deletesCopy + '/' + history.size() + " messages deleted");
-						} catch (RateLimitException e) {
-							Thread.sleep(100);
+				if (history.size() > 0) {
+					if (history.size() == 2001) {
+						channel.sendMessage("More than 2000 messages were detected."
+								+ "\nThis command can only handle 2000 messages at a time."
+								+ "\nTo delete more messages, run this command again when it finishes");
+					}
+					channel.sendMessage("Deleting messages.\nThis may take a while...");
+					long deletes = 0;
+					IMessage status = channel.sendMessage("Status: 0/" + history.size() + " messages deleted");
+					for (IMessage message : history) {
+						boolean deleteSuccess = false;
+						while (deleteSuccess == false) {
+							try {
+								message.delete();
+								deleteSuccess = true;
+								deletes++;
+								final long deletesCopy = deletes;
+								status.edit("Status: " + deletesCopy + '/' + history.size() + " messages deleted");
+							} catch (RateLimitException e) {
+								Thread.sleep(100);
+							}
 						}
 					}
+					RequestBuffer.request(() -> status.edit("Messages deleted"));
+				} else {
+					channel.sendMessage("No messages found in the timeframe specified");
 				}
-				channel.sendMessage("Messages deleted");
 				logger.info("Message deletion job has finished");
 			} catch (InterruptedException e) {
 				logger.info("Message deletion job was canceled");
