@@ -13,6 +13,7 @@ import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
 import main.IanSloat.thiccbot.threadbox.BulkMessageDeletionJob;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
+import main.IanSloat.thiccbot.tools.InspirobotClient;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
@@ -25,6 +26,7 @@ import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.PermissionUtils;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -69,7 +71,8 @@ public class CommandHandler {
 			boolean commandMatch = (helpCommand(event) || questionCommand(event) || infoCommand(event)
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
-					|| clearMessageHistoryCommand(event) || deleteMessagesByAgeCommand(event));
+					|| clearMessageHistoryCommand(event) || deleteMessagesByAgeCommand(event)
+					|| inspireMeCommand(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -154,7 +157,8 @@ public class CommandHandler {
 					thinkingMsg.withColor(192, 255, 0);
 					IMessage message = event.getChannel().sendMessage(thinkingMsg.build());
 					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
-					if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://") || videoURL.startsWith("scsearch:"))) {
+					if (!(videoURL.startsWith("http://") || videoURL.startsWith("https://")
+							|| videoURL.startsWith("scsearch:"))) {
 						videoURL = "ytsearch:" + videoURL;
 					}
 					GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
@@ -176,7 +180,8 @@ public class CommandHandler {
 							logger.info("A track playlist was loaded");
 							musicManager.scheduler.stop();
 							GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-							if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:") || setMgr.GetSetting("autoplay").equals("on")) {
+							if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
+									|| setMgr.GetSetting("autoplay").equals("on")) {
 								RequestBuffer.request(() -> event.getChannel()
 										.sendMessage("Loaded " + playlist.getTracks().size() + " tracks"));
 								for (AudioTrack track : playlist.getTracks()) {
@@ -347,8 +352,7 @@ public class CommandHandler {
 		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show queue")) {
 			GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 			if (musicManager.scheduler.getPlaylist().size() > 0) {
-				RequestBuffer.request(() -> event.getChannel().sendMessage(MusicEmbedFactory.generatePlaylistList(
-						"Playlist | " + event.getGuild().getName(), musicManager.scheduler.getPlaylist())));
+				musicManager.scheduler.printPlaylist();
 			} else {
 				RequestBuffer.request(() -> event.getChannel().sendMessage("Queue is currently empty"));
 			}
@@ -469,7 +473,7 @@ public class CommandHandler {
 						|| words.indexOf("years") == 0) {
 					words.remove(0);
 				}
-				//System.out.println(String.join(" ", words));
+				// System.out.println(String.join(" ", words));
 			}
 			if (days > 0 || weeks > 0 || months > 0 || years > 0) {
 				BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(),
@@ -484,6 +488,23 @@ public class CommandHandler {
 						.request(() -> event.getChannel().sendMessage("Not sure what kind of calendar you are using,\n"
 								+ "but I cannot understand what you just said"));
 			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean inspireMeCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "inspire me")) {
+			InspirobotClient iClient = new InspirobotClient();
+			EmbedBuilder message = new EmbedBuilder();
+			message.withImage(iClient.getNewImageUrl());
+			message.withTitle("Here you go. Now start feeling inspired");
+			message.withDesc("Brought to you by [InspiroBot\u2122](https://inspirobot.me/)");
+			message.withFooterText("Image requested by " + event.getAuthor().getName() + " | "
+					+ new SimpleDateFormat("MM/dd/yyyy").format(Date.from(event.getMessage().getTimestamp())));
+			message.withColor(220, 20, 60);
+			RequestBuffer.request(() -> event.getChannel().sendMessage(message.build()));
 			return true;
 		} else {
 			return false;
