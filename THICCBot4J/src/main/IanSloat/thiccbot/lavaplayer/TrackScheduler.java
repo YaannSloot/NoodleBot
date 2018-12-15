@@ -21,6 +21,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private IChannel channel;
 	private IMessage message;
+	private IMessage playlistMessage;
 	private IGuild guild;
 	private final BlockingQueue<AudioTrack> queue;
 	private final AudioPlayer player;
@@ -51,6 +52,24 @@ public class TrackScheduler extends AudioEventAdapter {
 		}
 	}
 
+	public void printPlaylist() {
+		if (getPlaylist().size() > 0) {
+			if (channel.getMessageHistory(1).getLatestMessage().equals(playlistMessage)) {
+				playlistMessage = RequestBuffer.request(() -> {
+					return playlistMessage.edit(MusicEmbedFactory
+							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
+				}).get();
+			}
+			if(playlistMessage != null) {
+				playlistMessage.delete();
+				playlistMessage = RequestBuffer.request(() -> {
+					return channel.sendMessage(MusicEmbedFactory
+							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
+				}).get();
+			}
+		}
+	}
+
 	public List<AudioTrack> getPlaylist() {
 		return new ArrayList<AudioTrack>(queue);
 	}
@@ -62,11 +81,11 @@ public class TrackScheduler extends AudioEventAdapter {
 			message.delete();
 		}
 	}
-	
+
 	public void pauseTrack() {
 		player.setPaused(true);
 	}
-	
+
 	public void stopTrack() {
 		player.stopTrack();
 	}
