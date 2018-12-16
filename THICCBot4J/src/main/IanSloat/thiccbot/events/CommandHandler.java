@@ -74,7 +74,7 @@ public class CommandHandler {
 			boolean commandMatch = (helpCommand(event) || questionCommand(event) || infoCommand(event)
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
-					|| clearMessageHistoryCommand(event) || deleteMessagesByAgeCommand(event)
+					|| clearMessageHistoryCommand(event) || deleteMessagesByFilterCommand(event)
 					|| inspireMeCommand(event));
 
 			if (!commandMatch) {
@@ -405,9 +405,11 @@ public class CommandHandler {
 		}
 	}
 
-	private boolean deleteMessagesByAgeCommand(MessageReceivedEvent event) {
+	private boolean deleteMessagesByFilterCommand(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase()
-				.startsWith(BotUtils.BOT_PREFIX + "delete messages older than ")) {
+				.startsWith(BotUtils.BOT_PREFIX + "delete messages older than ")
+				|| event.getMessage().getContent().toLowerCase()
+						.startsWith(BotUtils.BOT_PREFIX + "delete messages from ")) {
 			String ageString = event.getMessage().getContent().toLowerCase()
 					.replace(BotUtils.BOT_PREFIX + "delete messages older than ", "");
 			ageString = ageString.replace(',', ' ');
@@ -427,7 +429,7 @@ public class CommandHandler {
 			}
 			List<IUser> usersMentioned = new ArrayList<IUser>();
 			List<IRole> rolesMentioned = new ArrayList<IRole>();
-			if(words.contains("from")) {
+			if (words.contains("from")) {
 				usersMentioned = event.getMessage().getMentions();
 				rolesMentioned = event.getMessage().getRoleMentions();
 			}
@@ -484,16 +486,16 @@ public class CommandHandler {
 				}
 				// System.out.println(String.join(" ", words));
 			}
-			if (days > 0 || weeks > 0 || months > 0 || years > 0) {
+			if (days > 0 || weeks > 0 || months > 0 || years > 0 || usersMentioned.size() > 0 || rolesMentioned.size() > 0) {
 				FilterMessageDeletionJob job = FilterMessageDeletionJob.getDeletionJobForChannel(event.getChannel());
 				job.setAge(date.toInstant());
 				job.deleteByLength(0, true);
-				if(usersMentioned.size() > 0 || rolesMentioned.size() > 0) {
+				if (usersMentioned.size() > 0 || rolesMentioned.size() > 0) {
 					List<IUser> users = new ArrayList<IUser>();
 					users.addAll(usersMentioned);
-					for(IRole role : rolesMentioned) {
+					for (IRole role : rolesMentioned) {
 						for (IUser user : event.getGuild().getUsersByRole(role)) {
-							if(!(users.contains(user))) {
+							if (!(users.contains(user))) {
 								users.add(user);
 							}
 						}
