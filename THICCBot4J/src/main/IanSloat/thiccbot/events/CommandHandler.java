@@ -12,6 +12,7 @@ import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
 import main.IanSloat.thiccbot.threadbox.BulkMessageDeletionJob;
+import main.IanSloat.thiccbot.threadbox.FilterMessageDeletionJob;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.InspirobotClient;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
@@ -20,6 +21,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IRole;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.util.EmbedBuilder;
@@ -422,6 +425,12 @@ public class CommandHandler {
 				}
 				words.add(word);
 			}
+			List<IUser> usersMentioned = new ArrayList<IUser>();
+			List<IRole> rolesMentioned = new ArrayList<IRole>();
+			if(words.contains("from")) {
+				usersMentioned = event.getMessage().getMentions();
+				rolesMentioned = event.getMessage().getRoleMentions();
+			}
 			Calendar date = new GregorianCalendar();
 			String[] ageWords = { "days", "weeks", "months", "years" };
 			int days = 0;
@@ -476,8 +485,21 @@ public class CommandHandler {
 				// System.out.println(String.join(" ", words));
 			}
 			if (days > 0 || weeks > 0 || months > 0 || years > 0) {
-				BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(),
-						date.toInstant());
+				FilterMessageDeletionJob job = FilterMessageDeletionJob.getDeletionJobForChannel(event.getChannel());
+				job.setAge(date.toInstant());
+				job.deleteByLength(0, true);
+				if(usersMentioned.size() > 0 || rolesMentioned.size() > 0) {
+					List<IUser> users = new ArrayList<IUser>();
+					users.addAll(usersMentioned);
+					for(IRole role : rolesMentioned) {
+						for (IUser user : event.getGuild().getUsersByRole(role)) {
+							if(!(users.contains(user))) {
+								users.add(user);
+							}
+						}
+					}
+					job.deleteByUser(users, true);
+				}
 				SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 				final String dateString = dateFormatter.format(date.getTime());
 				RequestBuffer

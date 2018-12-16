@@ -1,6 +1,7 @@
 package main.IanSloat.thiccbot.threadbox;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class FilterMessageDeletionJob {
 	private IChannel channel;
 	private boolean deleteByLength = false;
 	private boolean deleteByUser = false;
-	private IUser user = null;
+	private List<IUser> users = null;
 	private int length = 0;
 	private Thread jobThread;
 	private Instant age = null;
@@ -33,7 +34,7 @@ public class FilterMessageDeletionJob {
 		activeJobs.put(channel.getLongID(), this);
 	}
 
-	public static FilterMessageDeletionJob getDeletionJobForChannel(IChannel channel, Instant endDate) {
+	public static FilterMessageDeletionJob getDeletionJobForChannel(IChannel channel) {
 		FilterMessageDeletionJob job = activeJobs.get(channel.getLongID());
 		if (job == null) {
 			job = new FilterMessageDeletionJob(channel);
@@ -41,9 +42,9 @@ public class FilterMessageDeletionJob {
 		return job;
 	}
 
-	public void deleteByUser(IUser user, boolean value) {
+	public void deleteByUser(List<IUser> users, boolean value) {
 		deleteByUser = value;
-		this.user = user;
+		this.users = users;
 	}
 
 	public void deleteByLength(int length, boolean value) {
@@ -84,78 +85,85 @@ public class FilterMessageDeletionJob {
 
 	private class FilterMessageDeletionThread implements Runnable {
 		public void run() {
-			if (deleteByUser == true && user != null && deleteByLength == true && length != 0) {
+			if (deleteByUser == true && users != null && deleteByLength == true && length != 0) {
 				logger.info("Filtered message deletion job was started");
-				List<IMessage> history = RequestBuffer.request(() -> {
-					return channel.getMessageHistory(2001);
-				}).get();
+				List<IMessage> history;
+				if(age != null) {
+					history = RequestBuffer.request(() -> {
+						return channel.getMessageHistoryFrom(age, 2001);
+					}).get();
+				} else {
+					history = RequestBuffer.request(() -> {
+						return channel.getMessageHistory(2001);
+					}).get();
+				}
 				if (history.size() == 2001) {
 					channel.sendMessage("More than 2000 messages were detected."
 							+ "\nThis command can only handle 2000 messages at a time."
 							+ "\nTo delete more messages, run this command again when it finishes");
 				}
-				List<IMessage> historyNew = history;
+				List<IMessage> historyNew = new ArrayList<IMessage>();
+				historyNew.addAll(history);
 				for (IMessage message : history) {
-					if (!(message.getAuthor().equals(user)) && message.getContent().length() < length) {
+					if (!(users.contains(message.getAuthor())) && message.getContent().length() < length) {
 						historyNew.remove(message);
-					}
-					if (age != null) {
-						if (message.getTimestamp().isAfter(age)) {
-							historyNew.remove(message);
-						}
 					}
 				}
 				history = historyNew;
 				historyNew.clear();
-				deleteMessages(history);
-			} else if (deleteByUser == true && user != null) {
+				deleteMessages(historyNew);
+			} else if (deleteByUser == true && users != null) {
 				logger.info("Filtered message deletion job was started");
-				List<IMessage> history = RequestBuffer.request(() -> {
-					return channel.getMessageHistory(2001);
-				}).get();
+				List<IMessage> history;
+				if(age != null) {
+					history = RequestBuffer.request(() -> {
+						return channel.getMessageHistoryFrom(age, 2001);
+					}).get();
+				} else {
+					history = RequestBuffer.request(() -> {
+						return channel.getMessageHistory(2001);
+					}).get();
+				}
 				if (history.size() == 2001) {
 					channel.sendMessage("More than 2000 messages were detected."
 							+ "\nThis command can only handle 2000 messages at a time."
 							+ "\nTo delete more messages, run this command again when it finishes");
 				}
-				List<IMessage> historyNew = history;
-				for (IMessage message : history) {
-					if (!(message.getAuthor().equals(user))) {
-						historyNew.remove(message);
-					}
-					if (age != null) {
-						if (message.getTimestamp().isAfter(age)) {
-							historyNew.remove(message);
-						}
+				List<IMessage> historyNew = new ArrayList<IMessage>();
+				historyNew.addAll(history);
+				System.out.println(users.size());
+				for (int i = 0; i < history.size(); i++) {
+					if (!(users.contains(history.get(i).getAuthor()))) {
+						System.out.println(history.get(i).getTimestamp() +  " " + history.get(i).getAuthor().getLongID());
+						historyNew.remove(history.get(i));
 					}
 				}
-				history = historyNew;
-				historyNew.clear();
-				deleteMessages(history);
+				deleteMessages(historyNew);
 			} else if (deleteByLength == true && length != 0) {
 				logger.info("Filtered message deletion job was started");
-				List<IMessage> history = RequestBuffer.request(() -> {
-					return channel.getMessageHistory(2001);
-				}).get();
+				List<IMessage> history;
+				if(age != null) {
+					history = RequestBuffer.request(() -> {
+						return channel.getMessageHistoryFrom(age, 2001);
+					}).get();
+				} else {
+					history = RequestBuffer.request(() -> {
+						return channel.getMessageHistory(2001);
+					}).get();
+				}
 				if (history.size() == 2001) {
 					channel.sendMessage("More than 2000 messages were detected."
 							+ "\nThis command can only handle 2000 messages at a time."
 							+ "\nTo delete more messages, run this command again when it finishes");
 				}
-				List<IMessage> historyNew = history;
+				List<IMessage> historyNew = new ArrayList<IMessage>();
+				historyNew.addAll(history);
 				for (IMessage message : history) {
 					if (message.getContent().length() < length) {
 						historyNew.remove(message);
 					}
-					if (age != null) {
-						if (message.getTimestamp().isAfter(age)) {
-							historyNew.remove(message);
-						}
-					}
 				}
-				history = historyNew;
-				historyNew.clear();
-				deleteMessages(history);
+				deleteMessages(historyNew);
 			} else {
 				logger.error("Job was not configured properly");
 			}
