@@ -131,10 +131,8 @@ public class FilterMessageDeletionJob {
 				}
 				List<IMessage> historyNew = new ArrayList<IMessage>();
 				historyNew.addAll(history);
-				System.out.println(users.size());
 				for (int i = 0; i < history.size(); i++) {
 					if (!(users.contains(history.get(i).getAuthor()))) {
-						System.out.println(history.get(i).getTimestamp() +  " " + history.get(i).getAuthor().getLongID());
 						historyNew.remove(history.get(i));
 					}
 				}
