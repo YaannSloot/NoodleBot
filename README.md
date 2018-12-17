@@ -70,10 +70,16 @@ WolframAlpha Java API Documentation:
   –  Bot now generates a .sh or .bat run file automatically after it is executed for the first time  
   –  Guilds now have individual save files and settings files saved within their own settings directory  
   –  Added the default volume setting to the guild settings list  
+ * v0.9alpha
+  – Added AutoPlay feature and settings to enable it
+  – Added song queue
+  – Added song skip command
+  – Added full support for all LavaPlayer sources
+  – Added commands to delete messages from channels
+  – Added an inspire me command. Inspirational pictures from InspiroBot!
 ```
 ## TODO
 In no particular order
-* Get the bot playing music complete with volume control (Youtube currently works, adding support for other links)
 * Integrate google and wikipedia into command functionality
 * Auto-Mod support. Moderate your server for you
 
