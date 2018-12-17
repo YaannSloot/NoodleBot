@@ -71,6 +71,7 @@ WolframAlpha Java API Documentation:
   –  Guilds now have individual save files and settings files saved within their own settings directory  
   –  Added the default volume setting to the guild settings list  
  * v0.9alpha
+  – IRL: NEW SERVER YAY
   – Added AutoPlay feature and settings to enable it
   – Added song queue
   – Added song skip command
