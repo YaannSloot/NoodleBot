@@ -85,6 +85,9 @@ public class TrackScheduler extends AudioEventAdapter {
 		if (message != null) {
 			message.delete();
 		}
+		if (playlistMessage != null) {
+			playlistMessage.delete();
+		}
 	}
 
 	public void pauseTrack() {
