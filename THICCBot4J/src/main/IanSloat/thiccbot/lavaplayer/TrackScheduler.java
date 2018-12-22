@@ -138,7 +138,6 @@ public class TrackScheduler extends AudioEventAdapter {
 			}).get();
 		}
 		if(playlistMessage != null && getPlaylist().size() > 0) {
-			playlistMessage.delete();
 			playlistMessage = RequestBuffer.request(() -> {
 				return playlistMessage.edit(MusicEmbedFactory
 						.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
