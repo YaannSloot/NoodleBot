@@ -24,6 +24,23 @@ Recommended hardware requirements:
 
 Remember that the hardware load has a potential to increase with each new guild that the bot is added to. You should try running this bot on a dedicated machine if possible, with an ethernet connection to your router to minimize latency
 
+## Features
+
+### Music player 
+This bot allows you to play music from multiple sources such as: 
+* YouTube 
+* SoundCloud 
+* Vimeo 
+* Twitch 
+* BandCamp  
+#### Command list:
+`thicc play <search term|video url>` - Plays music from a source url or video/soundcloud search result  
+`thicc volume <0-150>` - Adjusts the volume of the player  
+`thicc show queue` - If AutoPlay is enabled or a playlist url is loaded, this shows the queued tracks
+#### Settings related to the audio player:
+`thicc set volume <0-150>` - Sets the default volume for the player when it enters a voice chat  
+`thicc set autoplay <on|off>` - Sets AutoPlay on or off
+
 ## Important links for those wanting to modify source code
 
 Discord4J Documentation:
@@ -53,10 +70,17 @@ WolframAlpha Java API Documentation:
   –  Bot now generates a .sh or .bat run file automatically after it is executed for the first time  
   –  Guilds now have individual save files and settings files saved within their own settings directory  
   –  Added the default volume setting to the guild settings list  
+ * v0.9alpha
+  – IRL: NEW SERVER YAY
+  – Added AutoPlay feature and settings to enable it
+  – Added song queue
+  – Added song skip command
+  – Added full support for all LavaPlayer sources
+  – Added commands to delete messages from channels
+  – Added an inspire me command. Inspirational pictures from InspiroBot!
 ```
 ## TODO
 In no particular order
-* Get the bot playing music complete with volume control (Youtube currently works, adding support for other links)
 * Integrate google and wikipedia into command functionality
 * Auto-Mod support. Moderate your server for you
 
