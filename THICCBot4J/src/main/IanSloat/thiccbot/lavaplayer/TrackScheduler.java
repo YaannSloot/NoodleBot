@@ -60,8 +60,13 @@ public class TrackScheduler extends AudioEventAdapter {
 							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
 				}).get();
 			}
-			if(playlistMessage != null) {
+			else if(playlistMessage != null) {
 				playlistMessage.delete();
+				playlistMessage = RequestBuffer.request(() -> {
+					return channel.sendMessage(MusicEmbedFactory
+							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
+				}).get();
+			} else {
 				playlistMessage = RequestBuffer.request(() -> {
 					return channel.sendMessage(MusicEmbedFactory
 							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
