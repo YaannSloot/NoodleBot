@@ -13,6 +13,7 @@ import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
 import main.IanSloat.thiccbot.threadbox.BulkMessageDeletionJob;
 import main.IanSloat.thiccbot.threadbox.FilterMessageDeletionJob;
+import main.IanSloat.thiccbot.threadbox.MessageDeleteTools;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.InspirobotClient;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
@@ -185,8 +186,10 @@ public class CommandHandler {
 							GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
 							if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
 									|| setMgr.GetSetting("autoplay").equals("on")) {
-								RequestBuffer.request(() -> event.getChannel()
-										.sendMessage("Loaded " + playlist.getTracks().size() + " tracks"));
+								IMessage trackMessage = RequestBuffer.request(() -> {
+									return event.getChannel().sendMessage("Loaded " + playlist.getTracks().size() + " tracks");
+								}).get();
+								MessageDeleteTools.DeleteAfterMillis(trackMessage, 5000);
 								for (AudioTrack track : playlist.getTracks()) {
 									musicManager.scheduler.queue(track);
 								}
@@ -204,6 +207,7 @@ public class CommandHandler {
 							newMsg.withTitle("No results found");
 							newMsg.withColor(255, 0, 0);
 							message.edit(newMsg.build());
+							MessageDeleteTools.DeleteAfterMillis(message, 5000);
 							logger.info("Audio track search returned no results");
 						}
 
@@ -216,6 +220,7 @@ public class CommandHandler {
 									+ "If the URL is a stream, the stream can only be played if it is live");
 							newMsg.withColor(255, 0, 0);
 							message.edit(newMsg.build());
+							MessageDeleteTools.DeleteAfterMillis(message, 5000);
 							logger.info("An error occurred while attempting to load an audio track");
 						}
 					});
@@ -223,8 +228,12 @@ public class CommandHandler {
 					event.getChannel().sendMessage("Get in a voice channel first");
 				}
 			} catch (java.lang.StringIndexOutOfBoundsException e) {
-				event.getChannel().sendMessage("Play what?");
+				IMessage errorMessage = RequestBuffer.request(() -> {
+					return event.getChannel().sendMessage("Play what?");
+				}).get();
+				MessageDeleteTools.DeleteAfterMillis(errorMessage, 5000);
 			}
+			event.getMessage().delete();
 			return true;
 		} else {
 			return false;
@@ -254,9 +263,15 @@ public class CommandHandler {
 			if (voiceChannel != null) {
 				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 				musicManager.scheduler.stop();
-				event.getChannel().sendMessage("Stopped the current track");
+				IMessage commandMessage = RequestBuffer.request(() -> {
+					return event.getChannel().sendMessage("Stopped the current track");
+				}).get();
+				MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
 			} else {
-				event.getChannel().sendMessage("Not currently connected to any voice channels");
+				IMessage commandMessage = RequestBuffer.request(() -> {
+					return event.getChannel().sendMessage("Not currently connected to any voice channels");
+				}).get();
+				MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
 			}
 			return true;
 		} else {
@@ -375,18 +390,31 @@ public class CommandHandler {
 					if (musicManager.player.getPlayingTrack() != null) {
 						musicManager.player.playTrack(null);
 						musicManager.scheduler.nextTrack();
-						event.getChannel().sendMessage("Track skipped");
+						IMessage skipMessage = RequestBuffer.request(() -> {
+							return event.getChannel().sendMessage("Track skipped");
+						}).get();
+						MessageDeleteTools.DeleteAfterMillis(skipMessage, 5000);
 					}
 				} else if (tracks.size() > 0) {
 					musicManager.player.playTrack(null);
 					musicManager.scheduler.nextTrack();
-					event.getChannel().sendMessage("Track skipped");
+					IMessage skipMessage = RequestBuffer.request(() -> {
+						return event.getChannel().sendMessage("Track skipped");
+					}).get();
+					MessageDeleteTools.DeleteAfterMillis(skipMessage, 5000);
 				} else {
-					event.getChannel().sendMessage("No tracks are playing or queued");
+					IMessage skipMessage = RequestBuffer.request(() -> {
+						return event.getChannel().sendMessage("No tracks are playing or queued");
+					}).get();
+					MessageDeleteTools.DeleteAfterMillis(skipMessage, 5000);
 				}
 			} else {
-				event.getChannel().sendMessage("Not currently connected to any voice channels");
+				IMessage skipMessage = RequestBuffer.request(() -> {
+					return event.getChannel().sendMessage("Not currently connected to any voice channels");
+				}).get();
+				MessageDeleteTools.DeleteAfterMillis(skipMessage, 5000);
 			}
+			event.getMessage().delete();
 			return true;
 		} else {
 			return false;
