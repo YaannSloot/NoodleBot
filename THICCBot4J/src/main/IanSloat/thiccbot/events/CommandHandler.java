@@ -374,6 +374,7 @@ public class CommandHandler {
 			} else {
 				RequestBuffer.request(() -> event.getChannel().sendMessage("Queue is currently empty"));
 			}
+			event.getMessage().delete();
 			return true;
 		} else {
 			return false;

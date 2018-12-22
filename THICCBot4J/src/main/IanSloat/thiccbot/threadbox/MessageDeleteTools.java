@@ -18,7 +18,7 @@ public class MessageDeleteTools {
 			}
 		}
 		Thread thread = new Thread(new delete());
-		thread.run();
+		thread.start();
 	}
 	
 }
