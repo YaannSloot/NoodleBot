@@ -4,16 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.Scanner;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.java_websocket.server.WebSocketServer;
 
 import sx.blah.discord.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.thiccbot.events.Events;
+import main.IanSloat.thiccbot.guiclientserver.ClientServer;
 import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.MainConfigEditor;
 import main.IanSloat.thiccbot.tools.RunScriptGenerator;
@@ -24,7 +27,8 @@ public class ThiccBotMain {
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	public static GeoLocator locator;
-
+	public static WebSocketServer server;
+	
 	public static void main(String[] args) {
 
 		File logConfig = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging"
@@ -90,6 +94,10 @@ public class ThiccBotMain {
 		Scanner readLine = new Scanner(System.in);
 		
 		String command = "";
+		
+		server = new ClientServer(new InetSocketAddress("0.0.0.0", 80), client);
+		
+		server.run();
 		
 		while(!(command.equals("shutdown"))) {
 			try {

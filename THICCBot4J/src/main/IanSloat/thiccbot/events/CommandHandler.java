@@ -76,7 +76,7 @@ public class CommandHandler {
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
 					|| clearMessageHistoryCommand(event) || deleteMessagesByFilterCommand(event)
-					|| inspireMeCommand(event));
+					|| inspireMeCommand(event) || getClientLoginCredentials(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -273,6 +273,7 @@ public class CommandHandler {
 				}).get();
 				MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
 			}
+			event.getMessage().delete();
 			return true;
 		} else {
 			return false;
@@ -564,4 +565,31 @@ public class CommandHandler {
 		}
 	}
 
+	private boolean getClientLoginCredentials(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "get gui login")) {
+			if(PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+				EmbedBuilder message = new EmbedBuilder();
+				message.withTitle("Your server's login credentials");
+				message.appendField("Guild ID:", event.getGuild().getStringID(), false);
+				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+				if(setMgr.GetSetting("guipasswd").equals("")) {
+					String passwd = "";
+					for(int i = 0; i < 32; i++) {
+						passwd += (char)(int)(Math.random() * 93 + 34);
+					}
+					setMgr.SetSetting("guipasswd", passwd);
+				}
+				message.appendField("Special Password:", setMgr.GetSetting("guipasswd"), false);
+				message.withColor(0, 255, 0);
+				RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
+				RequestBuffer.request(() -> event.getChannel().sendMessage("Sent you a private message with the login details"));
+			} else {
+				RequestBuffer.request(() -> event.getChannel().sendMessage("You must be an administrator of this server to use gui management"));
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }

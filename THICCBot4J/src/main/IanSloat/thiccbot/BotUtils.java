@@ -18,7 +18,6 @@ public class BotUtils {
 		// the instance of your bot.
 		// Such as withToken, setDaemon etc
 		return new ClientBuilder().withToken(token).withRecommendedShardCount().build();
-
 	}
 
 	// Helpful input processing methods
