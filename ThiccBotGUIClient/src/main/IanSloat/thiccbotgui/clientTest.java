@@ -21,7 +21,7 @@ public class clientTest {
 					client.send(readLine.nextLine());
 				} catch (WebsocketNotConnectedException e) {
 					System.out.println("Error: not connected to gateway. Attempting to reconnect...");
-					client = new ThiccbotClient(new URI("ws://thiccbot.site"));
+					client = new ThiccbotClient(new URI("ws://thiccbot.site:443"));
 					client.connect();
 				}
 			}

@@ -79,7 +79,7 @@ public class ClientServer extends WebSocketServer{
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
-		// TODO Auto-generated method stub
+		logger.error(ex.getMessage());
 		
 	}
 
