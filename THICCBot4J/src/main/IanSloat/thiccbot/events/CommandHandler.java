@@ -135,8 +135,8 @@ public class CommandHandler {
 				response.appendField("Current server location", ThiccBotMain.locator.getCity() + ", "
 						+ ThiccBotMain.locator.getRegion() + ", " + ThiccBotMain.locator.getCountry(), false);
 			response.appendField("Powered by", "Java", false);
-			response.appendField("Bot Version", "thiccbot-v0.8alpha", false);
-			response.appendField("Status", "Getting close to v1.0 alpha, just not quite there yet", false);
+			response.appendField("Bot Version", ThiccBotMain.botVersion, false);
+			response.appendField("Status", ThiccBotMain.devMsg, false);
 			response.appendField("Current shard count", event.getClient().getShardCount() + " Shards active", false);
 			response.appendField("Current amount of threads running on server",
 					Thread.activeCount() + " Active threads", false);

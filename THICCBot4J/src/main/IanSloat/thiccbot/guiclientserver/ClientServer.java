@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.thiccbot.BotUtils;
+import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IGuild;
@@ -66,6 +67,13 @@ public class ClientServer extends WebSocketServer{
 				conn.send("No!");
 			}
 			
+		} else if(message.equals("requestnewstatstream")) {
+			conn.send("requestapproved");
+		} else if(message.equals("updaterq")) {
+			conn.send("srdcnt:" + client.getShardCount());
+			conn.send("vsninf:" + ThiccBotMain.botVersion);
+			conn.send("trdcnt:" + Thread.activeCount());
+			conn.send("dvmsg:" + ThiccBotMain.devMsg);
 		}
 	}
 
