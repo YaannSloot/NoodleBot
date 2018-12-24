@@ -14,14 +14,14 @@ public class clientTest {
 	public static void main(String[] args) {
 		Scanner readLine = new Scanner(System.in);
 		try {
-			WebSocketClient client = new ThiccbotClient(new URI("ws://0.0.0.0"));
+			WebSocketClient client = new ThiccbotClient(new URI("ws://thiccbot.site"));
 			client.connect();
 			while(true) {
 				try {
 					client.send(readLine.nextLine());
 				} catch (WebsocketNotConnectedException e) {
 					System.out.println("Error: not connected to gateway. Attempting to reconnect...");
-					client = new ThiccbotClient(new URI("ws://0.0.0.0"));
+					client = new ThiccbotClient(new URI("ws://thiccbot.site"));
 					client.connect();
 				}
 			}
