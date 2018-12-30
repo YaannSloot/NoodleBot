@@ -1,5 +1,5 @@
 # ThiccBot4Java
-
+OwO what's this
 ## Info
 𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that an upgrade was needed. This version of my bot is designed to run on minimal hardware power, i.e. a raspberry pi.
 
