@@ -157,6 +157,18 @@ public class TBMLSettingsParser {
 		return list;
 	}
 	
+	public boolean valExists(String valKey, String value) {
+		boolean val = false;
+		for(int i = docScope + 1; i < scopeEnd; i++) {
+			String line = tbmlLines.get(i);
+			if(line.equals(subDescriptor + "<val " + valKey + ">" + value + "</val>")) {
+				val = true;
+				break;
+			}
+		}
+		return val;
+	}
+	
 	public String getFirstInValGroup(String valKey) {
 		String val = "";
 		for(int i = docScope + 1; i < scopeEnd; i++) {
@@ -238,6 +250,15 @@ public class TBMLSettingsParser {
 		}
 		for(String val : valList) {
 			addVal(valKey, val);
+		}
+	}
+	
+	public void setScopePath(String path) {
+		String[] targets = path.split("/");
+		setScope(DOCROOT);
+		for(String obj : targets) {
+			addObj(obj);
+			setScope(obj);
 		}
 	}
 	

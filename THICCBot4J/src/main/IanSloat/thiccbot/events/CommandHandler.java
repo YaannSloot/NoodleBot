@@ -17,6 +17,7 @@ import main.IanSloat.thiccbot.threadbox.MessageDeleteTools;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.InspirobotClient;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
+import main.IanSloat.thiccbot.tools.PermissionsManager;
 import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
@@ -39,11 +40,26 @@ import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CommandHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
+
+	private final static Map<IGuild, PermissionsManager> permManagers = new HashMap<>();
+
+	private synchronized PermissionsManager getPermissionsManager(IGuild guild) {
+		PermissionsManager permMgr = permManagers.get(guild);
+
+		if (permMgr == null) {
+			permMgr = new PermissionsManager(guild);
+			permManagers.put(guild, permMgr);
+		}
+
+		return permMgr;
+	}
 
 	private synchronized GuildMusicManager getGuildAudioPlayer(IGuild guild, IChannel channel) {
 		long guildId = guild.getLongID();
@@ -98,7 +114,9 @@ public class CommandHandler {
 	}
 
 	private boolean helpCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "help")) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "help")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).HELP,
+						event.getChannel(), event.getAuthor())) {
 			String help = "help - Lists available commands\n" + "die - No u\n"
 					+ "play <video> - Plays a youtube video. You can enter the video name or the video URL\n"
 					+ "volume <0-150> - Changes the volume of the video thats playing. Volume ranges from 0-150\n"
@@ -117,8 +135,11 @@ public class CommandHandler {
 	}
 
 	private boolean questionCommand(MessageReceivedEvent event) {
+
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
-				&& BotUtils.checkForWords(event.getMessage().getContent(), ThiccBotMain.questionIDs, false, true)) {
+				&& BotUtils.checkForWords(event.getMessage().getContent(), ThiccBotMain.questionIDs, false, true)
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).QUESTION,
+						event.getChannel(), event.getAuthor())) {
 			logger.info(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()));
 			WolframController waClient = new WolframController(ThiccBotMain.waAppID);
 			waClient.askQuestionAndSend(event.getMessage().getContent().substring(BotUtils.BOT_PREFIX.length()),
@@ -130,7 +151,10 @@ public class CommandHandler {
 	}
 
 	private boolean infoCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "info")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "info")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).INFO,
+						event.getChannel(), event.getAuthor())) {
 			EmbedBuilder response = new EmbedBuilder();
 			if (!(ThiccBotMain.locator.getIPAddress().equals("")))
 				response.appendField("Current server location", ThiccBotMain.locator.getCity() + ", "
@@ -151,7 +175,10 @@ public class CommandHandler {
 	}
 
 	private boolean playCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).PLAY,
+						event.getChannel(), event.getAuthor())) {
 			try {
 				String videoURL = event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "play ").length());
 				IVoiceChannel voiceChannel = event.getAuthor().getVoiceStateForGuild(event.getGuild()).getChannel();
@@ -191,7 +218,8 @@ public class CommandHandler {
 							if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
 									|| setParser.getFirstInValGroup("autoplay").equals("on")) {
 								IMessage trackMessage = RequestBuffer.request(() -> {
-									return event.getChannel().sendMessage("Loaded " + playlist.getTracks().size() + " tracks");
+									return event.getChannel()
+											.sendMessage("Loaded " + playlist.getTracks().size() + " tracks");
 								}).get();
 								MessageDeleteTools.DeleteAfterMillis(trackMessage, 5000);
 								for (AudioTrack track : playlist.getTracks()) {
@@ -245,7 +273,10 @@ public class CommandHandler {
 	}
 
 	private boolean leaveCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "leave")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "leave")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).LEAVE,
+						event.getChannel(), event.getAuthor())) {
 			IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 			if (voiceChannel != null) {
 				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
@@ -262,7 +293,10 @@ public class CommandHandler {
 	}
 
 	private boolean stopCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "stop")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "stop")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).STOP,
+						event.getChannel(), event.getAuthor())) {
 			IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 			if (voiceChannel != null) {
 				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
@@ -285,7 +319,10 @@ public class CommandHandler {
 	}
 
 	private boolean volumeCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "volume ")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "volume ")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).VOLUME,
+						event.getChannel(), event.getAuthor())) {
 			IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 			if (voiceChannel != null) {
 				String volume = event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "volume ").length());
@@ -306,8 +343,11 @@ public class CommandHandler {
 	}
 
 	private boolean listSettingsCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "list settings")
-				|| event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "settings")) {
+
+		if ((event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "list settings")
+				|| event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "settings"))
+				&& getPermissionsManager(event.getGuild())
+						.authUsage(getPermissionsManager(event.getGuild()).LIST_SETTINGS, event.getChannel(), event.getAuthor())) {
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
 			TBMLSettingsParser setParser = setMgr.getTBMLParser();
 			setParser.setScope(TBMLSettingsParser.DOCROOT);
@@ -322,9 +362,8 @@ public class CommandHandler {
 			EmbedBuilder response = new EmbedBuilder();
 			response.withColor(0, 200, 0);
 			response.withTitle("Settings | " + event.getGuild().getName());
-			response.appendField("Voice channel settings",
-					"Default volume = " + setParser.getFirstInValGroup("volume") + "\nAutoPlay = " + setParser.getFirstInValGroup("autoplay"),
-					false);
+			response.appendField("Voice channel settings", "Default volume = " + setParser.getFirstInValGroup("volume")
+					+ "\nAutoPlay = " + setParser.getFirstInValGroup("autoplay"), false);
 			RequestBuffer.request(() -> event.getChannel().sendMessage(response.build()));
 			return true;
 		} else {
@@ -333,7 +372,10 @@ public class CommandHandler {
 	}
 
 	private boolean setCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "set ")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "set ")
+				&& getPermissionsManager(event.getGuild())
+						.authUsage(getPermissionsManager(event.getGuild()).SET_COMMAND, event.getChannel(), event.getAuthor())) {
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
 			TBMLSettingsParser setParser = setMgr.getTBMLParser();
 			setParser.setScope(TBMLSettingsParser.DOCROOT);
@@ -390,7 +432,10 @@ public class CommandHandler {
 	}
 
 	private boolean showQueueCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show queue")) {
+
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show queue")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).SHOW_QUEUE,
+						event.getChannel(), event.getAuthor())) {
 			GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 			if (musicManager.scheduler.getPlaylist().size() > 0) {
 				musicManager.scheduler.printPlaylist();
@@ -405,7 +450,10 @@ public class CommandHandler {
 	}
 
 	private boolean skipCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "skip")) {
+
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "skip")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).SKIP,
+						event.getChannel(), event.getAuthor())) {
 			IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 			if (voiceChannel != null) {
 				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
@@ -446,7 +494,10 @@ public class CommandHandler {
 	}
 
 	private boolean clearMessageHistoryCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "clear message history")) {
+
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "clear message history")
+				&& getPermissionsManager(event.getGuild())
+						.authUsage(getPermissionsManager(event.getGuild()).CLEAR_COMMAND, event.getChannel(), event.getAuthor())) {
 			final Instant currentTime = Instant.now().minus(7, ChronoUnit.DAYS);
 			BulkMessageDeletionJob job = BulkMessageDeletionJob.getDeletionJobForChannel(event.getChannel(),
 					currentTime);
@@ -458,10 +509,13 @@ public class CommandHandler {
 	}
 
 	private boolean deleteMessagesByFilterCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase()
+
+		if ((event.getMessage().getContent().toLowerCase()
 				.startsWith(BotUtils.BOT_PREFIX + "delete messages older than ")
 				|| event.getMessage().getContent().toLowerCase()
-						.startsWith(BotUtils.BOT_PREFIX + "delete messages from ")) {
+						.startsWith(BotUtils.BOT_PREFIX + "delete messages from "))
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).BY_FILTER,
+						event.getChannel(), event.getAuthor())) {
 			String ageString = event.getMessage().getContent().toLowerCase()
 					.replace(BotUtils.BOT_PREFIX + "delete messages older than ", "");
 			ageString = ageString.replace(',', ' ');
@@ -538,7 +592,8 @@ public class CommandHandler {
 				}
 				// System.out.println(String.join(" ", words));
 			}
-			if (days > 0 || weeks > 0 || months > 0 || years > 0 || usersMentioned.size() > 0 || rolesMentioned.size() > 0) {
+			if (days > 0 || weeks > 0 || months > 0 || years > 0 || usersMentioned.size() > 0
+					|| rolesMentioned.size() > 0) {
 				FilterMessageDeletionJob job = FilterMessageDeletionJob.getDeletionJobForChannel(event.getChannel());
 				job.setAge(date.toInstant());
 				job.deleteByLength(0, true);
@@ -571,7 +626,10 @@ public class CommandHandler {
 	}
 
 	private boolean inspireMeCommand(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "inspire me")) {
+
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "inspire me")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).INSPIRE_ME,
+						event.getChannel(), event.getAuthor())) {
 			InspirobotClient iClient = new InspirobotClient();
 			EmbedBuilder message = new EmbedBuilder();
 			message.withImage(iClient.getNewImageUrl());
@@ -588,8 +646,11 @@ public class CommandHandler {
 	}
 
 	private boolean getClientLoginCredentials(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "get gui login")) {
-			if(PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "get gui login")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).GET_LOGIN,
+						event.getChannel(), event.getAuthor())) {
+			if (PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
 				EmbedBuilder message = new EmbedBuilder();
 				message.withTitle("Your server's login credentials");
 				message.appendField("Guild ID:", event.getGuild().getStringID(), false);
@@ -598,29 +659,34 @@ public class CommandHandler {
 				setParser.setScope(TBMLSettingsParser.DOCROOT);
 				setParser.addObj("GuiSettings");
 				setParser.setScope("GuiSettings");
-				if(setParser.getFirstInValGroup("guipasswd").equals("")) {
+				if (setParser.getFirstInValGroup("guipasswd").equals("")) {
 					String passwd = "";
-					for(int i = 0; i < 32; i++) {
-						passwd += (char)(int)(Math.random() * 93 + 34);
+					for (int i = 0; i < 32; i++) {
+						passwd += (char) (int) (Math.random() * 93 + 34);
 					}
 					setParser.addVal("guipasswd", passwd);
 				}
 				message.appendField("Special Password:", setParser.getFirstInValGroup("guipasswd"), false);
 				message.withColor(0, 255, 0);
 				RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
-				RequestBuffer.request(() -> event.getChannel().sendMessage("Sent you a private message with the login details"));
+				RequestBuffer.request(
+						() -> event.getChannel().sendMessage("Sent you a private message with the login details"));
 			} else {
-				RequestBuffer.request(() -> event.getChannel().sendMessage("You must be an administrator of this server to use gui management"));
+				RequestBuffer.request(() -> event.getChannel()
+						.sendMessage("You must be an administrator of this server to use gui management"));
 			}
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	private boolean setNewGuiPassword(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "get new gui login")) {
-			if(PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "get new gui login")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).GET_LOGIN,
+						event.getChannel(), event.getAuthor())) {
+			if (PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
 				EmbedBuilder message = new EmbedBuilder();
 				message.appendField("Guild ID:", event.getGuild().getStringID(), false);
 				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
@@ -629,10 +695,10 @@ public class CommandHandler {
 				setParser.addObj("GuiSettings");
 				setParser.setScope("GuiSettings");
 				String passwd = "";
-				for(int i = 0; i < 32; i++) {
-					passwd += (char)(int)(Math.random() * 93 + 34);
+				for (int i = 0; i < 32; i++) {
+					passwd += (char) (int) (Math.random() * 93 + 34);
 				}
-				if(setParser.getFirstInValGroup("guipasswd").equals("")) {
+				if (setParser.getFirstInValGroup("guipasswd").equals("")) {
 					setParser.addVal("guipasswd", passwd);
 					message.withTitle("Your server's login credentials");
 				} else {
@@ -642,9 +708,32 @@ public class CommandHandler {
 				message.appendField("Special Password:", setParser.getFirstInValGroup("guipasswd"), false);
 				message.withColor(0, 255, 0);
 				RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
-				RequestBuffer.request(() -> event.getChannel().sendMessage("Sent you a private message with the login details"));
+				RequestBuffer.request(
+						() -> event.getChannel().sendMessage("Sent you a private message with the login details"));
 			} else {
-				RequestBuffer.request(() -> event.getChannel().sendMessage("You must be an administrator of this server to use gui management"));
+				RequestBuffer.request(() -> event.getChannel()
+						.sendMessage("You must be an administrator of this server to use gui management"));
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean setPermission(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "permission")
+				&& getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).GET_LOGIN,
+						event.getChannel(), event.getAuthor())) {
+			if (PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+				String command = BotUtils.normalizeSentence(
+						event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "permission").length()));
+				String[] words = command.split(" ");
+				
+				
+				
+			} else {
+				RequestBuffer.request(() -> event.getChannel()
+						.sendMessage("You must be an administrator of this server to manage permissions"));
 			}
 			return true;
 		} else {
