@@ -17,6 +17,7 @@ import main.IanSloat.thiccbot.threadbox.MessageDeleteTools;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.InspirobotClient;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
+import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
@@ -76,7 +77,7 @@ public class CommandHandler {
 					|| playCommand(event) || leaveCommand(event) || stopCommand(event) || volumeCommand(event)
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
 					|| clearMessageHistoryCommand(event) || deleteMessagesByFilterCommand(event)
-					|| inspireMeCommand(event) || getClientLoginCredentials(event));
+					|| inspireMeCommand(event) || getClientLoginCredentials(event) || setNewGuiPassword(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -166,9 +167,13 @@ public class CommandHandler {
 						videoURL = "ytsearch:" + videoURL;
 					}
 					GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-					if (setMgr.GetSetting("volume").equals(""))
-						setMgr.SetSetting("volume", "100");
-					musicManager.player.setVolume(Integer.parseInt(setMgr.GetSetting("volume")));
+					TBMLSettingsParser setParser = setMgr.getTBMLParser();
+					setParser.setScope(TBMLSettingsParser.DOCROOT);
+					setParser.addObj("PlayerSettings");
+					setParser.setScope("PlayerSettings");
+					if (setParser.getFirstInValGroup("volume").equals(""))
+						setParser.addVal("volume", "100");
+					musicManager.player.setVolume(Integer.parseInt(setParser.getFirstInValGroup("volume")));
 					final String URI = videoURL;
 					Events.playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 						@Override
@@ -183,9 +188,8 @@ public class CommandHandler {
 						public void playlistLoaded(AudioPlaylist playlist) {
 							logger.info("A track playlist was loaded");
 							musicManager.scheduler.stop();
-							GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
 							if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
-									|| setMgr.GetSetting("autoplay").equals("on")) {
+									|| setParser.getFirstInValGroup("autoplay").equals("on")) {
 								IMessage trackMessage = RequestBuffer.request(() -> {
 									return event.getChannel().sendMessage("Loaded " + playlist.getTracks().size() + " tracks");
 								}).get();
@@ -305,17 +309,21 @@ public class CommandHandler {
 		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "list settings")
 				|| event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "settings")) {
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-			if (setMgr.GetSetting("volume").equals("")) {
-				setMgr.SetSetting("volume", "100");
+			TBMLSettingsParser setParser = setMgr.getTBMLParser();
+			setParser.setScope(TBMLSettingsParser.DOCROOT);
+			setParser.addObj("PlayerSettings");
+			setParser.setScope("PlayerSettings");
+			if (setParser.getFirstInValGroup("volume").equals("")) {
+				setParser.addVal("volume", "100");
 			}
-			if (setMgr.GetSetting("autoplay").equals("")) {
-				setMgr.SetSetting("autoplay", "off");
+			if (setParser.getFirstInValGroup("autoplay").equals("")) {
+				setParser.addVal("autoplay", "off");
 			}
 			EmbedBuilder response = new EmbedBuilder();
 			response.withColor(0, 200, 0);
 			response.withTitle("Settings | " + event.getGuild().getName());
 			response.appendField("Voice channel settings",
-					"Default volume = " + setMgr.GetSetting("volume") + "\nAutoPlay = " + setMgr.GetSetting("autoplay"),
+					"Default volume = " + setParser.getFirstInValGroup("volume") + "\nAutoPlay = " + setParser.getFirstInValGroup("autoplay"),
 					false);
 			RequestBuffer.request(() -> event.getChannel().sendMessage(response.build()));
 			return true;
@@ -327,6 +335,8 @@ public class CommandHandler {
 	private boolean setCommand(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "set ")) {
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+			TBMLSettingsParser setParser = setMgr.getTBMLParser();
+			setParser.setScope(TBMLSettingsParser.DOCROOT);
 			String command = BotUtils.normalizeSentence(
 					event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "set").length()));
 			String[] words = command.split(" ");
@@ -343,17 +353,29 @@ public class CommandHandler {
 					} else {
 						value = Integer.parseInt(words[1]);
 					}
-					setMgr.SetSetting("volume", Integer.toString(value));
+					setParser.setScope(TBMLSettingsParser.DOCROOT);
+					setParser.addObj("PlayerSettings");
+					setParser.setScope("PlayerSettings");
+					if (setParser.getFirstInValGroup("volume").equals("")) {
+						setParser.addVal("volume", "100");
+					}
+					setParser.setFirstInValGroup("volume", Integer.toString(value));
 					event.getChannel().sendMessage("Changed default volume to " + value);
 				} catch (NumberFormatException e) {
 					event.getChannel().sendMessage("The value provided is not valid for that setting");
 				}
 			} else if (command.toLowerCase().startsWith("autoplay ") && words.length >= 2) {
+				setParser.setScope(TBMLSettingsParser.DOCROOT);
+				setParser.addObj("PlayerSettings");
+				setParser.setScope("PlayerSettings");
+				if (setParser.getFirstInValGroup("autoplay").equals("")) {
+					setParser.addVal("autoplay", "off");
+				}
 				if (words[1].toLowerCase().equals("on")) {
-					setMgr.SetSetting("autoplay", "on");
+					setParser.setFirstInValGroup("autoplay", "on");
 					event.getChannel().sendMessage("Set AutoPlay to \'on\'");
 				} else if (words[1].toLowerCase().equals("off")) {
-					setMgr.SetSetting("autoplay", "off");
+					setParser.setFirstInValGroup("autoplay", "off");
 					event.getChannel().sendMessage("Set AutoPlay to \'off\'");
 				} else {
 					event.getChannel().sendMessage("The value provided is not valid for that setting");
@@ -572,14 +594,52 @@ public class CommandHandler {
 				message.withTitle("Your server's login credentials");
 				message.appendField("Guild ID:", event.getGuild().getStringID(), false);
 				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-				if(setMgr.GetSetting("guipasswd").equals("")) {
+				TBMLSettingsParser setParser = setMgr.getTBMLParser();
+				setParser.setScope(TBMLSettingsParser.DOCROOT);
+				setParser.addObj("GuiSettings");
+				setParser.setScope("GuiSettings");
+				if(setParser.getFirstInValGroup("guipasswd").equals("")) {
 					String passwd = "";
 					for(int i = 0; i < 32; i++) {
 						passwd += (char)(int)(Math.random() * 93 + 34);
 					}
-					setMgr.SetSetting("guipasswd", passwd);
+					setParser.addVal("guipasswd", passwd);
 				}
-				message.appendField("Special Password:", setMgr.GetSetting("guipasswd"), false);
+				message.appendField("Special Password:", setParser.getFirstInValGroup("guipasswd"), false);
+				message.withColor(0, 255, 0);
+				RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
+				RequestBuffer.request(() -> event.getChannel().sendMessage("Sent you a private message with the login details"));
+			} else {
+				RequestBuffer.request(() -> event.getChannel().sendMessage("You must be an administrator of this server to use gui management"));
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean setNewGuiPassword(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "get new gui login")) {
+			if(PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+				EmbedBuilder message = new EmbedBuilder();
+				message.appendField("Guild ID:", event.getGuild().getStringID(), false);
+				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+				TBMLSettingsParser setParser = setMgr.getTBMLParser();
+				setParser.setScope(TBMLSettingsParser.DOCROOT);
+				setParser.addObj("GuiSettings");
+				setParser.setScope("GuiSettings");
+				String passwd = "";
+				for(int i = 0; i < 32; i++) {
+					passwd += (char)(int)(Math.random() * 93 + 34);
+				}
+				if(setParser.getFirstInValGroup("guipasswd").equals("")) {
+					setParser.addVal("guipasswd", passwd);
+					message.withTitle("Your server's login credentials");
+				} else {
+					setParser.setFirstInValGroup("guipasswd", passwd);
+					message.withTitle("Your server's new login credentials");
+				}
+				message.appendField("Special Password:", setParser.getFirstInValGroup("guipasswd"), false);
 				message.withColor(0, 255, 0);
 				RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
 				RequestBuffer.request(() -> event.getChannel().sendMessage("Sent you a private message with the login details"));

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
+import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IGuild;
 
@@ -55,7 +56,11 @@ public class ClientServer extends WebSocketServer{
 				IGuild guild = client.getGuildByID(guildID);
 				if(guild != null) {
 					GuildSettingsManager setMgr = new GuildSettingsManager(guild);
-					if(setMgr.GetSetting("guipasswd").equals(passwd)) {
+					TBMLSettingsParser setParser = setMgr.getTBMLParser();
+					setParser.setScope(TBMLSettingsParser.DOCROOT);
+					setParser.addObj("GuiSettings");
+					setParser.setScope("GuiSettings");
+					if(setParser.getFirstInValGroup("guipasswd").equals(passwd)) {
 						conn.send("Success!");
 					} else {
 						conn.send("No!");

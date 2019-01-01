@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import main.IanSloat.thiccbot.events.Events;
 import main.IanSloat.thiccbot.guiclientserver.ClientServer;
 import main.IanSloat.thiccbot.tools.GeoLocator;
-import main.IanSloat.thiccbot.tools.MainConfigEditor;
 import main.IanSloat.thiccbot.tools.RunScriptGenerator;
+import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
 
 public class ThiccBotMain {
 
@@ -30,6 +30,9 @@ public class ThiccBotMain {
 	public static WebSocketServer server;
 	public static String botVersion = "thiccbot-v0.8alpha";
 	public static String devMsg = "Getting close to v1.0 alpha, just not quite there yet";
+	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
+			+ BotUtils.PATH_SEPARATOR + "settings.bot");
+	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	
 	public static void main(String[] args) {
 
@@ -77,17 +80,57 @@ public class ThiccBotMain {
 		RunScriptGenerator scriptGen = new RunScriptGenerator();
 		scriptGen.generate();
 		
-		MainConfigEditor cfgEdit = new MainConfigEditor();
+		TBMLSettingsParser setMgr;
 		
-		String token = cfgEdit.getToken();
-
-		waAppID = cfgEdit.getAppID();
+		if (!(configDir.exists())) {
+			configDir.mkdirs();
+			logger.info("Bot settings directory not found. A new settings directory was created at "
+					+ configDir.getAbsolutePath());
+		}
+		if (!(configFile.exists())) {
+			logger.info("Bot settings file not found. Creating new file...");
+			setMgr = new TBMLSettingsParser(configFile);
+			Scanner readLine = new Scanner(System.in);
+			logger.info("Bot settings file created successfully. Starting bot setup wizard...");
+			System.out.println("\n\n\n\nWelcome to the ThiccBot setup wizard\n"
+					+ "Before you start using your bot, you will have to provide a few details\n\n"
+					+ "Please input your bots token");
+			System.out.print(">");
+			String token = readLine.nextLine();
+			System.out.println("\nPlease input you WolframAlpha API AppID\n"
+					+ "For more information on obtaining an AppID, please visit this link:\n"
+					+ "https://products.wolframalpha.com/api/documentation/#obtaining-an-appid");
+			System.out.print(">");
+			String appID = readLine.nextLine();
+			System.out.println("\nPlease input this machines public ip.\n"
+					+ "You can find this out by searching \"what is my ip\" in google.\n"
+					+ "If you don't want this server's location to be shown on the info command,\n"
+					+ "just leave the line blank and hit enter");
+			System.out.print(">");
+			String ip = readLine.nextLine();
+			readLine.close();
+			System.out.println("\nWriting settings to config file...");
+			setMgr.addObj("StartupItems");
+			setMgr.setScope("StartupItems");
+			setMgr.addVal("TOKEN", token);
+			setMgr.addVal("APPID", appID);
+			setMgr.addVal("IP", ip);
+			System.out.println("Done.");
+		}
 		
-		locator = new GeoLocator(cfgEdit.getIP());
+		setMgr = new TBMLSettingsParser(configFile);
+		
+		setMgr.setScope(TBMLSettingsParser.DOCROOT);
+		
+		setMgr.setScope("StartupItems");
+		
+		waAppID = setMgr.getFirstInValGroup("APPID");
+		
+		locator = new GeoLocator(setMgr.getFirstInValGroup("IP"));
 
 		IDiscordClient client;
 
-		client = BotUtils.getBuiltDiscordClient(token);
+		client = BotUtils.getBuiltDiscordClient(setMgr.getFirstInValGroup("TOKEN"));
 		
 		client.getDispatcher().registerListener(new Events());
 
