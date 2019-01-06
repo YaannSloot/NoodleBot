@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.thiccbot.ThiccBotMain;
+import main.IanSloat.thiccbot.threadbox.MessageDeleteTools;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.RequestBuffer;
 
 public class PermissionsManager {
 
@@ -16,8 +20,7 @@ public class PermissionsManager {
 
 	public final String CLEAR_COMMAND = "clear";
 	public final String BY_FILTER = "filter";
-	public final String GET_LOGIN = "loginreq";
-	public final String HELP = "help";
+	public final String GET_LOGIN = "adminlogin";
 	public final String INFO = "info";
 	public final String INSPIRE_ME = "inspire";
 	public final String LEAVE = "leave";
@@ -30,14 +33,27 @@ public class PermissionsManager {
 	public final String VOLUME = "volume";
 	public final String SHOW_QUEUE = "showqueue";
 	public final String PERMMGR = "permsettings";
+	public final String PLAYER_GLOBAL = "player";
+	public final String MANAGE_GLOBAL = "management";
+	public final String UTIL_GLOBAL = "utility";
+	public final String MISC_GLOBAL = "misc";
 	public final String DENY = "Deny";
 	public final String ALLOW = "Allow";
 	public final String ALLOW_GLOBAL = "GlobalAllow";
 	public final String DENY_GLOBAL = "GlobalDeny";
-	
+
+	public static final String[] commandWords = { "clear", "filter", "adminlogin", "info", "inspire", "leave",
+			"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
+			"management", "utility", "misc" };
+
 	private IGuild guild;
 	private TBMLSettingsParser setParser;
+	private boolean isQuiet = false;
 
+	public void setQuietMode(boolean mode) {
+		isQuiet = mode;
+	}
+	
 	public PermissionsManager(IGuild guild) {
 		GuildSettingsManager setMgr = new GuildSettingsManager(guild);
 		this.guild = guild;
@@ -62,18 +78,19 @@ public class PermissionsManager {
 		this.setParser.addObj("UtilityPermissions");
 		this.setParser.addObj("MiscPermissions");
 	}
-	
+
 	private String getCatagory(String command) {
 		String regDirectory = "";
 		if (command.equals(PLAY) || command.equals(SKIP) || command.equals(STOP) || command.equals(VOLUME)
-				|| command.equals(LEAVE) || command.equals(SHOW_QUEUE)) {
+				|| command.equals(LEAVE) || command.equals(SHOW_QUEUE) || command.equals(PLAYER_GLOBAL)) {
 			regDirectory = "PlayerPermissions";
 		} else if (command.equals(CLEAR_COMMAND) || command.equals(BY_FILTER) || command.equals(SET_COMMAND)
-				|| command.equals(LIST_SETTINGS) || command.equals(GET_LOGIN)) {
+				|| command.equals(LIST_SETTINGS) || command.equals(GET_LOGIN) || command.equals(MANAGE_GLOBAL) || command.equals(PERMMGR)) {
 			regDirectory = "ManagementPermissions";
-		} else if (command.equals(INFO) || command.equals(HELP) || command.equals(QUESTION) || command.equals(PERMMGR)) {
+		} else if (command.equals(INFO) || command.equals(QUESTION)
+				|| command.equals(UTIL_GLOBAL)) {
 			regDirectory = "UtilityPermissions";
-		} else if (command.equals(INSPIRE_ME)) {
+		} else if (command.equals(INSPIRE_ME) || command.equals(MISC_GLOBAL)) {
 			regDirectory = "MiscPermissions";
 		}
 		return regDirectory;
@@ -94,7 +111,7 @@ public class PermissionsManager {
 		String regDirectory = "";
 		boolean match = false;
 		regDirectory = getCatagory(command);
-		if(!(regDirectory.equals(""))) {
+		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
 		if (match == true) {
@@ -110,93 +127,102 @@ public class PermissionsManager {
 			setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + command + "/Allow");
 			UserAllow = setParser.getValGroup("User");
 			RoleAllow = setParser.getValGroup("Role");
-			for(IRole role : user.getRolesForGuild(guild)) {
+			for (IRole role : user.getRolesForGuild(guild)) {
 				UserRoles.add(role.getStringID());
 			}
-			if(globalUserDeny.contains(User)) {
+			if (guild.getOwner().getStringID().equals(User)) {
+				allow = true;
+			} else if (ThiccBotMain.botOwner.getStringID().equals(User)) {
+				allow = true;
+			} else if (globalUserDeny.contains(User)) {
 				allow = false;
-				if(checkForElement(RoleAllow, UserRoles)) {
+				if (checkForElement(RoleAllow, UserRoles)) {
 					allow = true;
-					if(UserDeny.contains(User)) {
+					if (UserDeny.contains(User)) {
 						allow = false;
 					}
-				} else if(UserAllow.contains(User)) {
+				} else if (UserAllow.contains(User)) {
 					allow = true;
 				}
-			} else if(globalUserAllow.contains(User)) {
+			} else if (globalUserAllow.contains(User)) {
 				allow = true;
-				if(checkForElement(RoleDeny, UserRoles)) {
+				if (checkForElement(RoleDeny, UserRoles)) {
 					allow = false;
-					if(UserAllow.contains(User)) {
+					if (UserAllow.contains(User)) {
 						allow = true;
 					}
-				} else if(UserDeny.contains(User)) {
+				} else if (UserDeny.contains(User)) {
 					allow = false;
 				}
-			} else if(checkForElement(globalRoleDeny, UserRoles)) {
+			} else if (checkForElement(globalRoleDeny, UserRoles)) {
 				allow = false;
-				if(checkForElement(RoleAllow, UserRoles)) {
+				if (checkForElement(RoleAllow, UserRoles)) {
 					allow = true;
-					if(UserDeny.contains(User)) {
+					if (UserDeny.contains(User)) {
 						allow = false;
 					}
-				} else if(UserAllow.contains(User)) {
+				} else if (UserAllow.contains(User)) {
 					allow = true;
 				}
-			} else if(checkForElement(globalRoleAllow, UserRoles)) {
+			} else if (checkForElement(globalRoleAllow, UserRoles)) {
 				allow = true;
-				if(checkForElement(RoleDeny, UserRoles)) {
+				if (checkForElement(RoleDeny, UserRoles)) {
 					allow = false;
-					if(UserAllow.contains(User)) {
+					if (UserAllow.contains(User)) {
 						allow = true;
 					}
-				} else if(UserDeny.contains(User)) {
+				} else if (UserDeny.contains(User)) {
 					allow = false;
 				}
-			} else if(checkForElement(RoleDeny, UserRoles)) {
+			} else if (checkForElement(RoleDeny, UserRoles)) {
 				allow = false;
-				if(UserAllow.contains(User)) {
+				if (UserAllow.contains(User)) {
 					allow = true;
 				}
-			} else if(checkForElement(RoleAllow, UserRoles)) {
+			} else if (checkForElement(RoleAllow, UserRoles)) {
 				allow = true;
-				if(UserDeny.contains(User)) {
+				if (UserDeny.contains(User)) {
 					allow = false;
 				}
-			} else if(UserDeny.contains(User)) {
+			} else if (UserDeny.contains(User)) {
 				allow = false;
 			}
 		}
+		if(allow == false && isQuiet == false) {
+			IMessage errorMsg = RequestBuffer.request(() -> {
+				return channel.sendMessage("You don't have permission to use that command");
+			}).get();
+			MessageDeleteTools.DeleteAfterMillis(errorMsg, 5000);
+		}
 		return allow;
 	}
-	
+
 	public void SetPermission(String command, IUser user, String permission) {
 		String User = user.getStringID();
 		String regDirectory = "";
 		String deletePath = "";
 		boolean match = false;
 		regDirectory = getCatagory(command);
-		if(!(regDirectory.equals(""))) {
+		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
 		if (match == true) {
-			if(permission.equals(ALLOW) || permission.equals(DENY)) {
+			if (permission.equals(ALLOW) || permission.equals(DENY)) {
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + command + "/" + permission);
-				if(permission.equals(ALLOW)){
+				if (permission.equals(ALLOW)) {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + command + "/" + DENY;
 				} else {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + command + "/" + ALLOW;
 				}
-			}
-			else {
+			} else {
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + permission);
-				if(permission.equals(ALLOW_GLOBAL)){
+				if (permission.equals(ALLOW_GLOBAL)) {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + DENY_GLOBAL;
 				} else {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + ALLOW_GLOBAL;
 				}
 			}
-			if(!(setParser.valExists("User", User))) {
+			if (!(setParser.valExists("User", User))) {
 				setParser.addVal("User", User);
 			}
 			setParser.setScopePath(deletePath);
@@ -210,79 +236,78 @@ public class PermissionsManager {
 		String deletePath = "";
 		boolean match = false;
 		regDirectory = getCatagory(command);
-		if(!(regDirectory.equals(""))) {
+		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
 		if (match == true) {
-			if(permission.equals(ALLOW) || permission.equals(DENY)) {
+			if (permission.equals(ALLOW) || permission.equals(DENY)) {
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + command + "/" + permission);
-				if(permission.equals(ALLOW)){
+				if (permission.equals(ALLOW)) {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + command + "/" + DENY;
 				} else {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + command + "/" + ALLOW;
 				}
-			}
-			else {
+			} else {
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + permission);
-				if(permission.equals(ALLOW_GLOBAL)){
+				if (permission.equals(ALLOW_GLOBAL)) {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + DENY_GLOBAL;
 				} else {
 					deletePath = "PermissionsRegistry/" + regDirectory + "/" + ALLOW_GLOBAL;
 				}
 			}
-			if(!(setParser.valExists("Role", Role))) {
+			if (!(setParser.valExists("Role", Role))) {
 				setParser.addVal("Role", Role);
 			}
 			setParser.setScopePath(deletePath);
 			setParser.removeVal("Role", Role);
 		}
 	}
-	
+
 	public void removePermission(String command, IUser user, String permission) {
 		String User = user.getStringID();
 		String regDirectory = "";
 		boolean match = false;
 		regDirectory = getCatagory(command);
-		if(!(regDirectory.equals(""))) {
+		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
 		if (match == true) {
-			if(permission.equals(ALLOW) || permission.equals(DENY))
+			if (permission.equals(ALLOW) || permission.equals(DENY))
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + command + "/" + permission);
 			else
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + permission);
-			
+
 			setParser.removeVal("User", User);
 		}
 	}
-	
+
 	public void removePermission(String command, IRole role, String permission) {
 		String Role = role.getStringID();
 		String regDirectory = "";
 		boolean match = false;
 		regDirectory = getCatagory(command);
-		if(!(regDirectory.equals(""))) {
+		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
 		if (match == true) {
-			if(permission.equals(ALLOW) || permission.equals(DENY))
+			if (permission.equals(ALLOW) || permission.equals(DENY))
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + command + "/" + permission);
 			else
 				setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + permission);
-			
+
 			setParser.removeVal("Role", Role);
 		}
 	}
-	
+
 	private boolean checkForElement(ArrayList<String> list, ArrayList<String> elements) {
 		boolean value = false;
-		for(String element : elements) {
-			if(list.contains(element)) {
+		for (String element : elements) {
+			if (list.contains(element)) {
 				value = true;
 				break;
 			}
 		}
 		return value;
 	}
-	
+
 }

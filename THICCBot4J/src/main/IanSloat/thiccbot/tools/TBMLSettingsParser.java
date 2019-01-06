@@ -186,8 +186,7 @@ public class TBMLSettingsParser {
 		for(int i = docScope + 1; i < scopeEnd; i++) {
 			String line = tbmlLines.get(i);
 			if(line.startsWith(subDescriptor + "<val " + valKey + ">")) {
-				tbmlLines.remove(i);
-				tbmlLines.add(i, subDescriptor + "<val " + valKey + ">" + value + "</val>");
+				tbmlLines.set(i, subDescriptor + "<val " + valKey + ">" + value + "</val>");
 				break;
 			}
 		}

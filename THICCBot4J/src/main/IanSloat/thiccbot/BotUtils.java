@@ -1,5 +1,6 @@
 package main.IanSloat.thiccbot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sx.blah.discord.api.ClientBuilder;
@@ -86,4 +87,25 @@ public class BotUtils {
 		return output;
 	}
 
+	public static boolean checkForElement(List<?> list, List<?> elements) {
+		boolean value = false;
+		for(Object element : elements) {
+			if(list.contains(element)) {
+				value = true;
+				break;
+			}
+		}
+		return value;
+	}
+	
+	public static boolean stringArrayContains(String[] array, String word) {
+		boolean result = false;
+		for(String w : array) {
+			if(w.equals(word)) {
+				result = true;
+			}
+		}
+		return result;
+	}
+	
 }

@@ -12,6 +12,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.java_websocket.server.WebSocketServer;
 
 import sx.blah.discord.api.*;
+import sx.blah.discord.handle.obj.IUser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ public class ThiccBotMain {
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
+	public static IUser botOwner;
 	
 	public static void main(String[] args) {
 
@@ -135,7 +138,9 @@ public class ThiccBotMain {
 		client.getDispatcher().registerListener(new Events());
 
 		client.login();
-
+		
+		botOwner = client.getApplicationOwner();
+		
 		Scanner readLine = new Scanner(System.in);
 		
 		String command = "";
