@@ -145,7 +145,7 @@ public class ThiccBotMain {
 		
 		String command = "";
 		
-		server = new ClientServer(new InetSocketAddress("0.0.0.0", 443), client);
+		server = new ClientServer(new InetSocketAddress("0.0.0.0", 8000), client);
 		
 		server.run();
 		

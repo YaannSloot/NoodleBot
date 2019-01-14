@@ -79,7 +79,8 @@ public class CommandHandler {
 	}
 
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
+				&& event.getChannel().isPrivate() == false) {
 			logger.info("Message recieved from: " + event.getAuthor().getName() + ", server="
 					+ event.getGuild().getName() + ", Content=\"" + event.getMessage() + "\"");
 
@@ -111,6 +112,15 @@ public class CommandHandler {
 					event.getChannel().sendMessage("What you're saying makes no sense.");
 				}
 				logger.info("Message did not match any commands");
+			}
+		} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
+				&& event.getChannel().isPrivate()) {
+			logger.info("Private message recieved from: " + event.getAuthor().getName() + ", Content=\"" + event.getMessage() + "\"");
+			if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping"))
+				event.getChannel().sendMessage("Pong!");
+
+			if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "die")) {
+				event.getChannel().sendMessage("no u");
 			}
 		}
 	}
@@ -204,7 +214,7 @@ public class CommandHandler {
 			RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
 			permMgr.setQuietMode(false);
 			RequestBuffer.request(() -> event.getMessage().delete());
-			
+
 			return true;
 		} else {
 			return false;
