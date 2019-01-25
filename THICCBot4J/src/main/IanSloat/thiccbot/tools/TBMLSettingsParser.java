@@ -234,9 +234,20 @@ public class TBMLSettingsParser {
 			String line = tbmlLines.get(i);
 			if(line.startsWith(subDescriptor + "<val " + valKey + ">")) {
 				tbmlLines.remove(i);
+				i--;
 				scopeEnd--;
 			}
 		}
+		writeSettings();
+	}
+	
+	public void clearCurrentObj() {
+		for(int i = docScope + 1; i < scopeEnd; i++) {
+			tbmlLines.remove(i);
+			i--;
+			scopeEnd--;
+		}
+		writeSettings();
 	}
 	
 	public void addValuesToGroup(String valKey, ArrayList<String> valList) {

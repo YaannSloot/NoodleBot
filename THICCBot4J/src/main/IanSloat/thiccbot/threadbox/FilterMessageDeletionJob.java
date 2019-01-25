@@ -88,7 +88,7 @@ public class FilterMessageDeletionJob {
 			if (deleteByUser == true && users != null && deleteByLength == true && length != 0) {
 				logger.info("Filtered message deletion job was started");
 				List<IMessage> history;
-				if(age != null) {
+				if (age != null) {
 					history = RequestBuffer.request(() -> {
 						return channel.getMessageHistoryFrom(age, 2001);
 					}).get();
@@ -115,7 +115,7 @@ public class FilterMessageDeletionJob {
 			} else if (deleteByUser == true && users != null) {
 				logger.info("Filtered message deletion job was started");
 				List<IMessage> history;
-				if(age != null) {
+				if (age != null) {
 					history = RequestBuffer.request(() -> {
 						return channel.getMessageHistoryFrom(age, 2001);
 					}).get();
@@ -140,7 +140,7 @@ public class FilterMessageDeletionJob {
 			} else if (deleteByLength == true && length != 0) {
 				logger.info("Filtered message deletion job was started");
 				List<IMessage> history;
-				if(age != null) {
+				if (age != null) {
 					history = RequestBuffer.request(() -> {
 						return channel.getMessageHistoryFrom(age, 2001);
 					}).get();
@@ -162,6 +162,16 @@ public class FilterMessageDeletionJob {
 					}
 				}
 				deleteMessages(historyNew);
+			} else if (age != null) {
+				List<IMessage> history = RequestBuffer.request(() -> {
+					return channel.getMessageHistoryFrom(age, 2001);
+				}).get();
+				if (history.size() == 2001) {
+					channel.sendMessage("More than 2000 messages were detected."
+							+ "\nThis command can only handle 2000 messages at a time."
+							+ "\nTo delete more messages, run this command again when it finishes");
+				}
+				deleteMessages(history);
 			} else {
 				logger.error("Job was not configured properly");
 			}

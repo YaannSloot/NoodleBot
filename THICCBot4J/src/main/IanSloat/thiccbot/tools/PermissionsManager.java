@@ -298,6 +298,12 @@ public class PermissionsManager {
 			setParser.removeVal("Role", Role);
 		}
 	}
+	
+	public void clearPermissions() {
+		setParser.setScopePath("PermissionsRegistry");
+		setParser.clearCurrentObj();
+		initRegistry();
+	}
 
 	private boolean checkForElement(ArrayList<String> list, ArrayList<String> elements) {
 		boolean value = false;

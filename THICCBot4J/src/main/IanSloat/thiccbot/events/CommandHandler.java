@@ -96,7 +96,7 @@ public class CommandHandler {
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
 					|| clearMessageHistoryCommand(event) || deleteMessagesByFilterCommand(event)
 					|| inspireMeCommand(event) || getClientLoginCredentials(event) || setNewGuiPassword(event)
-					|| setPermission(event));
+					|| setPermission(event) || setPermDefaults(event) || showCommandIds(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -940,5 +940,86 @@ public class CommandHandler {
 			return false;
 		}
 	}
+	
+	private boolean setPermDefaults(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "apply default permissions")) {
+			RequestBuffer.request(() -> event.getMessage().delete());
+			if (getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).PERMMGR,
+					event.getChannel(), event.getAuthor())) {
+				if (event.getGuild().getOwner().equals(event.getAuthor())) {
+					PermissionsManager permMgr = getPermissionsManager(event.getGuild());
+					permMgr.clearPermissions();
+					List<IUser> guildUsers = new ArrayList<IUser>();
+					List<IRole> guildRoles = new ArrayList<IRole>();
+					guildUsers.addAll(event.getGuild().getUsers());
+					guildRoles.addAll(event.getGuild().getRoles());
+					guildUsers.remove(event.getGuild().getOwner());
+					for(IUser user : guildUsers) {
+						if(PermissionUtils.hasPermissions(event.getGuild(), user, Permissions.ADMINISTRATOR) == false){
+							permMgr.SetPermission(permMgr.INFO, user, permMgr.DENY);
+							permMgr.SetPermission(permMgr.MANAGE_GLOBAL, user, permMgr.DENY_GLOBAL);
+						}
+					}
+					for(IRole role : guildRoles) {
+						if(!(role.getPermissions().contains(Permissions.ADMINISTRATOR))){
+							permMgr.SetPermission(permMgr.INFO, role, permMgr.DENY);
+							permMgr.SetPermission(permMgr.MANAGE_GLOBAL, role, permMgr.DENY_GLOBAL);
+						}
+					}
+					IMessage completeMsg = RequestBuffer.request(() -> {
+						return event.getChannel().sendMessage("Permissions set successfully");
+					}).get();
+					MessageDeleteTools.DeleteAfterMillis(completeMsg, 5000);
+				} else {
+					RequestBuffer.request(() -> event.getChannel()
+							.sendMessage("You must be the owner of this server to set default permissions"));
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean showCommandIds(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show permission ids")) {
+			RequestBuffer.request(() -> event.getMessage().delete());
+			if (getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).PERMMGR,
+					event.getChannel(), event.getAuthor())) {
+				if(PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+					String[] commandWords = { "clear", "filter", "adminlogin", "info", "inspire", "leave",
+							"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
+							"management", "utility", "misc" };
+					EmbedBuilder message = new EmbedBuilder(); 
+					message.withTitle("Permission IDs");
+					message.withColor(Color.ORANGE);
+					message.appendField("**Player command IDs (global id: player)**", "**play** - thicc play\n"
+							+ "**volume** - thicc volume\n"
+							+ "**skip** - thicc skip\n"
+							+ "**stop** - thicc stop\n"
+							+ "**showqueue** - thicc show queue\n"
+							+ "**leave** - thicc leave", false);
+					message.appendField("**Server management command IDs (global id: management)**", "**clear** - thicc clear message history\n"
+							+ "**filter** - thicc delete messages\n"
+							+ "**set** - thicc set\n"
+							+ "**listsettings** - thicc list settings\n"
+							+ "**adminlogin**:\nthicc get gui login\nthicc get new gui login\n"
+							+ "**permsettings** - thicc permission", false);
+					message.appendField("**Utility command IDs (global id: utility)**", "**info** - thicc info\n"
+							+ "**question** - wolfram question command", false);
+					message.appendField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - thicc inspire me", false);
+					RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
+				} else {
+					RequestBuffer.request(() -> event.getChannel()
+							.sendMessage("You must be an administrator of this server to manage permissions"));
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
 
 }
