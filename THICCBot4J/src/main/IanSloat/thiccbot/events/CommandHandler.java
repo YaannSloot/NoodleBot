@@ -51,7 +51,7 @@ public class CommandHandler {
 
 	private final static Map<IGuild, PermissionsManager> permManagers = new HashMap<>();
 
-	private synchronized PermissionsManager getPermissionsManager(IGuild guild) {
+	public static synchronized PermissionsManager getPermissionsManager(IGuild guild) {
 		PermissionsManager permMgr = permManagers.get(guild);
 
 		if (permMgr == null) {
@@ -1008,6 +1008,7 @@ public class CommandHandler {
 					message.appendField("**Utility command IDs (global id: utility)**", "**info** - thicc info\n"
 							+ "**question** - wolfram question command", false);
 					message.appendField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - thicc inspire me", false);
+					message.appendField("View the current settings for your guild's permissions:", "[Click Here](http://thiccbot.site/pro/permissions?guildid=" + event.getGuild().getStringID() + ")", false);
 					RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
 				} else {
 					RequestBuffer.request(() -> event.getChannel()

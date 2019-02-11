@@ -9,10 +9,21 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.util.EmbedBuilder;
 
+/**
+ * Standard core ThiccBot class used to create Discord4J embed objects based on
+ * a provided lavaplayer audio track
+ * 
+ * @author Ian Sloat
+ *
+ */
 public class MusicEmbedFactory {
 
 	private AudioTrack track;
 
+	/**
+	 * Creates a new MusicEmbedFactory embedded message generator
+	 * @param track the lavaplayer audio track to reference when creating embedded content
+	 */
 	public MusicEmbedFactory(AudioTrack track) {
 		this.track = track;
 	}
@@ -57,7 +68,7 @@ public class MusicEmbedFactory {
 		response.withColor(142, 36, 170);
 		return response.build();
 	}
-	
+
 	private EmbedObject getSoundCloudEmbed() {
 		EmbedBuilder response = new EmbedBuilder();
 		response.appendField("Now playing: ", '[' + track.getInfo().title + "](" + track.getInfo().uri + ')', true);
@@ -81,7 +92,11 @@ public class MusicEmbedFactory {
 		response.withColor(97, 146, 156);
 		return response.build();
 	}
-	
+
+	/**
+	 * Generates embedded content based on the EmbedFactory's AudioTrack object
+	 * @return the EmbedObject message created off of the AudioTrack
+	 */
 	public EmbedObject getPlaying() {
 		EmbedObject result = new EmbedObject();
 		if (track.getSourceManager().getSourceName().equals("youtube")) {
@@ -94,10 +109,16 @@ public class MusicEmbedFactory {
 			result = getSoundCloudEmbed();
 		} else if (track.getSourceManager().getSourceName().equals("bandcamp")) {
 			result = getBandcampEmbed();
-		} 
+		}
 		return result;
 	}
 
+	/**
+	 * Generates an EmbedObject containing a list of the provided audio tracks
+	 * @param title the title to add to the EmbedObject
+	 * @param tracks a list of AudioTracks to add to the generated list
+	 * @return the resulting EmbedObject
+	 */
 	public static EmbedObject generatePlaylistList(String title, List<AudioTrack> tracks) {
 		EmbedBuilder response = new EmbedBuilder();
 		response.setLenient(true);

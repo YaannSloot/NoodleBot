@@ -1,9 +1,11 @@
 package main.IanSloat.thiccbot;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.Scanner;
@@ -36,6 +38,7 @@ public class ThiccBotMain {
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	public static IUser botOwner;
+	public static IDiscordClient client;
 	
 	public static void main(String[] args) {
 
@@ -131,8 +134,6 @@ public class ThiccBotMain {
 		
 		locator = new GeoLocator(setMgr.getFirstInValGroup("IP"));
 
-		IDiscordClient client;
-
 		client = BotUtils.getBuiltDiscordClient(setMgr.getFirstInValGroup("TOKEN"));
 		
 		client.getDispatcher().registerListener(new Events());
@@ -141,27 +142,38 @@ public class ThiccBotMain {
 		
 		botOwner = client.getApplicationOwner();
 		
-		Scanner readLine = new Scanner(System.in);
-		
-		String command = "";
-		
 		server = new ClientServer(new InetSocketAddress("0.0.0.0", 443), client);
 		
 		server.run();
 		
-		while(!(command.equals("shutdown"))) {
-			try {
-			command = readLine.nextLine();
-			} catch (java.util.NoSuchElementException e) {}
+		class inputThread implements Runnable {
+
+			@Override
+			public void run() {
+				String command = "";
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				while(!(command.equals("shutdown"))) {
+					try {
+						command = br.readLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				
+				logger.info("Bot is shutting down...");
+				
+				System.exit(0);
+				
+			}
 			
 		}
 		
-		logger.info("Bot is shutting down...");
+		Thread commandReader = new Thread(new inputThread());
 		
-		readLine.close();
-		
-		System.exit(0);
+		commandReader.start();
 		
 	}
-
+	
 }

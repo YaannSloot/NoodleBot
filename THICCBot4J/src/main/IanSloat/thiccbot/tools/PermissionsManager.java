@@ -45,7 +45,15 @@ public class PermissionsManager {
 	public static final String[] commandWords = { "clear", "filter", "adminlogin", "info", "inspire", "leave",
 			"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
 			"management", "utility", "misc" };
-
+	
+	public static final String[] playerCommands = { "player", "play", "volume", "skip", "stop", "showqueue", "leave" };
+	
+	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings", "adminlogin", "permsettings" };
+	
+	public static final String[] utilityCommands = { "utility", "info", "question" };
+	
+	public static final String[] miscCommands = { "misc", "inspire" };
+	
 	private IGuild guild;
 	private TBMLSettingsParser setParser;
 	private boolean isQuiet = false;
