@@ -25,7 +25,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	private IGuild guild;
 	private final BlockingQueue<AudioTrack> queue;
 	private final AudioPlayer player;
-
+	private boolean displayQueue = false;
+	
 	public TrackScheduler(IChannel channel, AudioPlayer player) {
 		this.channel = channel;
 		this.guild = channel.getGuild();
@@ -52,29 +53,11 @@ public class TrackScheduler extends AudioEventAdapter {
 		}
 	}
 
-	public void printPlaylist() {
-		if (getPlaylist().size() > 0) {
-			if (channel.getMessageHistory(1).getLatestMessage().equals(playlistMessage)) {
-				playlistMessage = RequestBuffer.request(() -> {
-					return playlistMessage.edit(MusicEmbedFactory
-							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
-				}).get();
-			}
-			else if(playlistMessage != null) {
-				playlistMessage.delete();
-				playlistMessage = RequestBuffer.request(() -> {
-					return channel.sendMessage(MusicEmbedFactory
-							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
-				}).get();
-			} else {
-				playlistMessage = RequestBuffer.request(() -> {
-					return channel.sendMessage(MusicEmbedFactory
-							.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
-				}).get();
-			}
-		}
+	public void setPlaylistDisplay(boolean value) {
+		displayQueue = value;
+		updateStatus();
 	}
-
+	
 	public List<AudioTrack> getPlaylist() {
 		return new ArrayList<AudioTrack>(queue);
 	}
@@ -93,7 +76,24 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void pauseTrack() {
 		player.setPaused(true);
 	}
+	
+	public void unpauseTrack() {
+		player.setPaused(false);
+	}
 
+	public boolean isPaused() {
+		return player.isPaused();
+	}
+	
+	public boolean removeTrackFromQueue(int trackNumber) {
+		boolean result = false;
+		if(trackNumber <= queue.size()) {
+			trackNumber--;
+			result = queue.remove(this.getPlaylist().get(trackNumber));
+		}
+		return result;
+	}
+	
 	public void stopTrack() {
 		player.stopTrack();
 	}
@@ -114,6 +114,20 @@ public class TrackScheduler extends AudioEventAdapter {
 		return guild;
 	}
 
+	public void updateStatus() {
+		if (channel.getMessageHistory(1).getLatestMessage().equals(message)) {
+			MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+			RequestBuffer.request(() -> message.edit(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume())));
+		} else {
+			MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+			if (message != null)
+				message.delete();
+			message = RequestBuffer.request(() -> {
+				return channel.sendMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
+			}).get();
+		}
+	}
+	
 	@Override
 	public void onPlayerPause(AudioPlayer player) {
 		// Player was paused
@@ -126,25 +140,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
-		if (channel.getMessageHistory(1).getLatestMessage().equals(message)) {
-			MusicEmbedFactory musEmbed = new MusicEmbedFactory(track);
-			RequestBuffer.request(() -> message.edit(musEmbed.getPlaying()));
-		} else {
-			MusicEmbedFactory musEmbed = new MusicEmbedFactory(track);
-			if (message != null)
-				message.delete();
-			message = RequestBuffer.request(() -> {
-				return channel.sendMessage(musEmbed.getPlaying());
-			}).get();
-		}
-		if(playlistMessage != null && getPlaylist().size() > 0) {
-			playlistMessage = RequestBuffer.request(() -> {
-				return playlistMessage.edit(MusicEmbedFactory
-						.generatePlaylistList("Playlist | " + channel.getGuild().getName(), getPlaylist()));
-			}).get();
-		} else if (playlistMessage != null && getPlaylist().size() <= 0){
-			playlistMessage.delete();
-		}
+		updateStatus();
 	}
 
 	@Override

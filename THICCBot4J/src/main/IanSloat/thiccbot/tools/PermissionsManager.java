@@ -1,6 +1,7 @@
 package main.IanSloat.thiccbot.tools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class PermissionsManager {
 			"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
 			"management", "utility", "misc" };
 	
-	public static final String[] playerCommands = { "player", "play", "volume", "skip", "stop", "showqueue", "leave" };
+	public static final String[] playerCommands = { "player", "play", "volume", "skip", "stop", "pause", "queuemanage", "showqueue", "leave" };
 	
 	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings", "adminlogin", "permsettings" };
 	
@@ -89,16 +90,13 @@ public class PermissionsManager {
 
 	private String getCatagory(String command) {
 		String regDirectory = "";
-		if (command.equals(PLAY) || command.equals(SKIP) || command.equals(STOP) || command.equals(VOLUME)
-				|| command.equals(LEAVE) || command.equals(SHOW_QUEUE) || command.equals(PLAYER_GLOBAL)) {
+		if (Arrays.asList(playerCommands).contains(command)) {
 			regDirectory = "PlayerPermissions";
-		} else if (command.equals(CLEAR_COMMAND) || command.equals(BY_FILTER) || command.equals(SET_COMMAND)
-				|| command.equals(LIST_SETTINGS) || command.equals(GET_LOGIN) || command.equals(MANAGE_GLOBAL) || command.equals(PERMMGR)) {
+		} else if (Arrays.asList(managementCommands).contains(command)) {
 			regDirectory = "ManagementPermissions";
-		} else if (command.equals(INFO) || command.equals(QUESTION)
-				|| command.equals(UTIL_GLOBAL)) {
+		} else if (Arrays.asList(utilityCommands).contains(command)) {
 			regDirectory = "UtilityPermissions";
-		} else if (command.equals(INSPIRE_ME) || command.equals(MISC_GLOBAL)) {
+		} else if (Arrays.asList(miscCommands).contains(command)) {
 			regDirectory = "MiscPermissions";
 		}
 		return regDirectory;

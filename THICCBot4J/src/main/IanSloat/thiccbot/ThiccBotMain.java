@@ -32,7 +32,7 @@ public class ThiccBotMain {
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	public static GeoLocator locator;
 	public static WebSocketServer server;
-	public static String botVersion = "thiccbot-v0.8alpha";
+	public static String botVersion = "thiccbot-v0.9.1_alpha";
 	public static String devMsg = "Getting close to v1.0 alpha, just not quite there yet";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");

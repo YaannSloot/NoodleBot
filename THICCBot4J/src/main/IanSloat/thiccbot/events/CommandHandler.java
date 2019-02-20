@@ -1,5 +1,6 @@
 package main.IanSloat.thiccbot.events;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +99,8 @@ public class CommandHandler {
 					|| listSettingsCommand(event) || setCommand(event) || showQueueCommand(event) || skipCommand(event)
 					|| clearMessageHistoryCommand(event) || deleteMessagesByFilterCommand(event)
 					|| inspireMeCommand(event) || getClientLoginCredentials(event) || setNewGuiPassword(event)
-					|| setPermission(event) || setPermDefaults(event) || showCommandIds(event));
+					|| setPermission(event) || setPermDefaults(event) || showCommandIds(event) || pauseCommand(event)
+					|| removeFromQueueCommand(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -268,12 +272,19 @@ public class CommandHandler {
 
 	private boolean playCommand(MessageReceivedEvent event) {
 
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play") || 
+				event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add")) {
 			if (getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).PLAY,
 					event.getChannel(), event.getAuthor())) {
 				try {
-					String videoURL = event.getMessage().getContent()
+					String videoURL = "";
+					if(event.getMessage().getAttachments().size() == 0) {
+					videoURL = event.getMessage().getContent()
 							.substring((BotUtils.BOT_PREFIX + "play ").length());
+					}
+					else {
+						videoURL = event.getMessage().getAttachments().get(0).getUrl();
+					}
 					IVoiceChannel voiceChannel = event.getAuthor().getVoiceStateForGuild(event.getGuild()).getChannel();
 					if (voiceChannel != null) {
 						voiceChannel.join();
@@ -299,7 +310,15 @@ public class CommandHandler {
 							@Override
 							public void trackLoaded(AudioTrack track) {
 								logger.info("A track was loaded");
-								musicManager.scheduler.stop();
+								if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+									musicManager.scheduler.stop();
+								} else {
+									IMessage result = RequestBuffer.request(() -> {
+										return event.getChannel().sendMessage("Added " + track.getInfo().title + " to queue");
+									}).get();
+									MessageDeleteTools.DeleteAfterMillis(result, 5000);
+									musicManager.scheduler.updateStatus();
+								}
 								musicManager.scheduler.queue(track);
 								message.delete();
 							}
@@ -307,9 +326,12 @@ public class CommandHandler {
 							@Override
 							public void playlistLoaded(AudioPlaylist playlist) {
 								logger.info("A track playlist was loaded");
-								musicManager.scheduler.stop();
-								if (!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
-										|| setParser.getFirstInValGroup("autoplay").equals("on")) {
+								if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+									musicManager.scheduler.stop();
+								}
+								if ((!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
+										|| setParser.getFirstInValGroup("autoplay").equals("on")) && 
+										event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
 									IMessage trackMessage = RequestBuffer.request(() -> {
 										return event.getChannel()
 												.sendMessage("Loaded " + playlist.getTracks().size() + " tracks");
@@ -321,6 +343,13 @@ public class CommandHandler {
 								} else {
 									logger.info("Was a search and autoplay is off so only one track was loaded");
 									musicManager.scheduler.queue(playlist.getTracks().get(0));
+									if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add")) {
+										IMessage result = RequestBuffer.request(() -> {
+											return event.getChannel().sendMessage("Added " + playlist.getTracks().get(0).getInfo().title + " to queue");
+										}).get();
+										MessageDeleteTools.DeleteAfterMillis(result, 5000);
+										musicManager.scheduler.updateStatus();
+									}
 								}
 								message.delete();
 							}
@@ -426,6 +455,7 @@ public class CommandHandler {
 					try {
 						GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 						musicManager.player.setVolume(Integer.parseInt(volume));
+						musicManager.scheduler.updateStatus();
 						event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
 					} catch (java.lang.NumberFormatException e) {
 						event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
@@ -540,7 +570,8 @@ public class CommandHandler {
 					event.getChannel(), event.getAuthor())) {
 				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 				if (musicManager.scheduler.getPlaylist().size() > 0) {
-					musicManager.scheduler.printPlaylist();
+					musicManager.scheduler.setPlaylistDisplay(true);
+					musicManager.scheduler.updateStatus();
 				} else {
 					RequestBuffer.request(() -> event.getChannel().sendMessage("Queue is currently empty"));
 				}
@@ -552,6 +583,109 @@ public class CommandHandler {
 		}
 	}
 
+	private boolean pauseCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "pause")) {
+			if (getPermissionsManager(event.getGuild()).authUsage("pause", event.getChannel(), event.getAuthor())) {
+				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
+				if (voiceChannel != null) {
+					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+					if(musicManager.scheduler.isPaused() == false) {
+						musicManager.scheduler.pauseTrack();
+						RequestBuffer.request(() -> {
+							event.getChannel().sendMessage("Paused the current track");
+						});
+					} else {
+						musicManager.scheduler.unpauseTrack();
+						RequestBuffer.request(() -> {
+							event.getChannel().sendMessage("Unpaused the current track");
+						});
+					}
+				} else {
+					RequestBuffer.request(() -> {
+						event.getChannel().sendMessage("No tracks are currently playing");
+					});
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean removeFromQueueCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "remove track")) {
+			RequestBuffer.request(() -> {
+				event.getMessage().delete();
+			});
+			if (getPermissionsManager(event.getGuild()).authUsage("queuemanage", event.getChannel(), event.getAuthor())) {
+				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
+				if (voiceChannel != null) {
+					String command = event.getMessage().getContent();
+					command = command.replace(BotUtils.BOT_PREFIX + "remove track", "");
+					command = BotUtils.normalizeSentence(command);
+					List<String> wordList = Arrays.asList(command.split(" "));
+					command = "";
+					for(String word : wordList) {
+						command += word;
+					}
+					wordList = Arrays.asList(command.split("-"));
+					if(wordList.size() < 1 || wordList.size() > 2) {
+						IMessage response = RequestBuffer.request(() -> {
+							return event.getChannel().sendMessage("Please only specify either a single track or one range of tracks");
+						}).get();
+						MessageDeleteTools.DeleteAfterMillis(response, 5000);
+					} else {
+						List<Integer> trackNumbers = new ArrayList<Integer>();
+						boolean parseError = false;
+						for(String number : wordList) {
+							try {
+								trackNumbers.add(Integer.parseInt(number));
+							} catch (NumberFormatException e) {
+								parseError = true;
+							}
+						}
+						if(parseError == true) {
+							IMessage response = RequestBuffer.request(() -> {
+								return event.getChannel().sendMessage("Please only reference tracks via whole numbers in base 10");
+							}).get();
+							MessageDeleteTools.DeleteAfterMillis(response, 5000);
+						} else {
+							GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());;
+							trackNumbers.sort(Comparator.naturalOrder());
+							if(trackNumbers.get(0) < 1) {
+								trackNumbers.set(0, 1);
+							} else if(trackNumbers.get(0) > musicManager.scheduler.getPlaylist().size()) {
+								trackNumbers.set(0, musicManager.scheduler.getPlaylist().size());
+							}
+							if(trackNumbers.size() == 1) {
+								musicManager.scheduler.removeTrackFromQueue(trackNumbers.get(0));
+								musicManager.scheduler.updateStatus();
+							} else {
+								if(trackNumbers.get(1) < 1) {
+									trackNumbers.set(1, 1);
+								} else if(trackNumbers.get(1) > musicManager.scheduler.getPlaylist().size()) {
+									trackNumbers.set(1, musicManager.scheduler.getPlaylist().size());
+								}
+								int amount = trackNumbers.get(1) - trackNumbers.get(0) + 1;
+								for(int i = 0; i < amount; i++) {
+									musicManager.scheduler.removeTrackFromQueue(trackNumbers.get(0));
+								}
+								musicManager.scheduler.updateStatus();
+							}
+						}
+					}
+				} else {
+					RequestBuffer.request(() -> {
+						event.getChannel().sendMessage("No tracks are currently playing");
+					});
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	private boolean skipCommand(MessageReceivedEvent event) {
 
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "skip")) {
