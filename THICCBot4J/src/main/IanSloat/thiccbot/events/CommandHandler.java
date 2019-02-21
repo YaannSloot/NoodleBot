@@ -119,7 +119,8 @@ public class CommandHandler {
 			}
 		} else if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
 				&& event.getChannel().isPrivate()) {
-			logger.info("Private message recieved from: " + event.getAuthor().getName() + ", Content=\"" + event.getMessage() + "\"");
+			logger.info("Private message recieved from: " + event.getAuthor().getName() + ", Content=\""
+					+ event.getMessage() + "\"");
 			if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping"))
 				event.getChannel().sendMessage("Pong!");
 
@@ -272,17 +273,15 @@ public class CommandHandler {
 
 	private boolean playCommand(MessageReceivedEvent event) {
 
-		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play") || 
-				event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add")) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")
+				|| event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add")) {
 			if (getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).PLAY,
 					event.getChannel(), event.getAuthor())) {
 				try {
 					String videoURL = "";
-					if(event.getMessage().getAttachments().size() == 0) {
-					videoURL = event.getMessage().getContent()
-							.substring((BotUtils.BOT_PREFIX + "play ").length());
-					}
-					else {
+					if (event.getMessage().getAttachments().size() == 0) {
+						videoURL = event.getMessage().getContent().substring((BotUtils.BOT_PREFIX + "play ").length());
+					} else {
 						videoURL = event.getMessage().getAttachments().get(0).getUrl();
 					}
 					IVoiceChannel voiceChannel = event.getAuthor().getVoiceStateForGuild(event.getGuild()).getChannel();
@@ -304,17 +303,19 @@ public class CommandHandler {
 						setParser.setScope("PlayerSettings");
 						if (setParser.getFirstInValGroup("volume").equals(""))
 							setParser.addVal("volume", "100");
-						musicManager.player.setVolume(Integer.parseInt(setParser.getFirstInValGroup("volume")));
+						musicManager.scheduler.setVolume(Integer.parseInt(setParser.getFirstInValGroup("volume")));
 						final String URI = videoURL;
 						Events.playerManager.loadItem("" + videoURL, new AudioLoadResultHandler() {
 							@Override
 							public void trackLoaded(AudioTrack track) {
 								logger.info("A track was loaded");
-								if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+								if (event.getMessage().getContent().toLowerCase()
+										.startsWith(BotUtils.BOT_PREFIX + "play")) {
 									musicManager.scheduler.stop();
 								} else {
 									IMessage result = RequestBuffer.request(() -> {
-										return event.getChannel().sendMessage("Added " + track.getInfo().title + " to queue");
+										return event.getChannel()
+												.sendMessage("Added " + track.getInfo().title + " to queue");
 									}).get();
 									MessageDeleteTools.DeleteAfterMillis(result, 5000);
 									musicManager.scheduler.updateStatus();
@@ -326,12 +327,14 @@ public class CommandHandler {
 							@Override
 							public void playlistLoaded(AudioPlaylist playlist) {
 								logger.info("A track playlist was loaded");
-								if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+								if (event.getMessage().getContent().toLowerCase()
+										.startsWith(BotUtils.BOT_PREFIX + "play")) {
 									musicManager.scheduler.stop();
 								}
 								if ((!URI.startsWith("ytsearch:") || !URI.startsWith("scsearch:")
-										|| setParser.getFirstInValGroup("autoplay").equals("on")) && 
-										event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play")) {
+										|| setParser.getFirstInValGroup("autoplay").equals("on"))
+										&& event.getMessage().getContent().toLowerCase()
+												.startsWith(BotUtils.BOT_PREFIX + "play")) {
 									IMessage trackMessage = RequestBuffer.request(() -> {
 										return event.getChannel()
 												.sendMessage("Loaded " + playlist.getTracks().size() + " tracks");
@@ -343,9 +346,11 @@ public class CommandHandler {
 								} else {
 									logger.info("Was a search and autoplay is off so only one track was loaded");
 									musicManager.scheduler.queue(playlist.getTracks().get(0));
-									if(event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add")) {
+									if (event.getMessage().getContent().toLowerCase()
+											.startsWith(BotUtils.BOT_PREFIX + "add")) {
 										IMessage result = RequestBuffer.request(() -> {
-											return event.getChannel().sendMessage("Added " + playlist.getTracks().get(0).getInfo().title + " to queue");
+											return event.getChannel().sendMessage("Added "
+													+ playlist.getTracks().get(0).getInfo().title + " to queue");
 										}).get();
 										MessageDeleteTools.DeleteAfterMillis(result, 5000);
 										musicManager.scheduler.updateStatus();
@@ -452,9 +457,16 @@ public class CommandHandler {
 				if (voiceChannel != null) {
 					String volume = event.getMessage().getContent()
 							.substring((BotUtils.BOT_PREFIX + "volume ").length());
+					GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+					TBMLSettingsParser setParser = setMgr.getTBMLParser();
 					try {
 						GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
-						musicManager.player.setVolume(Integer.parseInt(volume));
+						if (setParser.getFirstInValGroup("volumecap").equals("off")) {
+							musicManager.scheduler.setVolume(Integer.parseInt(volume));
+						} else {
+							musicManager.scheduler.setVolume(
+									Math.min(200, Math.max(0, Integer.parseInt(volume))));
+						}
 						musicManager.scheduler.updateStatus();
 						event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
 					} catch (java.lang.NumberFormatException e) {
@@ -487,12 +499,16 @@ public class CommandHandler {
 				if (setParser.getFirstInValGroup("autoplay").equals("")) {
 					setParser.addVal("autoplay", "off");
 				}
+				if (setParser.getFirstInValGroup("volumecap").equals("")) {
+					setParser.addVal("volumecap", "on");
+				}
 				EmbedBuilder response = new EmbedBuilder();
 				response.withColor(0, 200, 0);
 				response.withTitle("Settings | " + event.getGuild().getName());
 				response.appendField("Voice channel settings",
 						"Default volume = " + setParser.getFirstInValGroup("volume") + "\nAutoPlay = "
-								+ setParser.getFirstInValGroup("autoplay"),
+								+ setParser.getFirstInValGroup("autoplay") + "\nEnforce volume cap = "
+								+ setParser.getFirstInValGroup("volumecap"),
 						false);
 				RequestBuffer.request(() -> event.getChannel().sendMessage(response.build()));
 			}
@@ -553,9 +569,26 @@ public class CommandHandler {
 					} else {
 						event.getChannel().sendMessage("The value provided is not valid for that setting");
 					}
+				} else if (command.toLowerCase().startsWith("volumecap ") && words.length >= 2) {
+					setParser.setScope(TBMLSettingsParser.DOCROOT);
+					setParser.addObj("PlayerSettings");
+					setParser.setScope("PlayerSettings");
+					if (setParser.getFirstInValGroup("volumecap").equals("")) {
+						setParser.addVal("volumecap", "on");
+					}
+					if (words[1].toLowerCase().equals("on")) {
+						setParser.setFirstInValGroup("volumecap", "on");
+						event.getChannel().sendMessage("Set volume limit to \'on\'");
+					} else if (words[1].toLowerCase().equals("off")) {
+						setParser.setFirstInValGroup("volumecap", "off");
+						event.getChannel().sendMessage("Set volume limit to \'off\'");
+					} else {
+						event.getChannel().sendMessage("The value provided is not valid for that setting");
+					}
 				} else {
 					event.getChannel().sendMessage("That is not a valid setting");
 				}
+
 			}
 			return true;
 		} else {
@@ -589,7 +622,7 @@ public class CommandHandler {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
 					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
-					if(musicManager.scheduler.isPaused() == false) {
+					if (musicManager.scheduler.isPaused() == false) {
 						musicManager.scheduler.pauseTrack();
 						RequestBuffer.request(() -> {
 							event.getChannel().sendMessage("Paused the current track");
@@ -611,13 +644,14 @@ public class CommandHandler {
 			return false;
 		}
 	}
-	
+
 	private boolean removeFromQueueCommand(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "remove track")) {
 			RequestBuffer.request(() -> {
 				event.getMessage().delete();
 			});
-			if (getPermissionsManager(event.getGuild()).authUsage("queuemanage", event.getChannel(), event.getAuthor())) {
+			if (getPermissionsManager(event.getGuild()).authUsage("queuemanage", event.getChannel(),
+					event.getAuthor())) {
 				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
 				if (voiceChannel != null) {
 					String command = event.getMessage().getContent();
@@ -625,49 +659,52 @@ public class CommandHandler {
 					command = BotUtils.normalizeSentence(command);
 					List<String> wordList = Arrays.asList(command.split(" "));
 					command = "";
-					for(String word : wordList) {
+					for (String word : wordList) {
 						command += word;
 					}
 					wordList = Arrays.asList(command.split("-"));
-					if(wordList.size() < 1 || wordList.size() > 2) {
+					if (wordList.size() < 1 || wordList.size() > 2) {
 						IMessage response = RequestBuffer.request(() -> {
-							return event.getChannel().sendMessage("Please only specify either a single track or one range of tracks");
+							return event.getChannel()
+									.sendMessage("Please only specify either a single track or one range of tracks");
 						}).get();
 						MessageDeleteTools.DeleteAfterMillis(response, 5000);
 					} else {
 						List<Integer> trackNumbers = new ArrayList<Integer>();
 						boolean parseError = false;
-						for(String number : wordList) {
+						for (String number : wordList) {
 							try {
 								trackNumbers.add(Integer.parseInt(number));
 							} catch (NumberFormatException e) {
 								parseError = true;
 							}
 						}
-						if(parseError == true) {
+						if (parseError == true) {
 							IMessage response = RequestBuffer.request(() -> {
-								return event.getChannel().sendMessage("Please only reference tracks via whole numbers in base 10");
+								return event.getChannel()
+										.sendMessage("Please only reference tracks via whole numbers in base 10");
 							}).get();
 							MessageDeleteTools.DeleteAfterMillis(response, 5000);
 						} else {
-							GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());;
+							GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+							;
 							trackNumbers.sort(Comparator.naturalOrder());
-							if(trackNumbers.get(0) < 1) {
+							if (trackNumbers.get(0) < 1) {
 								trackNumbers.set(0, 1);
-							} else if(trackNumbers.get(0) > musicManager.scheduler.getPlaylist().size()) {
+							} else if (trackNumbers.get(0) > musicManager.scheduler.getPlaylist().size()) {
 								trackNumbers.set(0, musicManager.scheduler.getPlaylist().size());
 							}
-							if(trackNumbers.size() == 1) {
+							if (trackNumbers.size() == 1) {
 								musicManager.scheduler.removeTrackFromQueue(trackNumbers.get(0));
 								musicManager.scheduler.updateStatus();
 							} else {
-								if(trackNumbers.get(1) < 1) {
+								if (trackNumbers.get(1) < 1) {
 									trackNumbers.set(1, 1);
-								} else if(trackNumbers.get(1) > musicManager.scheduler.getPlaylist().size()) {
+								} else if (trackNumbers.get(1) > musicManager.scheduler.getPlaylist().size()) {
 									trackNumbers.set(1, musicManager.scheduler.getPlaylist().size());
 								}
 								int amount = trackNumbers.get(1) - trackNumbers.get(0) + 1;
-								for(int i = 0; i < amount; i++) {
+								for (int i = 0; i < amount; i++) {
 									musicManager.scheduler.removeTrackFromQueue(trackNumbers.get(0));
 								}
 								musicManager.scheduler.updateStatus();
@@ -685,7 +722,7 @@ public class CommandHandler {
 			return false;
 		}
 	}
-	
+
 	private boolean skipCommand(MessageReceivedEvent event) {
 
 		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "skip")) {
@@ -1074,7 +1111,7 @@ public class CommandHandler {
 			return false;
 		}
 	}
-	
+
 	private boolean setPermDefaults(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "apply default permissions")) {
 			RequestBuffer.request(() -> event.getMessage().delete());
@@ -1088,14 +1125,15 @@ public class CommandHandler {
 					guildUsers.addAll(event.getGuild().getUsers());
 					guildRoles.addAll(event.getGuild().getRoles());
 					guildUsers.remove(event.getGuild().getOwner());
-					for(IUser user : guildUsers) {
-						if(PermissionUtils.hasPermissions(event.getGuild(), user, Permissions.ADMINISTRATOR) == false){
+					for (IUser user : guildUsers) {
+						if (PermissionUtils.hasPermissions(event.getGuild(), user,
+								Permissions.ADMINISTRATOR) == false) {
 							permMgr.SetPermission(permMgr.INFO, user, permMgr.DENY);
 							permMgr.SetPermission(permMgr.MANAGE_GLOBAL, user, permMgr.DENY_GLOBAL);
 						}
 					}
-					for(IRole role : guildRoles) {
-						if(!(role.getPermissions().contains(Permissions.ADMINISTRATOR))){
+					for (IRole role : guildRoles) {
+						if (!(role.getPermissions().contains(Permissions.ADMINISTRATOR))) {
 							permMgr.SetPermission(permMgr.INFO, role, permMgr.DENY);
 							permMgr.SetPermission(permMgr.MANAGE_GLOBAL, role, permMgr.DENY_GLOBAL);
 						}
@@ -1114,35 +1152,38 @@ public class CommandHandler {
 			return false;
 		}
 	}
-	
+
 	private boolean showCommandIds(MessageReceivedEvent event) {
 		if (event.getMessage().getContent().toLowerCase().equals(BotUtils.BOT_PREFIX + "show permission ids")) {
 			RequestBuffer.request(() -> event.getMessage().delete());
 			if (getPermissionsManager(event.getGuild()).authUsage(getPermissionsManager(event.getGuild()).PERMMGR,
 					event.getChannel(), event.getAuthor())) {
-				if(PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
+				if (PermissionUtils.hasPermissions(event.getGuild(), event.getAuthor(), Permissions.ADMINISTRATOR)) {
 					String[] commandWords = { "clear", "filter", "adminlogin", "info", "inspire", "leave",
-							"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
-							"management", "utility", "misc" };
-					EmbedBuilder message = new EmbedBuilder(); 
+							"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue",
+							"permsettings", "player", "management", "utility", "misc" };
+					EmbedBuilder message = new EmbedBuilder();
 					message.withTitle("Permission IDs");
 					message.withColor(Color.ORANGE);
-					message.appendField("**Player command IDs (global id: player)**", "**play** - thicc play\n"
-							+ "**volume** - thicc volume\n"
-							+ "**skip** - thicc skip\n"
-							+ "**stop** - thicc stop\n"
-							+ "**showqueue** - thicc show queue\n"
-							+ "**leave** - thicc leave", false);
-					message.appendField("**Server management command IDs (global id: management)**", "**clear** - thicc clear message history\n"
-							+ "**filter** - thicc delete messages\n"
-							+ "**set** - thicc set\n"
-							+ "**listsettings** - thicc list settings\n"
-							+ "**adminlogin**:\nthicc get gui login\nthicc get new gui login\n"
-							+ "**permsettings** - thicc permission", false);
-					message.appendField("**Utility command IDs (global id: utility)**", "**info** - thicc info\n"
-							+ "**question** - wolfram question command", false);
-					message.appendField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - thicc inspire me", false);
-					message.appendField("View the current settings for your guild's permissions:", "[Click Here](http://thiccbot.site/pro/permissions?guildid=" + event.getGuild().getStringID() + ")", false);
+					message.appendField("**Player command IDs (global id: player)**",
+							"**play** - thicc play\n" + "**volume** - thicc volume\n" + "**skip** - thicc skip\n"
+									+ "**stop** - thicc stop\n" + "**showqueue** - thicc show queue\n"
+									+ "**leave** - thicc leave",
+							false);
+					message.appendField("**Server management command IDs (global id: management)**",
+							"**clear** - thicc clear message history\n" + "**filter** - thicc delete messages\n"
+									+ "**set** - thicc set\n" + "**listsettings** - thicc list settings\n"
+									+ "**adminlogin**:\nthicc get gui login\nthicc get new gui login\n"
+									+ "**permsettings** - thicc permission",
+							false);
+					message.appendField("**Utility command IDs (global id: utility)**",
+							"**info** - thicc info\n" + "**question** - wolfram question command", false);
+					message.appendField("**Miscellaneous command IDs (global id: misc)**",
+							"**inspire** - thicc inspire me", false);
+					message.appendField("View the current settings for your guild's permissions:",
+							"[Click Here](http://thiccbot.site/pro/permissions?guildid="
+									+ event.getGuild().getStringID() + ")",
+							false);
 					RequestBuffer.request(() -> event.getAuthor().getOrCreatePMChannel().sendMessage(message.build()));
 				} else {
 					RequestBuffer.request(() -> event.getChannel()
@@ -1154,7 +1195,5 @@ public class CommandHandler {
 			return false;
 		}
 	}
-	
-	
 
 }

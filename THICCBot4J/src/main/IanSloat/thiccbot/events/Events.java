@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
-
+import main.IanSloat.thiccbot.overrides.DefaultAudioPlayerManager;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;

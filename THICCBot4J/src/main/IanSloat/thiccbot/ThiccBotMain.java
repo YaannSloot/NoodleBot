@@ -27,7 +27,7 @@ import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
 
 public class ThiccBotMain {
 
-	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where" };
+	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where", "simplify" };
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	public static GeoLocator locator;
@@ -39,6 +39,9 @@ public class ThiccBotMain {
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	public static IUser botOwner;
 	public static IDiscordClient client;
+	
+	//Value Overrides
+	public static final int playerVolumeLimit =  2147483647;
 	
 	public static void main(String[] args) {
 

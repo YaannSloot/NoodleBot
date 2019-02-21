@@ -26,12 +26,22 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final BlockingQueue<AudioTrack> queue;
 	private final AudioPlayer player;
 	private boolean displayQueue = false;
+	private int trackedVolume = 100;
 	
 	public TrackScheduler(IChannel channel, AudioPlayer player) {
 		this.channel = channel;
 		this.guild = channel.getGuild();
 		this.player = player;
 		this.queue = new LinkedBlockingQueue<>();
+	}
+	
+	public void setVolume(int volume) {
+		trackedVolume = volume;
+		player.setVolume(volume);
+	}
+	
+	public int getVolume() {
+		return trackedVolume;
 	}
 
 	public void setChannel(IChannel channel) {
@@ -117,13 +127,13 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void updateStatus() {
 		if (channel.getMessageHistory(1).getLatestMessage().equals(message)) {
 			MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-			RequestBuffer.request(() -> message.edit(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume())));
+			RequestBuffer.request(() -> message.edit(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())));
 		} else {
 			MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
 			if (message != null)
 				message.delete();
 			message = RequestBuffer.request(() -> {
-				return channel.sendMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
+				return channel.sendMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
 			}).get();
 		}
 	}
