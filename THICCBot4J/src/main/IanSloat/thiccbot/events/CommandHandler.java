@@ -461,6 +461,7 @@ public class CommandHandler {
 					TBMLSettingsParser setParser = setMgr.getTBMLParser();
 					try {
 						GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+						setParser.setScope("PlayerSettings");
 						if (setParser.getFirstInValGroup("volumecap").equals("off")) {
 							musicManager.scheduler.setVolume(Integer.parseInt(volume));
 						} else {
