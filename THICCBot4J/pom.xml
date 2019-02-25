@@ -6,6 +6,9 @@
   <name>ThiccBot4J</name>
   <description>A Java Discord bot
 </description>
+  <properties>
+  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -71,6 +74,11 @@
   		<groupId>org.json</groupId>
   		<artifactId>json</artifactId>
   		<version>20180813</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.jline</groupId>
+  		<artifactId>jline</artifactId>
+  		<version>3.10.0</version>
   	</dependency>
   </dependencies>
 </project>
