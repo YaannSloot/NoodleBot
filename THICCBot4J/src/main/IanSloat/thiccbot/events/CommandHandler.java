@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.ThiccBotMain;
+import main.IanSloat.thiccbot.errors.MalformedTimecodeException;
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
 import main.IanSloat.thiccbot.threadbox.BulkMessageDeletionJob;
 import main.IanSloat.thiccbot.threadbox.FilterMessageDeletionJob;
@@ -20,6 +21,7 @@ import main.IanSloat.thiccbot.tools.InspirobotClient;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
 import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
+import main.IanSloat.thiccbot.tools.Timecode;
 import main.IanSloat.thiccbot.tools.WolframController;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
@@ -100,7 +102,7 @@ public class CommandHandler {
 					|| clearMessageHistoryCommand(event) || deleteMessagesByFilterCommand(event)
 					|| inspireMeCommand(event) || getClientLoginCredentials(event) || setNewGuiPassword(event)
 					|| setPermission(event) || setPermDefaults(event) || showCommandIds(event) || pauseCommand(event)
-					|| removeFromQueueCommand(event));
+					|| removeFromQueueCommand(event) || jumpCommand(event));
 
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
@@ -383,6 +385,7 @@ public class CommandHandler {
 								logger.info("An error occurred while attempting to load an audio track");
 							}
 						});
+						musicManager.scheduler.unpauseTrack();
 					} else {
 						event.getChannel().sendMessage("Get in a voice channel first");
 					}
@@ -638,6 +641,57 @@ public class CommandHandler {
 					RequestBuffer.request(() -> {
 						event.getChannel().sendMessage("No tracks are currently playing");
 					});
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean jumpCommand(MessageReceivedEvent event) {
+		if (event.getMessage().getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "jump to")) {
+			RequestBuffer.request(() -> {
+				event.getMessage().delete();
+			});
+			if (getPermissionsManager(event.getGuild()).authUsage("jump", event.getChannel(), event.getAuthor())) {
+				IVoiceChannel voiceChannel = event.getGuild().getConnectedVoiceChannel();
+				if (voiceChannel != null) {
+					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
+					String command = event.getMessage().getContent();
+					command = command.replace(BotUtils.BOT_PREFIX + "jump to", "");
+					command = BotUtils.normalizeSentence(command);
+					command = command.replace(" ", "");
+					Timecode timecode = new Timecode(command);
+					try {
+						timecode.decode();
+						long currentLength = musicManager.player.getPlayingTrack().getDuration();
+						if(timecode.getMillis() > currentLength) {
+							musicManager.player.playTrack(null);
+							musicManager.scheduler.nextTrack();
+							IMessage commandMessage = RequestBuffer.request(() -> {
+								return event.getChannel().sendMessage("Track was skipped");
+							}).get();
+							MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
+						} else {
+							musicManager.player.getPlayingTrack().setPosition(timecode.getMillis());
+							final String time = command;
+							IMessage commandMessage = RequestBuffer.request(() -> {
+								return event.getChannel().sendMessage("Set position to " + time);
+							}).get();
+							MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
+						}
+					} catch (NumberFormatException | NullPointerException e) {
+						IMessage commandMessage = RequestBuffer.request(() -> {
+							return event.getChannel().sendMessage("Numbers only please");
+						}).get();
+						MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
+					} catch (MalformedTimecodeException e) {
+						IMessage commandMessage = RequestBuffer.request(() -> {
+							return event.getChannel().sendMessage("That's not a valid timecode");
+						}).get();
+						MessageDeleteTools.DeleteAfterMillis(commandMessage, 5000);
+					}
 				}
 			}
 			return true;

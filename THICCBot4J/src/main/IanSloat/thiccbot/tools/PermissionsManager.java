@@ -47,7 +47,7 @@ public class PermissionsManager {
 			"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
 			"management", "utility", "misc" };
 	
-	public static final String[] playerCommands = { "player", "play", "volume", "skip", "stop", "pause", "queuemanage", "showqueue", "leave" };
+	public static final String[] playerCommands = { "player", "play", "volume", "skip", "jump", "stop", "pause", "queuemanage", "showqueue", "leave" };
 	
 	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings", "adminlogin", "permsettings" };
 	
