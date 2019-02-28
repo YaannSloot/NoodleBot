@@ -3,14 +3,8 @@ package main.IanSloat.thiccbot.events;
 import sx.blah.discord.api.events.EventSubscriber;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-
-import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
-import main.IanSloat.thiccbot.overrides.DefaultAudioPlayerManager;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
@@ -20,8 +14,6 @@ import sx.blah.discord.handle.impl.events.shard.LoginEvent;
 
 public class Events {
 
-	final static AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-	final static Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
 	static List<String> knownGuildIds = new ArrayList<String>();
 	private Login loginEvent = new Login();
 	private GuildJoin guildJoinEvent = new GuildJoin();

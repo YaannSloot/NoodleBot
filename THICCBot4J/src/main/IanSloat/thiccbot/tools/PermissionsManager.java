@@ -7,13 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.thiccbot.ThiccBotMain;
-import main.IanSloat.thiccbot.threadbox.MessageDeleteTools;
-import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.RequestBuffer;
 
 public class PermissionsManager {
 
@@ -57,11 +53,6 @@ public class PermissionsManager {
 	
 	private IGuild guild;
 	private TBMLSettingsParser setParser;
-	private boolean isQuiet = false;
-
-	public void setQuietMode(boolean mode) {
-		isQuiet = mode;
-	}
 	
 	public PermissionsManager(IGuild guild) {
 		GuildSettingsManager setMgr = new GuildSettingsManager(guild);
@@ -102,7 +93,7 @@ public class PermissionsManager {
 		return regDirectory;
 	}
 
-	public boolean authUsage(String command, IChannel channel, IUser user) {
+	public boolean authUsage(String command, IUser user) {
 		boolean allow = true;
 		ArrayList<String> globalUserDeny;
 		ArrayList<String> globalUserAllow;
@@ -193,12 +184,6 @@ public class PermissionsManager {
 			} else if (UserDeny.contains(User)) {
 				allow = false;
 			}
-		}
-		if(allow == false && isQuiet == false) {
-			IMessage errorMsg = RequestBuffer.request(() -> {
-				return channel.sendMessage("You don't have permission to use that command");
-			}).get();
-			MessageDeleteTools.DeleteAfterMillis(errorMsg, 5000);
 		}
 		return allow;
 	}

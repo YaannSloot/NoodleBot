@@ -1,6 +1,5 @@
 package main.IanSloat.thiccbot;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import sx.blah.discord.api.ClientBuilder;
