@@ -47,7 +47,7 @@ public class PermissionsManager {
 	
 	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings", "adminlogin", "permsettings" };
 	
-	public static final String[] utilityCommands = { "utility", "info", "question" };
+	public static final String[] utilityCommands = { "utility", "info", "question", "wiki" };
 	
 	public static final String[] miscCommands = { "misc", "inspire" };
 	
