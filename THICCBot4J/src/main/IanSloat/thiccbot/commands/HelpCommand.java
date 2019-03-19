@@ -89,8 +89,7 @@ public class HelpCommand extends Command {
 				hlpMsg += "**thicc delete messages**\n" + "Parameters:\n"
 						+ "older than <number> <day(s)/week(s)/month(s)/year(S)>\n" + "from <@user|@role>\n"
 						+ "Ex 1 - thicc delete messages older than 1 week 3 days from @everyone\n"
-						+ "Ex 2 - thicc delete messages older than 1 month\n"
-						+ "Ex 3 - thicc delete messages from @someuser\n";
+						+ "Ex 2 - thicc delete messages from @someuser\n";
 			}
 			if (permMgr.authUsage(permMgr.SET_COMMAND, event.getAuthor())) {
 				hlpMsg += "**thicc set <setting> <value>** - Changes a server setting on the guild's settings file located on the bot server\n";
