@@ -35,7 +35,7 @@ public class WikiCommand extends Command {
 		Wikisearch search = new Wikisearch();
 		String command = event.getMessage().getContent();
 		command = BotUtils.normalizeSentence(command);
-		command = command.replace(BotUtils.BOT_PREFIX + "wiki", "");
+		command = command.substring((BotUtils.BOT_PREFIX + "wiki").length());
 		message.withTitle("Searching...");
 		message.withColor(Color.GREEN);
 		final EmbedObject MessageSent = message.build();

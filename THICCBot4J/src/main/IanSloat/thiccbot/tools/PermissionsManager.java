@@ -39,21 +39,23 @@ public class PermissionsManager {
 	public final String ALLOW_GLOBAL = "GlobalAllow";
 	public final String DENY_GLOBAL = "GlobalDeny";
 
-	public static final String[] commandWords = { "clear", "filter", "adminlogin", "info", "inspire", "leave",
-			"listsettings", "play", "question", "set", "skip", "stop", "volume", "showqueue", "permsettings", "player",
-			"management", "utility", "misc" };
-	
-	public static final String[] playerCommands = { "player", "play", "volume", "skip", "jump", "stop", "pause", "queuemanage", "showqueue", "leave" };
-	
-	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings", "adminlogin", "permsettings" };
-	
+	public static final String[] commandWords = { "player", "play", "volume", "skip", "jump", "stop", "pause",
+			"queuemanage", "showqueue", "leave", "management", "clear", "filter", "set", "listsettings", "adminlogin",
+			"permsettings", "utility", "info", "question", "wiki", "misc", "inspire" };
+
+	public static final String[] playerCommands = { "player", "play", "volume", "skip", "jump", "stop", "pause",
+			"queuemanage", "showqueue", "leave" };
+
+	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings",
+			"adminlogin", "permsettings" };
+
 	public static final String[] utilityCommands = { "utility", "info", "question", "wiki" };
-	
+
 	public static final String[] miscCommands = { "misc", "inspire" };
-	
+
 	private IGuild guild;
 	private TBMLSettingsParser setParser;
-	
+
 	public PermissionsManager(IGuild guild) {
 		GuildSettingsManager setMgr = new GuildSettingsManager(guild);
 		this.guild = guild;
@@ -289,7 +291,7 @@ public class PermissionsManager {
 			setParser.removeVal("Role", Role);
 		}
 	}
-	
+
 	public void clearPermissions() {
 		setParser.setScopePath("PermissionsRegistry");
 		setParser.clearCurrentObj();

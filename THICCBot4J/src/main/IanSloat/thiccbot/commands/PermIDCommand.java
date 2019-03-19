@@ -30,18 +30,25 @@ public class PermIDCommand extends Command {
 			message.withTitle("Permission IDs");
 			message.withColor(Color.ORANGE);
 			message.appendField("**Player command IDs (global id: player)**",
-					"**play** - thicc play\n" + "**volume** - thicc volume\n" + "**skip** - thicc skip\n"
-							+ "**stop** - thicc stop\n" + "**showqueue** - thicc show queue\n"
+					"**play** - thicc play/thicc add\n" + "**volume** - thicc volume\n" + "**skip** - thicc skip\n"
+							+ "**jump** - thicc jump\n"
+							+ "**stop** - thicc stop\n"
+							+ "**pause** - thicc pause\n"
+							+ "**queuemanage - thicc remove track"
+							+ "**showqueue** - thicc show queue\n"
 							+ "**leave** - thicc leave",
 					false);
 			message.appendField("**Server management command IDs (global id: management)**",
 					"**clear** - thicc clear message history\n" + "**filter** - thicc delete messages\n"
 							+ "**set** - thicc set\n" + "**listsettings** - thicc list settings\n"
 							+ "**adminlogin**:\nthicc get gui login\nthicc get new gui login\n"
-							+ "**permsettings** - thicc permission",
+							+ "**permsettings** - thicc permission/thicc show permission ids/thicc apply default permissions",
 					false);
 			message.appendField("**Utility command IDs (global id: utility)**",
-					"**info** - thicc info\n" + "**question** - wolfram question command", false);
+					"**info** - thicc info\n" 
+							+ "**question** - wolfram question command\n"
+							+ "**wiki** - thicc wiki", 
+					false);
 			message.appendField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - thicc inspire me",
 					false);
 			message.appendField("View the current settings for your guild's permissions:",

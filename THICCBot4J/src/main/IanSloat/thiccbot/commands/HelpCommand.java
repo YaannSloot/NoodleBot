@@ -39,10 +39,14 @@ public class HelpCommand extends Command {
 				|| permMgr.authUsage(permMgr.SKIP, event.getAuthor())
 				|| permMgr.authUsage(permMgr.STOP, event.getAuthor())
 				|| permMgr.authUsage(permMgr.SHOW_QUEUE, event.getAuthor())
-				|| permMgr.authUsage(permMgr.LEAVE, event.getAuthor())) {
+				|| permMgr.authUsage(permMgr.LEAVE, event.getAuthor())
+				|| permMgr.authUsage("jump", event.getAuthor())
+				|| permMgr.authUsage("pause", event.getAuthor())
+				|| permMgr.authUsage("queuemanage", event.getAuthor())) {
 			String hlpMsg = "";
 			if (permMgr.authUsage(permMgr.PLAY, event.getAuthor())) {
 				hlpMsg += "**thicc play <[scsearch:]Video name|Video URL>** - Plays a video or song\n";
+				hlpMsg += "**thicc add <[scsearch:]Video name|Video URL>** - Adds a video or song to the end of the queue\n";
 			}
 			if (permMgr.authUsage(permMgr.VOLUME, event.getAuthor())) {
 				hlpMsg += "**thicc volume <0-150>** - Changes the player volume\n";
@@ -50,12 +54,22 @@ public class HelpCommand extends Command {
 			if (permMgr.authUsage(permMgr.SKIP, event.getAuthor())) {
 				hlpMsg += "**thicc skip** - Skips the currently playing song\n";
 			}
+			if (permMgr.authUsage("jump", event.getAuthor())) {
+				hlpMsg += "**thicc jump <position>** - Jumps to a specific position in the currently playing track specified by a timecode in HH:MM:SS.ss form\n";
+			}
+			if (permMgr.authUsage("pause", event.getAuthor())) {
+				hlpMsg += "**thicc pause** - This command is a toggle. It will either pause or unpause the current track\n";
+			}
+			if (permMgr.authUsage("queuemanage", event.getAuthor())) {
+				hlpMsg += "**thicc remove track <track number/range of track numbers>** - Removes a track or range of tracks from the queue\n";
+			}
 			if (permMgr.authUsage(permMgr.STOP, event.getAuthor())) {
 				hlpMsg += "**thicc stop** - Stops the currently playing song and clears the queue\n";
 			}
 			if (permMgr.authUsage(permMgr.SHOW_QUEUE, event.getAuthor())) {
 				hlpMsg += "**thicc show queue** - Lists the songs currently in the song queue\n";
 			}
+			
 			if (permMgr.authUsage(permMgr.LEAVE, event.getAuthor())) {
 				hlpMsg += "**thicc leave** - Makes the bot leave the chat\n";
 			}
@@ -90,17 +104,25 @@ public class HelpCommand extends Command {
 			}
 			if (permMgr.authUsage(permMgr.PERMMGR, event.getAuthor())) {
 				hlpMsg += "**thicc permission <command id/command group> <allow/deny> <@user(s) and/or @role(s)>** - sets a permission for a command/command catagory\n";
+				hlpMsg += "**thicc show permission ids** - lists the command id/group id for all of the bot's available commands\n";
+			}
+			if (permMgr.authUsage(permMgr.PERMMGR, event.getAuthor()) && event.getGuild().getOwner().equals(event.getAuthor())) {
+				hlpMsg += "**thicc apply default permissions** - Sets the recommended default permissions for your server\n";
 			}
 			message.appendField("**Server management commands**", hlpMsg, false);
 		}
 		if (permMgr.authUsage(permMgr.INFO, event.getAuthor())
-				|| permMgr.authUsage(permMgr.QUESTION, event.getAuthor())) {
+				|| permMgr.authUsage(permMgr.QUESTION, event.getAuthor())
+				|| permMgr.authUsage("wiki", event.getAuthor())) {
 			String hlpMsg = "";
 			if (permMgr.authUsage(permMgr.INFO, event.getAuthor())) {
 				hlpMsg += "**thicc info** - Gets general info about the bot and it's current version number\n";
 			}
 			if (permMgr.authUsage(permMgr.QUESTION, event.getAuthor())) {
 				hlpMsg += "**thicc <question>** - Sends a question to WolframAlpha\n";
+			}
+			if (permMgr.authUsage("wiki", event.getAuthor())) {
+				hlpMsg += "**thicc wiki** - Looks up an article on Wikipedia\n";
 			}
 			message.appendField("**Utility commands**", hlpMsg, false);
 		}

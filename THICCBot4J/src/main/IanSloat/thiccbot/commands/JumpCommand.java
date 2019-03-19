@@ -21,7 +21,7 @@ public class JumpCommand extends Command {
 
 	@Override
 	public boolean CheckForCommandMatch(IMessage command) {
-		return command.getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "jump to");
+		return command.getContent().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "jump");
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class JumpCommand extends Command {
 		if (voiceChannel != null) {
 			GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getChannel());
 			String command = event.getMessage().getContent();
-			command = command.replace(BotUtils.BOT_PREFIX + "jump to", "");
+			command = command.replace(BotUtils.BOT_PREFIX + "jump", "");
 			command = BotUtils.normalizeSentence(command);
 			command = command.replace(" ", "");
 			Timecode timecode = new Timecode(command);
