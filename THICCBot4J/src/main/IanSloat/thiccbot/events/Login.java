@@ -74,7 +74,9 @@ public class Login {
 							}
 							break;
 						}
-								 
+						case "shutdown":
+							System.out.println("Shutdown requested. Halting threads...");
+							
 						default: System.out.println("ERROR: Command not recognized");
 								 break;
 					}
