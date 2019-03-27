@@ -31,9 +31,9 @@
 </repositories>
   <dependencies>
   	<dependency>
-  		<groupId>com.discord4j</groupId>
-  		<artifactId>discord4j-core</artifactId>
-  		<version>3.0.0</version>
+  		<groupId>net.dv8tion</groupId>
+  		<artifactId>JDA</artifactId>
+  		<version>4.ALPHA.0_65</version>
   	</dependency>
   	<dependency>
   		<groupId>com.sedmelluq</groupId>
@@ -80,5 +80,10 @@
   		<artifactId>jline</artifactId>
   		<version>3.10.0</version>
   	</dependency>
+  	<dependency>
+    	<groupId>org.apache.commons</groupId>
+    	<artifactId>commons-lang3</artifactId>
+    	<version>3.0</version>
+	</dependency>
   </dependencies>
 </project>
