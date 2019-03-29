@@ -41,13 +41,13 @@ public class PermissionsManager {
 
 	public static final String[] commandWords = { "player", "play", "volume", "skip", "jump", "stop", "pause",
 			"queuemanage", "showqueue", "leave", "management", "clear", "filter", "set", "listsettings", "adminlogin",
-			"permsettings", "utility", "info", "question", "wiki", "misc", "inspire" };
+			"permsettings", "utility", "info", "question", "wiki", "misc", "inspire", "vckick" };
 
 	public static final String[] playerCommands = { "player", "play", "volume", "skip", "jump", "stop", "pause",
 			"queuemanage", "showqueue", "leave" };
 
 	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings",
-			"adminlogin", "permsettings" };
+			"adminlogin", "permsettings", "vckick" };
 
 	public static final String[] utilityCommands = { "utility", "info", "question", "wiki" };
 

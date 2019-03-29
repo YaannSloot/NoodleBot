@@ -60,7 +60,13 @@ public class SetPermDefaultsCommand extends Command {
 				e.printStackTrace();
 			}
 		} else {
-			event.getChannel().sendMessage("You must be the owner of this server to set default permissions").queue();
+			try {
+				Message completeMsg = event.getChannel().sendMessage("You must be the owner of this server to set default permissions").submit().get();
+				completeMsg.delete().queueAfter(5, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
