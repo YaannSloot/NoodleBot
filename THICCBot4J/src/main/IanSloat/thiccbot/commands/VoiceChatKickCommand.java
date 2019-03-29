@@ -32,7 +32,7 @@ public class VoiceChatKickCommand extends Command {
 		List<Member> firstlist = event.getMessage().getMentionedMembers();
 		List<Member> tempFilter = new ArrayList<Member>();
 		for (Member member : firstlist) {
-			if (!(member.getVoiceState().inVoiceChannel())) {
+			if (member.getVoiceState().inVoiceChannel()) {
 				tempFilter.add(member);
 			}
 		}
