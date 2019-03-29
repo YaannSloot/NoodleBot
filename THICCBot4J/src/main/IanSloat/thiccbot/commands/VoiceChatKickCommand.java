@@ -1,5 +1,6 @@
 package main.IanSloat.thiccbot.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -28,13 +29,17 @@ public class VoiceChatKickCommand extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
-		List<Member> members = event.getMessage().getMentionedMembers();
-		for (int i = 0; i < members.size(); i++) {
-			if (!(members.get(i).getVoiceState().inVoiceChannel())) {
-				members.remove(i);
+		List<Member> firstlist = event.getMessage().getMentionedMembers();
+		List<Member> tempFilter = new ArrayList<Member>();
+		for (int i = 0; i < firstlist.size(); i++) {
+			if (!(firstlist.get(i).getVoiceState().inVoiceChannel())) {
+				tempFilter.add(firstlist.get(i));
 				i--;
 			}
 		}
+		final List<Member> members = tempFilter;
+		tempFilter = null;
+		firstlist = null;
 		if (members.size() == 0) {
 			event.getTextChannel().sendMessage("The members you mentioned are not in any voice channels")
 					.queue((errorMsg) -> errorMsg.delete().queueAfter(5, TimeUnit.SECONDS));
