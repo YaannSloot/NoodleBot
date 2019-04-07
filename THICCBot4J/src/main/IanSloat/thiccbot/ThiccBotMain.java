@@ -37,8 +37,8 @@ public class ThiccBotMain {
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	public static GeoLocator locator;
 	public static WebSocketServer server;
-	public static String botVersion = "thiccbot-v0.9.4_alpha";
-	public static String devMsg = "Getting close to v1.0 alpha, just not quite there yet";
+	public static String botVersion = "thiccbot-v0.9.9_alpha";
+	public static String devMsg = "Cleaning up. Final changes being made before beta";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
@@ -192,7 +192,9 @@ public class ThiccBotMain {
 			
 			locator = new GeoLocator(setMgr.getFirstInValGroup("IP"));
 
-			client = new JDABuilder(setMgr.getFirstInValGroup("TOKEN")).build();
+			client = new JDABuilder(setMgr.getFirstInValGroup("TOKEN"))
+					.useSharding(0, 1)
+					.build();
 			
 			client.addEventListener(new Events());
 			

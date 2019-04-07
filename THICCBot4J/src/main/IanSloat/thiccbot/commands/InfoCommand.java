@@ -36,6 +36,7 @@ public class InfoCommand extends Command {
 		response.addField("Powered by", "Java", false);
 		response.addField("Bot Version", ThiccBotMain.botVersion, false);
 		response.addField("Status", ThiccBotMain.devMsg, false);
+		response.addField("Current number of guilds bot is a member of", ThiccBotMain.client.getGuilds().size() + " guilds", false);
 		response.addField("Current shard count", event.getJDA().getShardInfo().getShardTotal() + " Shards active", false);
 		response.addField("Current amount of threads running on server", Thread.activeCount() + " Active threads",
 				false);
