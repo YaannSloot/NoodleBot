@@ -47,7 +47,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void setChannel(TextChannel channel) {
 		if (!(channel.equals(this.channel))) {
 			if (!(message == null))
-				message.delete();
+				message.delete().queue();
 			this.channel = channel;
 		}
 	}
@@ -76,10 +76,10 @@ public class TrackScheduler extends AudioEventAdapter {
 		player.stopTrack();
 		queue.clear();
 		if (message != null) {
-			message.delete();
+			message.delete().queue();
 		}
 		if (playlistMessage != null) {
-			playlistMessage.delete();
+			playlistMessage.delete().queue();
 		}
 	}
 
