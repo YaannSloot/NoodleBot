@@ -9,14 +9,13 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public class TrackScheduler extends AudioEventAdapter {
 
@@ -28,19 +27,19 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final AudioPlayer player;
 	private boolean displayQueue = false;
 	private int trackedVolume = 100;
-	
+
 	public TrackScheduler(TextChannel channel, AudioPlayer player) {
 		this.channel = channel;
 		this.guild = channel.getGuild();
 		this.player = player;
 		this.queue = new LinkedBlockingQueue<>();
 	}
-	
+
 	public void setVolume(int volume) {
 		trackedVolume = volume;
 		player.setVolume(volume);
 	}
-	
+
 	public int getVolume() {
 		return trackedVolume;
 	}
@@ -68,7 +67,7 @@ public class TrackScheduler extends AudioEventAdapter {
 		displayQueue = value;
 		updateStatus();
 	}
-	
+
 	public List<AudioTrack> getPlaylist() {
 		return new ArrayList<AudioTrack>(queue);
 	}
@@ -87,7 +86,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void pauseTrack() {
 		player.setPaused(true);
 	}
-	
+
 	public void unpauseTrack() {
 		player.setPaused(false);
 	}
@@ -95,16 +94,16 @@ public class TrackScheduler extends AudioEventAdapter {
 	public boolean isPaused() {
 		return player.isPaused();
 	}
-	
+
 	public boolean removeTrackFromQueue(int trackNumber) {
 		boolean result = false;
-		if(trackNumber <= queue.size()) {
+		if (trackNumber <= queue.size()) {
 			trackNumber--;
 			result = queue.remove(this.getPlaylist().get(trackNumber));
 		}
 		return result;
 	}
-	
+
 	public void stopTrack() {
 		player.stopTrack();
 	}
@@ -126,22 +125,24 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void updateStatus() {
-		try {
-			if (channel.getHistory().retrievePast(1).submit().get().get(0).equals(message)) {
-				MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-				message.editMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())).queue();
-			} else {
-				MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-				if (message != null)
-					message.delete().queue();
-				message = channel.sendMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())).submit().get();
+		channel.getHistory().retrievePast(1).queue(new Consumer<List<Message>>() {
+
+			@Override
+			public void accept(List<Message> t) {
+				if (t.get(0).equals(message)) {
+					MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+					message.editMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())).queue();
+				} else {
+					MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+					if (message != null)
+						message.delete().queue();
+					channel.sendMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())).queue((m) -> message = m);
+				}
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			
+		});
 	}
-	
+
 	@Override
 	public void onPlayerPause(AudioPlayer player) {
 		// Player was paused

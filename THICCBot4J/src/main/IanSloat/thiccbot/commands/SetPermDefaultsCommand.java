@@ -2,7 +2,6 @@ package main.IanSloat.thiccbot.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.thiccbot.BotUtils;
@@ -51,22 +50,10 @@ public class SetPermDefaultsCommand extends Command {
 					permMgr.SetPermission(permMgr.MANAGE_GLOBAL, role, permMgr.DENY_GLOBAL);
 				}
 			}
-			Message completeMsg;
-			try {
-				completeMsg = event.getChannel().sendMessage("Permissions set successfully").submit().get();
-				completeMsg.delete().queueAfter(5, TimeUnit.SECONDS);
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			event.getChannel().sendMessage("Permissions set successfully").queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		} else {
-			try {
-				Message completeMsg = event.getChannel().sendMessage("You must be the owner of this server to set default permissions").submit().get();
-				completeMsg.delete().queueAfter(5, TimeUnit.SECONDS);
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			event.getChannel().sendMessage("You must be the owner of this server to set default permissions")
+				.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
 	}
 	

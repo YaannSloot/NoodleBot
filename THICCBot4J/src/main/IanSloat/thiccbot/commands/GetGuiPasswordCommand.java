@@ -1,7 +1,6 @@
 package main.IanSloat.thiccbot.commands;
 
 import java.awt.Color;
-import java.util.concurrent.ExecutionException;
 
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
@@ -49,13 +48,8 @@ public class GetGuiPasswordCommand extends Command {
 			}
 			message.addField("Special Password:", setParser.getFirstInValGroup("guipasswd"), false);
 			message.setColor(new Color(0, 255, 0));
-			try {
-				event.getAuthor().openPrivateChannel().submit().get().sendMessage(message.build());
-				event.getChannel().sendMessage("Sent you a private message with the login details").queue();
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			event.getAuthor().openPrivateChannel().queue((channel) -> channel.sendMessage(message.build()).queue());
+			event.getChannel().sendMessage("Sent you a private message with the login details").queue();
 		} else {
 			event.getChannel().sendMessage("You must be an administrator of this server to use gui management").queue();
 		}

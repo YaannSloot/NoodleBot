@@ -1,7 +1,6 @@
 package main.IanSloat.thiccbot.commands;
 
 import java.awt.Color;
-import java.util.concurrent.ExecutionException;
 
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
@@ -53,12 +52,8 @@ public class PermIDCommand extends Command {
 			message.addField("View the current settings for your guild's permissions:",
 					"[Click Here](http://thiccbot.site/pro/permissions?guildid=" + event.getGuild().getId() + ")",
 					false);
-			try {
-				event.getAuthor().openPrivateChannel().submit().get().sendMessage(message.build());
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			event.getAuthor().openPrivateChannel().queue((channel) -> channel.sendMessage(message.build()).queue());
 		} else {
 			event.getChannel().sendMessage("You must be an administrator of this server to manage permissions").queue();
 		}

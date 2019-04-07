@@ -30,10 +30,10 @@ public class LeaveCommand extends Command {
 		if (voiceChannel != null) {
 			GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getTextChannel());
 			musicManager.scheduler.stop();
-			event.getChannel().sendMessage("Leaving voice channel");
+			event.getChannel().sendMessage("Leaving voice channel").queue();
 			event.getGuild().getAudioManager().closeAudioConnection();
 		} else {
-			event.getChannel().sendMessage("Not currently connected to any voice channels");
+			event.getChannel().sendMessage("Not currently connected to any voice channels").queue();
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package main.IanSloat.thiccbot.commands;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.thiccbot.BotUtils;
@@ -29,21 +28,15 @@ public class StopCommand extends Command {
 			throw new NoMatchException();
 		}
 		event.getMessage().delete().queue();
-		try {
-			VoiceChannel voiceChannel = event.getGuild().getAudioManager().getConnectedChannel();
-			if (voiceChannel != null) {
-				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getTextChannel());
-				musicManager.scheduler.stop();
-				Message commandMessage = event.getChannel().sendMessage("Stopped the current track").submit().get();
-				commandMessage.delete().queueAfter(5, TimeUnit.SECONDS);
-			} else {
-				Message commandMessage = event.getChannel().sendMessage("Not currently connected to any voice channels")
-						.submit().get();
-				commandMessage.delete().queueAfter(5, TimeUnit.SECONDS);
-			}
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		VoiceChannel voiceChannel = event.getGuild().getAudioManager().getConnectedChannel();
+		if (voiceChannel != null) {
+			GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getTextChannel());
+			musicManager.scheduler.stop();
+			event.getChannel().sendMessage("Stopped the current track")
+					.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+		} else {
+			event.getChannel().sendMessage("Not currently connected to any voice channels")
+					.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
 	}
 }

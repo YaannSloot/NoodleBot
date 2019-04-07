@@ -1,7 +1,6 @@
 package main.IanSloat.thiccbot.commands;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -32,36 +31,29 @@ public class SkipCommand extends Command {
 			throw new NoMatchException();
 		}
 		event.getMessage().delete().queue();
-		try {
-			VoiceChannel voiceChannel = event.getGuild().getAudioManager().getConnectedChannel();
-			if (voiceChannel != null) {
-				GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getTextChannel());
-				List<AudioTrack> tracks = musicManager.scheduler.getPlaylist();
-				if (tracks.isEmpty()) {
-					if (musicManager.player.getPlayingTrack() != null) {
-						musicManager.player.playTrack(null);
-						musicManager.scheduler.nextTrack();
-						Message skipMessage = event.getChannel().sendMessage("Track skipped").submit().get();
-						skipMessage.delete().queueAfter(5, TimeUnit.SECONDS);
-					}
-				} else if (tracks.size() > 0) {
+		VoiceChannel voiceChannel = event.getGuild().getAudioManager().getConnectedChannel();
+		if (voiceChannel != null) {
+			GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getTextChannel());
+			List<AudioTrack> tracks = musicManager.scheduler.getPlaylist();
+			if (tracks.isEmpty()) {
+				if (musicManager.player.getPlayingTrack() != null) {
 					musicManager.player.playTrack(null);
 					musicManager.scheduler.nextTrack();
-					Message skipMessage = event.getChannel().sendMessage("Track skipped").submit().get();
-					skipMessage.delete().queueAfter(5, TimeUnit.SECONDS);
-				} else {
-					Message skipMessage = event.getChannel().sendMessage("No tracks are playing or queued").submit()
-							.get();
-					skipMessage.delete().queueAfter(5, TimeUnit.SECONDS);
+					event.getChannel().sendMessage("Track skipped")
+							.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
+			} else if (tracks.size() > 0) {
+				musicManager.player.playTrack(null);
+				musicManager.scheduler.nextTrack();
+				event.getChannel().sendMessage("Track skipped")
+						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 			} else {
-				Message skipMessage = event.getChannel().sendMessage("Not currently connected to any voice channels")
-						.submit().get();
-				skipMessage.delete().queueAfter(5, TimeUnit.SECONDS);
+				event.getChannel().sendMessage("No tracks are playing or queued")
+						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} else {
+			event.getChannel().sendMessage("Not currently connected to any voice channels")
+					.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
 	}
 }

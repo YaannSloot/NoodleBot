@@ -1,7 +1,6 @@
 package main.IanSloat.thiccbot.commands;
 
 import java.awt.Color;
-import java.util.concurrent.ExecutionException;
 
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
@@ -132,11 +131,6 @@ public class HelpCommand extends Command {
 			}
 			message.addField("**Other commands**", hlpMsg, false);
 		}
-		try {
-			event.getMember().getUser().openPrivateChannel().submit().get().sendMessage(message.build()).queue();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		event.getMember().getUser().openPrivateChannel().queue((channel) -> channel.sendMessage(message.build()).queue());
 	}
 }

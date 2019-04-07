@@ -1,6 +1,5 @@
 package main.IanSloat.thiccbot.commands;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.thiccbot.BotUtils;
@@ -45,38 +44,16 @@ public class JumpCommand extends Command {
 				if (timecode.getMillis() > currentLength) {
 					musicManager.player.playTrack(null);
 					musicManager.scheduler.nextTrack();
-					Message commandMessage = event.getChannel().sendMessage("Track was skipped").submit().get();
-					commandMessage.delete().queueAfter(5, TimeUnit.SECONDS);
+					event.getChannel().sendMessage("Track was skipped").queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else {
 					musicManager.player.getPlayingTrack().setPosition(timecode.getMillis());
 					final String time = command;
-					Message commandMessage = event.getChannel().sendMessage("Set position to " + time).submit().get();
-					commandMessage.delete().queueAfter(5, TimeUnit.SECONDS);
+					event.getChannel().sendMessage("Set position to " + time).queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 			} catch (NumberFormatException | NullPointerException e) {
-				Message commandMessage;
-				try {
-					commandMessage = event.getChannel().sendMessage("Numbers only please").submit().get();
-					commandMessage.delete().queueAfter(5, TimeUnit.SECONDS);
-				} catch (InterruptedException | ExecutionException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				event.getChannel().sendMessage("Numbers only please").queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 			} catch (MalformedTimecodeException e) {
-				Message commandMessage;
-				try {
-					commandMessage = event.getChannel().sendMessage("That's not a valid timecode").submit().get();
-					commandMessage.delete().queueAfter(5, TimeUnit.SECONDS);
-				} catch (InterruptedException | ExecutionException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				event.getChannel().sendMessage("That's not a valid timecode").queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 			}
 		}
 	}

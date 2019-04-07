@@ -42,12 +42,12 @@ public class VolumeCommand extends Command {
 					musicManager.scheduler.setVolume(Math.min(200, Math.max(0, Integer.parseInt(volume))));
 				}
 				musicManager.scheduler.updateStatus();
-				event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume));
+				event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume)).queue();
 			} catch (java.lang.NumberFormatException e) {
-				event.getChannel().sendMessage("Setting volume to... wait WHAT?!");
+				event.getChannel().sendMessage("Setting volume to... wait WHAT?!").queue();
 			}
 		} else {
-			event.getChannel().sendMessage("Not currently connected to any voice channels");
+			event.getChannel().sendMessage("Not currently connected to any voice channels").queue();
 		}
 	}
 }

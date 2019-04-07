@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
-import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,21 +75,20 @@ public class WolframController {
 				EmbedBuilder thinking = new EmbedBuilder();
 				thinking.setTitle("Thinking...");
 				thinking.setColor(new Color(0, 127, 0));
-				Message message = null;
-				try {
-					message = destination.sendMessage(thinking.build()).submit().get();
-				} catch (InterruptedException | ExecutionException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				questionThread questionQuery = new questionThread();
-				questionQuery.start();
-				try {
-					questionQuery.join();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				message.editMessage(questionQuery.response.build()).queue();
+				destination.sendMessage(thinking.build()).queue(new Consumer<Message>() {
+
+					public void accept(Message t) {
+						questionThread questionQuery = new questionThread();
+						questionQuery.start();
+						try {
+							questionQuery.join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						t.editMessage(questionQuery.response.build()).queue();
+					}
+					
+				});
 			}
 		}
 		askingThread ask = new askingThread();

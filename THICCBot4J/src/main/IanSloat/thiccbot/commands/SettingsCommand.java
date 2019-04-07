@@ -52,9 +52,9 @@ public class SettingsCommand extends Command {
 					setParser.addVal("volume", "100");
 				}
 				setParser.setFirstInValGroup("volume", Integer.toString(value));
-				event.getChannel().sendMessage("Changed default volume to " + value);
+				event.getChannel().sendMessage("Changed default volume to " + value).queue();
 			} catch (NumberFormatException e) {
-				event.getChannel().sendMessage("The value provided is not valid for that setting");
+				event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
 			}
 		} else if (command.toLowerCase().startsWith("autoplay ") && words.length >= 2) {
 			setParser.setScope(TBMLSettingsParser.DOCROOT);
@@ -65,12 +65,12 @@ public class SettingsCommand extends Command {
 			}
 			if (words[1].toLowerCase().equals("on")) {
 				setParser.setFirstInValGroup("autoplay", "on");
-				event.getChannel().sendMessage("Set AutoPlay to \'on\'");
+				event.getChannel().sendMessage("Set AutoPlay to \'on\'").queue();
 			} else if (words[1].toLowerCase().equals("off")) {
 				setParser.setFirstInValGroup("autoplay", "off");
-				event.getChannel().sendMessage("Set AutoPlay to \'off\'");
+				event.getChannel().sendMessage("Set AutoPlay to \'off\'").queue();
 			} else {
-				event.getChannel().sendMessage("The value provided is not valid for that setting");
+				event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
 			}
 		} else if (command.toLowerCase().startsWith("volumecap ") && words.length >= 2) {
 			setParser.setScope(TBMLSettingsParser.DOCROOT);
@@ -81,15 +81,15 @@ public class SettingsCommand extends Command {
 			}
 			if (words[1].toLowerCase().equals("on")) {
 				setParser.setFirstInValGroup("volumecap", "on");
-				event.getChannel().sendMessage("Set volume limit to \'on\'");
+				event.getChannel().sendMessage("Set volume limit to \'on\'").queue();
 			} else if (words[1].toLowerCase().equals("off")) {
 				setParser.setFirstInValGroup("volumecap", "off");
-				event.getChannel().sendMessage("Set volume limit to \'off\'");
+				event.getChannel().sendMessage("Set volume limit to \'off\'").queue();
 			} else {
-				event.getChannel().sendMessage("The value provided is not valid for that setting");
+				event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
 			}
 		} else {
-			event.getChannel().sendMessage("That is not a valid setting");
+			event.getChannel().sendMessage("That is not a valid setting").queue();
 		}
 	}
 }
