@@ -5,7 +5,7 @@ import java.util.List;
 public class BotUtils {
 
 	// Constants for use throughout the bot
-	public static String BOT_PREFIX = "thicc4j ";
+	public static String BOT_PREFIX = "thicc ";
 	public static String PATH_SEPARATOR = System.getProperty("file.separator");
 
 	// Helpful input processing methods
