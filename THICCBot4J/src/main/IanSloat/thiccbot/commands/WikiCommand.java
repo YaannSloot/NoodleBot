@@ -33,6 +33,7 @@ public class WikiCommand extends Command {
 		event.getMessage().delete().queue();
 		EmbedBuilder message = new EmbedBuilder();
 		Wikisearch search = new Wikisearch();
+		
 		String command = event.getMessage().getContentStripped();
 		command = BotUtils.normalizeSentence(command);
 		command = command.substring((BotUtils.BOT_PREFIX + "wiki").length());

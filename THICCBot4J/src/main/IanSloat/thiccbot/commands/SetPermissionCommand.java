@@ -1,9 +1,11 @@
 package main.IanSloat.thiccbot.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.thiccbot.BotUtils;
+import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.tools.HierarchyUtils;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
 import net.dv8tion.jda.api.Permission;
@@ -34,9 +36,12 @@ public class SetPermissionCommand extends Command {
 			String command = BotUtils.normalizeSentence(event.getMessage().getContentStripped().toLowerCase()
 					.substring((BotUtils.BOT_PREFIX + "permission").length()));
 			String[] words = command.split(" ");
-			List<Member> users = event.getMessage().getMentionedMembers();
-			List<Role> roles = event.getMessage().getMentionedRoles();
-			List<Role> authorRoles = event.getMember().getRoles();
+			List<Member> users = new ArrayList<Member>();
+			users.addAll(event.getMessage().getMentionedMembers());
+			List<Role> roles = new ArrayList<Role>();
+			roles.addAll(event.getMessage().getMentionedRoles());
+			List<Role> authorRoles = new ArrayList<Role>();
+			authorRoles.addAll(event.getMember().getRoles());
 			if (users.size() == 0 && roles.size() == 0) {
 				event.getMessage().delete().queue();
 				event.getChannel().sendMessage("You must specify at least one role or user to apply a permission to")
@@ -55,21 +60,23 @@ public class SetPermissionCommand extends Command {
 						"You must explicitly state whether to allow or deny usage of this command or command group")
 						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 			} else {
-				List<Member> userCopy = users;
-				List<Role> roleCopy = roles;
-				for (int i = 0; i < userCopy.size(); i++) {
-					if (HierarchyUtils.isMemberLowerThan(event.getMember(), userCopy.get(i))) {
-						users.remove(userCopy.get(i));
+				if(!event.getAuthor().equals(ThiccBotMain.botOwner)) {
+					List<Member> userCopy = users;
+					List<Role> roleCopy = roles;
+					for (int i = 0; i < userCopy.size(); i++) {
+						if (HierarchyUtils.isMemberLowerThan(event.getMember(), userCopy.get(i))) {
+							users.remove(userCopy.get(i));
+						}
 					}
-				}
-				for (int i = 0; i < roleCopy.size(); i++) {
-					if (HierarchyUtils.isRoleLowerThan(HierarchyUtils.getMemberHighestRole(event.getMember()),
-							roleCopy.get(i))) {
-						roles.remove(roleCopy.get(i));
+					for (int i = 0; i < roleCopy.size(); i++) {
+						if (HierarchyUtils.isRoleLowerThan(HierarchyUtils.getMemberHighestRole(event.getMember()),
+								roleCopy.get(i))) {
+							roles.remove(roleCopy.get(i));
+						}
 					}
+					users = userCopy;
+					roles = roleCopy;
 				}
-				users = userCopy;
-				roles = roleCopy;
 				if (users.size() == 0 && roles.size() == 0) {
 					event.getChannel().sendMessage(
 							"The users/roles you mentioned all have higher positions than you and you cannot set their permissions")
