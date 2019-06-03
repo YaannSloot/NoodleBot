@@ -15,6 +15,7 @@ import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
@@ -44,6 +45,8 @@ public class Login {
 		}
 		logger.info("Loading guild settings...");
 		new loadSettings().run();
+		
+		
 
 		class commandReader implements Runnable {
 

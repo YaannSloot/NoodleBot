@@ -51,7 +51,7 @@ public class PermissionsManager {
 
 	public static final String[] utilityCommands = { "utility", "info", "question", "wiki" };
 
-	public static final String[] miscCommands = { "misc", "inspire" };
+	public static final String[] miscCommands = { "misc", "inspire", "nsfw" };
 
 	private Guild guild;
 	private TBMLSettingsParser setParser;

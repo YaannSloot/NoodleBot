@@ -12,6 +12,7 @@ import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.ThiccBotMain;
 import main.IanSloat.thiccbot.commands.*;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -25,7 +26,8 @@ public class CommandHandler {
 					new ListSettingsCommand(), new NewGuiPasswordCommand(), new PauseCommand(), new PermIDCommand(),
 					new PlayCommand(), new QuestionCommand(), new RemoveTrackCommand(), new SetPermDefaultsCommand(),
 					new SetPermissionCommand(), new SettingsCommand(), new ShowQueueCommand(), new SkipCommand(),
-					new StopCommand(), new VolumeCommand(), new WikiCommand(), new VoiceChatKickCommand()));
+					new StopCommand(), new VolumeCommand(), new WikiCommand(), new VoiceChatKickCommand(),
+					new Rule34Command()));
 
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
