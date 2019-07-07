@@ -34,7 +34,7 @@ public class InfoCommand extends Command {
 			response.addField("Current server location", ThiccBotMain.locator.getCity() + ", "
 					+ ThiccBotMain.locator.getRegion() + ", " + ThiccBotMain.locator.getCountry(), false);
 		response.addField("Powered by", "Java", false);
-		response.addField("Bot Version", ThiccBotMain.botVersion, false);
+		response.addField("Bot Version", ThiccBotMain.botVersion + "\n(Release #).(feature version).(patch #)", false);
 		response.addField("Status", ThiccBotMain.devMsg, false);
 		response.addField("Current number of guilds bot is a member of", ThiccBotMain.client.getGuilds().size() + " guilds", false);
 		response.addField("Current shard count", event.getJDA().getShardInfo().getShardTotal() + " Shards active", false);

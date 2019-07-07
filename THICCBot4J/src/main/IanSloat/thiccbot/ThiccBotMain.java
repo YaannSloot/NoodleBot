@@ -37,8 +37,8 @@ public class ThiccBotMain {
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	public static GeoLocator locator;
 	public static WebSocketServer server;
-	public static String botVersion = "thiccbot-v1.0.0_BETA";
-	public static String devMsg = "Cleaning up. Final changes being made before beta";
+	public static String botVersion = "thiccbot-v1.0.1_BETA";
+	public static String devMsg = "NOW IN BETA!";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
