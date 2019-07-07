@@ -31,7 +31,7 @@ public class CommandHandler {
 
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
-				&& event.getPrivateChannel() == null) {
+				&& event.isFromGuild()) {
 			logger.info("Message recieved from: " + event.getAuthor().getName() + ", server="
 					+ event.getGuild().getName() + ", Content=\"" + event.getMessage().getContentStripped() + "\"");
 
@@ -101,7 +101,7 @@ public class CommandHandler {
 				logger.info("Message did not match any commands");
 			}
 		} else if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)
-				&& event.getPrivateChannel() != null) {
+				&& !event.isFromGuild()) {
 			logger.info("Private message recieved from: " + event.getAuthor().getName() + ", Content=\""
 					+ event.getMessage().getContentStripped() + "\"");
 			if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping"))
