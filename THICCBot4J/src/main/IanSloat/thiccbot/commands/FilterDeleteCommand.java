@@ -119,7 +119,8 @@ public class FilterDeleteCommand extends Command {
 			if (usersMentioned.size() > 0 || rolesMentioned.size() > 0 || event.getMessage().mentionsEveryone()) {
 				List<Member> users = new ArrayList<Member>();
 				users.addAll(usersMentioned);
-				users.addAll(event.getGuild().getMembers());
+				if(event.getMessage().mentionsEveryone())
+					users.addAll(event.getGuild().getMembers());
 				for (Role role : rolesMentioned) {
 					for (Member user : event.getGuild().getMembersWithRoles(role)) {
 						if (!(users.contains(user))) {
