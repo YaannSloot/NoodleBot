@@ -15,7 +15,6 @@ public class PermissionsManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(PermissionsManager.class);
 
-	public final String CLEAR_COMMAND = "clear";
 	public final String BY_FILTER = "filter";
 	public final String GET_LOGIN = "adminlogin";
 	public final String INFO = "info";
@@ -40,13 +39,13 @@ public class PermissionsManager {
 	public final String DENY_GLOBAL = "GlobalDeny";
 
 	public static final String[] commandWords = { "player", "play", "volume", "skip", "jump", "stop", "pause",
-			"queuemanage", "showqueue", "leave", "management", "clear", "filter", "set", "listsettings", "adminlogin",
+			"queuemanage", "showqueue", "leave", "management", "filter", "set", "listsettings", "adminlogin",
 			"permsettings", "utility", "info", "question", "wiki", "misc", "inspire", "vckick" };
 
 	public static final String[] playerCommands = { "player", "play", "volume", "skip", "jump", "stop", "pause",
 			"queuemanage", "showqueue", "leave" };
 
-	public static final String[] managementCommands = { "management", "clear", "filter", "set", "listsettings",
+	public static final String[] managementCommands = { "management", "filter", "set", "listsettings",
 			"adminlogin", "permsettings", "vckick" };
 
 	public static final String[] utilityCommands = { "utility", "info", "question", "wiki" };

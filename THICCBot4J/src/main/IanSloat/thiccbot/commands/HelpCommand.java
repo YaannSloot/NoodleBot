@@ -74,16 +74,13 @@ public class HelpCommand extends Command {
 			}
 			message.addField("**Player commands**", hlpMsg, false);
 		}
-		if (permMgr.authUsage(permMgr.CLEAR_COMMAND, event.getMember())
-				|| permMgr.authUsage(permMgr.BY_FILTER, event.getMember())
+		if (permMgr.authUsage(permMgr.BY_FILTER, event.getMember())
 				|| permMgr.authUsage(permMgr.SET_COMMAND, event.getMember())
 				|| permMgr.authUsage(permMgr.LIST_SETTINGS, event.getMember())
 				|| permMgr.authUsage(permMgr.GET_LOGIN, event.getMember())
 				|| permMgr.authUsage(permMgr.PERMMGR, event.getMember())) {
 			String hlpMsg = "";
-			if (permMgr.authUsage(permMgr.CLEAR_COMMAND, event.getMember())) {
-				hlpMsg += "**thicc clear message history** - Deletes all messages older than 1 week\n";
-			}
+			
 			if (permMgr.authUsage(permMgr.BY_FILTER, event.getMember())) {
 				hlpMsg += "**thicc delete messages**\n" + "Parameters:\n"
 						+ "older than <number> <day(s)/week(s)/month(s)/year(S)>\n" + "from <@user|@role>\n"

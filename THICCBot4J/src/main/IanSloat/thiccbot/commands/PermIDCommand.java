@@ -37,7 +37,7 @@ public class PermIDCommand extends Command {
 							+ "**leave** - thicc leave",
 					false);
 			message.addField("**Server management command IDs (global id: management)**",
-					"**clear** - thicc clear message history\n" + "**filter** - thicc delete messages\n"
+							"**filter** - thicc delete messages\n"
 							+ "**set** - thicc set\n" + "**listsettings** - thicc list settings\n"
 							+ "**adminlogin**:\nthicc get gui login\nthicc get new gui login\n"
 							+ "**permsettings** - thicc permission/thicc show permission ids/thicc apply default permissions",

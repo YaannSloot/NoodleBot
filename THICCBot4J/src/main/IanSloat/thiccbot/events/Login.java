@@ -25,7 +25,7 @@ public class Login {
 
 	public void BotLoginEvent(ReadyEvent event) {
 		logger.info("Logged in.");
-		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(BotUtils.BOT_PREFIX + "help"));
+		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(BotUtils.BOT_PREFIX + "help | NOW IN BETA"));
 		AudioSourceManagers.registerRemoteSources(Command.playerManager);
 		class loadSettings extends Thread {
 			public void run() {

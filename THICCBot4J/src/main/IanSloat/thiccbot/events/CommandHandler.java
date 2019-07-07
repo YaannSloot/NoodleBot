@@ -21,7 +21,7 @@ public class CommandHandler {
 	private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
 	private List<Command> commands = new ArrayList<Command>(
-			Arrays.asList(new ClearHistoryCommand(), new FilterDeleteCommand(), new GetGuiPasswordCommand(),
+			Arrays.asList(new FilterDeleteCommand(), new GetGuiPasswordCommand(),
 					new HelpCommand(), new InfoCommand(), new InspireMeCommand(), new JumpCommand(), new LeaveCommand(),
 					new ListSettingsCommand(), new NewGuiPasswordCommand(), new PauseCommand(), new PermIDCommand(),
 					new PlayCommand(), new QuestionCommand(), new RemoveTrackCommand(), new SetPermDefaultsCommand(),

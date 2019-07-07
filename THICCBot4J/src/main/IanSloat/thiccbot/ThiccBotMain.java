@@ -37,7 +37,7 @@ public class ThiccBotMain {
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
 	public static GeoLocator locator;
 	public static WebSocketServer server;
-	public static String botVersion = "thiccbot-v0.9.9_alpha";
+	public static String botVersion = "thiccbot-v1.0.0_BETA";
 	public static String devMsg = "Cleaning up. Final changes being made before beta";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
@@ -117,6 +117,13 @@ public class ThiccBotMain {
 					"   \\/__/            /:/  /    \\:\\__\\       \\:\\  \\        \\:\\  \\        \\:\\/:/  /     \\:\\/:/  /     \\/__/      \n" + 
 					"                   /:/  /      \\/__/        \\:\\__\\        \\:\\__\\        \\::/__/       \\::/  /                 \n" + 
 					"                   \\/__/                     \\/__/         \\/__/         ~~            \\/__/                  \n" + 
+					"\n" + 
+					"    ____  _______________                ___   \n" + 
+					"   / __ )/ ____/_  __/   |     _   __   <  /   \n" + 
+					"  / __  / __/   / / / /| |    | | / /   / /    \n" + 
+					" / /_/ / /___  / / / ___ |    | |/ /   / /     \n" + 
+					"/_____/_____/ /_/ /_/  |_|    |___/   /_/      \n" + 
+					"                                               \n" + 
 					"");
 			
 			File logConfig = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging"
