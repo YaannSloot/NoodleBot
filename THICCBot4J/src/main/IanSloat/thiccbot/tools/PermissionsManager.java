@@ -56,6 +56,11 @@ public class PermissionsManager {
 	private Guild guild;
 	private TBMLSettingsParser setParser;
 
+	
+	/**
+	 * Creates a new permission manager for the specified guild
+	 * @param guild The guild to retrieve a permissions manager object for
+	 */
 	public PermissionsManager(Guild guild) {
 		GuildSettingsManager setMgr = new GuildSettingsManager(guild);
 		this.guild = guild;
@@ -65,12 +70,15 @@ public class PermissionsManager {
 		regRoot();
 	}
 
+	// Used for jumping to the root of the permissions registry
+	// Creates a new registry root if it doesn't exist
 	private void regRoot() {
 		this.setParser.setScope(TBMLSettingsParser.DOCROOT);
 		this.setParser.addObj("PermissionsRegistry");
 		this.setParser.setScope("PermissionsRegistry");
 	}
 
+	// Jumps to the root of the permissions registry and creates all required registry objects needed to store permissions
 	private void initRegistry() {
 		this.setParser.setScope(TBMLSettingsParser.DOCROOT);
 		this.setParser.addObj("PermissionsRegistry");
@@ -81,7 +89,8 @@ public class PermissionsManager {
 		this.setParser.addObj("MiscPermissions");
 	}
 
-	private String getCatagory(String command) {
+	// Based on the provided command id, checks to see which category the command belongs in and returns the category name
+	private String getCategory(String command) {
 		String regDirectory = "";
 		if (Arrays.asList(playerCommands).contains(command)) {
 			regDirectory = "PlayerPermissions";
@@ -95,6 +104,12 @@ public class PermissionsManager {
 		return regDirectory;
 	}
 
+	/**
+	 * Checks to see if the provided user is allowed to use the provided command based on current permission settings
+	 * @param command The command id that is being checked
+	 * @param user The guild member who's permission needs to be verified
+	 * @return True if the user can use the provided command
+	 */
 	public boolean authUsage(String command, Member user) {
 		boolean allow = true;
 		ArrayList<String> globalUserDeny;
@@ -109,7 +124,7 @@ public class PermissionsManager {
 		String User = user.getId();
 		String regDirectory = "";
 		boolean match = false;
-		regDirectory = getCatagory(command);
+		regDirectory = getCategory(command);
 		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
@@ -190,12 +205,18 @@ public class PermissionsManager {
 		return allow;
 	}
 
+	/**
+	 * Sets the provided permission and saves it to the guild settings file
+	 * @param command The command id to set the permission to
+	 * @param user The guild role to set to the permission entry
+	 * @param permission ALLOW or DENY if not a global id, else ALLOW_GLOBAL or DENY_GLOBAL
+	 */
 	public void SetPermission(String command, Member user, String permission) {
 		String User = user.getId();
 		String regDirectory = "";
 		String deletePath = "";
 		boolean match = false;
-		regDirectory = getCatagory(command);
+		regDirectory = getCategory(command);
 		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
@@ -223,12 +244,18 @@ public class PermissionsManager {
 		}
 	}
 
+	/**
+	 * Sets the provided permission and saves it to the guild settings file
+	 * @param command The command id to set the permission to
+	 * @param role The guild role to set to the permission entry
+	 * @param permission ALLOW or DENY if not a global id, else ALLOW_GLOBAL or DENY_GLOBAL
+	 */
 	public void SetPermission(String command, Role role, String permission) {
 		String Role = role.getId();
 		String regDirectory = "";
 		String deletePath = "";
 		boolean match = false;
-		regDirectory = getCatagory(command);
+		regDirectory = getCategory(command);
 		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
@@ -260,7 +287,7 @@ public class PermissionsManager {
 		String User = user.getId();
 		String regDirectory = "";
 		boolean match = false;
-		regDirectory = getCatagory(command);
+		regDirectory = getCategory(command);
 		if (!(regDirectory.equals(""))) {
 			match = true;
 		}
@@ -278,7 +305,7 @@ public class PermissionsManager {
 		String Role = role.getId();
 		String regDirectory = "";
 		boolean match = false;
-		regDirectory = getCatagory(command);
+		regDirectory = getCategory(command);
 		if (!(regDirectory.equals(""))) {
 			match = true;
 		}

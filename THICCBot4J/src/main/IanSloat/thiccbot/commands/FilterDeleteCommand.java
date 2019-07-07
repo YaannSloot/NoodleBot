@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.threadbox.FilterMessageDeletionJob;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class FilterDeleteCommand extends Command {
@@ -32,9 +34,9 @@ public class FilterDeleteCommand extends Command {
 	public void execute(MessageReceivedEvent event) throws NoMatchException {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
-		}/*
-		RequestBuffer.request(() -> event.getMessage().delete());
-		String ageString = event.getMessage().getContent().toLowerCase()
+		}
+		event.getMessage().delete().queue();
+		String ageString = event.getMessage().getContentRaw().toLowerCase()
 				.replace(BotUtils.BOT_PREFIX + "delete messages older than ", "");
 		ageString = ageString.replace(',', ' ');
 		ageString = BotUtils.normalizeSentence(ageString);
@@ -51,11 +53,11 @@ public class FilterDeleteCommand extends Command {
 			}
 			words.add(word);
 		}
-		List<IUser> usersMentioned = new ArrayList<IUser>();
-		List<IRole> rolesMentioned = new ArrayList<IRole>();
+		List<Member> usersMentioned = new ArrayList<Member>();
+		List<Role> rolesMentioned = new ArrayList<Role>();
 		if (words.contains("from")) {
-			usersMentioned = event.getMessage().getMentions();
-			rolesMentioned = event.getMessage().getRoleMentions();
+			usersMentioned = event.getMessage().getMentionedMembers();
+			rolesMentioned = event.getMessage().getMentionedRoles();
 		}
 		Calendar date = new GregorianCalendar();
 		String[] ageWords = { "days", "weeks", "months", "years" };
@@ -111,15 +113,15 @@ public class FilterDeleteCommand extends Command {
 			// System.out.println(String.join(" ", words));
 		}
 		if (days > 0 || weeks > 0 || months > 0 || years > 0 || usersMentioned.size() > 0
-				|| rolesMentioned.size() > 0) {
-			FilterMessageDeletionJob job = FilterMessageDeletionJob.getDeletionJobForChannel(event.getChannel());
-			job.setAge(date.toInstant());
-			job.deleteByLength(0, true);
-			if (usersMentioned.size() > 0 || rolesMentioned.size() > 0) {
-				List<IUser> users = new ArrayList<IUser>();
+				|| rolesMentioned.size() > 0 || event.getMessage().mentionsEveryone()) {
+			FilterMessageDeletionJob job = FilterMessageDeletionJob.getDeletionJobForChannel(event.getTextChannel());
+			job.setAge(date.toInstant().atOffset(event.getMessage().getTimeCreated().getOffset()));
+			if (usersMentioned.size() > 0 || rolesMentioned.size() > 0 || event.getMessage().mentionsEveryone()) {
+				List<Member> users = new ArrayList<Member>();
 				users.addAll(usersMentioned);
-				for (IRole role : rolesMentioned) {
-					for (IUser user : event.getGuild().getUsersByRole(role)) {
+				users.addAll(event.getGuild().getMembers());
+				for (Role role : rolesMentioned) {
+					for (Member user : event.getGuild().getMembersWithRoles(role)) {
 						if (!(users.contains(user))) {
 							users.add(user);
 						}
@@ -129,11 +131,12 @@ public class FilterDeleteCommand extends Command {
 			}
 			SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 			final String dateString = dateFormatter.format(date.getTime());
-			RequestBuffer.request(() -> event.getChannel().sendMessage("Finding messages older than " + dateString));
+			event.getChannel().sendMessage("Finding messages older than " + dateString).queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 			job.startJob();
 		} else {
-			RequestBuffer.request(() -> event.getChannel().sendMessage(
-					"Not sure what kind of calendar you are using,\n" + "but I cannot understand what you just said"));
-		}*/
+			event.getChannel().sendMessage(
+					"Not sure what kind of calendar you are using,\n" + "but I cannot understand what you just said")
+				.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+		}
 	}
 }

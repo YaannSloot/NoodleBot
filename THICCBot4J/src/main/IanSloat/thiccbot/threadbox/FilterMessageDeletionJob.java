@@ -1,14 +1,19 @@
 package main.IanSloat.thiccbot.threadbox;
 
-import java.time.Instant;
-import java.util.ArrayList;
+import java.awt.Color;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoField;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -22,9 +27,8 @@ public class FilterMessageDeletionJob {
 	private boolean deleteByLength = false;
 	private boolean deleteByUser = false;
 	private List<Member> users = null;
-	private int length = 0;
 	private Thread jobThread;
-	private Instant age = null;
+	private OffsetDateTime age = null;
 
 	private FilterMessageDeletionJob(TextChannel channel) {
 		this.channel = channel;
@@ -45,12 +49,7 @@ public class FilterMessageDeletionJob {
 		this.users = users;
 	}
 
-	public void deleteByLength(int length, boolean value) {
-		deleteByLength = value;
-		this.length = length;
-	}
-
-	public void setAge(Instant age) {
+	public void setAge(OffsetDateTime age) {
 		this.age = age;
 	}
 
@@ -81,123 +80,81 @@ public class FilterMessageDeletionJob {
 		cleanup.start();
 	}
 
+	private boolean isMessageWrittenByTargets(Message m) {
+		boolean result = false;
+		for(Member u : users) {
+			if(m.getAuthor().equals(u.getUser())) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	private class FilterMessageDeletionThread implements Runnable {
-		public void run() {/*
-			if (deleteByUser == true && users != null && deleteByLength == true && length != 0) {
+		public void run() {
+			if ((deleteByUser && users != null) || age != null) {
 				logger.info("Filtered message deletion job was started");
-				List<IMessage> history;
-				if (age != null) {
-					history = RequestBuffer.request(() -> {
-						return channel.getMessageHistoryFrom(age, 2001);
-					}).get();
-				} else {
-					history = RequestBuffer.request(() -> {
-						return channel.getMessageHistory(2001);
-					}).get();
-				}
-				if (history.size() == 2001) {
-					channel.sendMessage("More than 2000 messages were detected."
+				List<Message> history; 
+				Stream<Message> HistoryIterator = channel.getIterableHistory().stream().limit(2000);
+				
+				if (age != null) 
+					HistoryIterator = HistoryIterator.filter(m -> m.getTimeCreated().isBefore(age));
+				
+				if (deleteByUser)
+					HistoryIterator = HistoryIterator.filter(m -> isMessageWrittenByTargets(m));
+					
+				history = HistoryIterator.collect(Collectors.toList());
+				
+				if (history.size() == 2000) {
+					channel.sendMessage("2000 messages were retrieved."
+							+ "This may mean that this channel's history is longer than 2000 messages."
 							+ "\nThis command can only handle 2000 messages at a time."
-							+ "\nTo delete more messages, run this command again when it finishes");
-				}
-				List<IMessage> historyNew = new ArrayList<IMessage>();
-				historyNew.addAll(history);
-				for (IMessage message : history) {
-					if (!(users.contains(message.getAuthor())) && message.getContent().length() < length) {
-						historyNew.remove(message);
-					}
-				}
-				history = historyNew;
-				historyNew.clear();
-				deleteMessages(historyNew);
-			} else if (deleteByUser == true && users != null) {
-				logger.info("Filtered message deletion job was started");
-				List<IMessage> history;
-				if (age != null) {
-					history = RequestBuffer.request(() -> {
-						return channel.getMessageHistoryFrom(age, 2001);
-					}).get();
-				} else {
-					history = RequestBuffer.request(() -> {
-						return channel.getMessageHistory(2001);
-					}).get();
-				}
-				if (history.size() == 2001) {
-					channel.sendMessage("More than 2000 messages were detected."
-							+ "\nThis command can only handle 2000 messages at a time."
-							+ "\nTo delete more messages, run this command again when it finishes");
-				}
-				List<IMessage> historyNew = new ArrayList<IMessage>();
-				historyNew.addAll(history);
-				for (int i = 0; i < history.size(); i++) {
-					if (!(users.contains(history.get(i).getAuthor()))) {
-						historyNew.remove(history.get(i));
-					}
-				}
-				deleteMessages(historyNew);
-			} else if (deleteByLength == true && length != 0) {
-				logger.info("Filtered message deletion job was started");
-				List<IMessage> history;
-				if (age != null) {
-					history = RequestBuffer.request(() -> {
-						return channel.getMessageHistoryFrom(age, 2001);
-					}).get();
-				} else {
-					history = RequestBuffer.request(() -> {
-						return channel.getMessageHistory(2001);
-					}).get();
-				}
-				if (history.size() == 2001) {
-					channel.sendMessage("More than 2000 messages were detected."
-							+ "\nThis command can only handle 2000 messages at a time."
-							+ "\nTo delete more messages, run this command again when it finishes");
-				}
-				List<IMessage> historyNew = new ArrayList<IMessage>();
-				historyNew.addAll(history);
-				for (IMessage message : history) {
-					if (message.getContent().length() < length) {
-						historyNew.remove(message);
-					}
-				}
-				deleteMessages(historyNew);
-			} else if (age != null) {
-				List<IMessage> history = RequestBuffer.request(() -> {
-					return channel.getMessageHistoryFrom(age, 2001);
-				}).get();
-				if (history.size() == 2001) {
-					channel.sendMessage("More than 2000 messages were detected."
-							+ "\nThis command can only handle 2000 messages at a time."
-							+ "\nTo delete more messages, run this command again when it finishes");
+							+ "\nTo delete more messages, run this command again when it finishes").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 				deleteMessages(history);
+				logger.info("Filtered message deletion job finished");
 			} else {
 				logger.error("Job was not configured properly");
-			}*/
+			}
 		}
 
-		private void deleteMessages(List<Message> history) {/*
-			try {
-				channel.sendMessage("Deleting messages.\nThis may take a while...");
-				long deletes = 0;
-				Message status = channel.sendMessage("Status: 0/" + history.size() + " messages deleted");
-				for (Message message : history) {
-					boolean deleteSuccess = false;
-					while (deleteSuccess == false) {
-						try {
-							message.delete();
-							deleteSuccess = true;
-							deletes++;
-							final long deletesCopy = deletes;
-							status.edit("Status: " + deletesCopy + '/' + history.size() + " messages deleted");
-						} catch (RateLimitException e) {
-							Thread.sleep(100);
-						}
-					}
+		private void deleteMessages(List<Message> history) {
+			EmbedBuilder status = new EmbedBuilder();
+			status.setTitle("Message deletion job | #" + channel.getName() + "@" + channel.getGuild().getName());
+			status.addField("Deleting messages.", "This may take a while...", false);
+			status.addField("Status", "0/" + history.size()+ " messages deleted", false);
+			status.setColor(Color.CYAN);
+			Message statmsg = channel.sendMessage(status.build()).complete();
+			long deletes = 0;
+			boolean isStopped = false;
+			for (Message message : history) {
+				if(Thread.interrupted()) {
+					isStopped = true;
+					break;
 				}
-				RequestBuffer.request(() -> status.edit("Messages deleted"));
-			} catch (InterruptedException e) {
-				logger.info("Filtered message deletion job was canceled");
-			}*/
+				message.delete().complete();
+				deletes++;
+				status = new EmbedBuilder();
+				status.setTitle("Message deletion job | #" + channel.getName() + "@" + channel.getGuild().getName());
+				status.addField("Deleting messages.", "This may take a while...", false);
+				status.addField("Status", deletes + "/" + history.size() + " messages deleted", false);
+				status.setColor(Color.CYAN);
+				statmsg.editMessage(status.build()).complete();
+			}
+			if(!isStopped) {
+				status = new EmbedBuilder();
+				status.setTitle("Message deletion job | #" + channel.getName() + "@" + channel.getGuild().getName());
+				status.addField("Status", "Messages deleted", false);
+				status.setColor(Color.CYAN);
+				statmsg.editMessage(status.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+			} else {
+				status = new EmbedBuilder();
+				status.setTitle("Message deletion job | #" + channel.getName() + "@" + channel.getGuild().getName());
+				status.addField("Status", "Job Canceled", false);
+				status.setColor(Color.CYAN);
+				statmsg.editMessage(status.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+			}
 		}
 
 	}
