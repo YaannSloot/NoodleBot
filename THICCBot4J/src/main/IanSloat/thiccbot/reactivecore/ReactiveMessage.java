@@ -101,10 +101,7 @@ public class ReactiveMessage extends ListenerAdapter {
 	 *         reactive message has not been activated
 	 */
 	public Message getRegisteredMessage() {
-		if(registeredMessage != null)
-			return this.registeredMessage;
-		else
-			return (Message) new Object();
+		return this.registeredMessage;
 	}
 
 	/**

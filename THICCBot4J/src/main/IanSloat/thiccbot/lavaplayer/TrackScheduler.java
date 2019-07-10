@@ -125,6 +125,53 @@ public class TrackScheduler extends AudioEventAdapter {
 		return guild;
 	}
 
+	private void initNewSession() {
+		MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+		if (reactive != null)
+			reactive.dispose();
+		reactive = new ReactiveMessage(channel);
+		reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
+		reactive.addButton("U+23f9", () -> {
+			stop();
+		});
+		reactive.addButton("U+23ef", () -> {
+			if (isPaused()) {
+				unpauseTrack();
+			} else {
+				pauseTrack();
+			}
+		});
+		reactive.addButton("U+23ed", () -> {
+			nextTrack();
+		});
+		reactive.addButton("U+23ea", () -> {
+			long jumpSize = player.getPlayingTrack().getDuration() / 20;
+			long currentPosition = player.getPlayingTrack().getPosition();
+			if (currentPosition - jumpSize < 0) {
+				player.getPlayingTrack().setPosition(0);
+			} else {
+				player.getPlayingTrack().setPosition(currentPosition - jumpSize);
+			}
+		});
+		reactive.addButton("U+23e9", () -> {
+			long jumpSize = player.getPlayingTrack().getDuration() / 20;
+			long currentPosition = player.getPlayingTrack().getPosition();
+			if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
+				nextTrack();
+			} else {
+				player.getPlayingTrack().setPosition(currentPosition + jumpSize);
+			}
+		});
+		reactive.addButton("U+2139", () -> {
+			if(displayQueue) {
+				setPlaylistDisplay(false);
+			} else {
+				setPlaylistDisplay(true);
+			}
+		});
+		reactive.activate();
+	}
+	
 	public void updateStatus() {
 		channel.getHistory().retrievePast(1).queue(new Consumer<List<Message>>() {
 
@@ -136,96 +183,10 @@ public class TrackScheduler extends AudioEventAdapter {
 						reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
 						reactive.update();
 					} else {
-						MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-						if (reactive != null)
-							reactive.dispose();
-						reactive = new ReactiveMessage(channel);
-						reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
-						reactive.addButton("U+23f9", () -> {
-							stop();
-						});
-						reactive.addButton("U+23ef", () -> {
-							if (isPaused()) {
-								unpauseTrack();
-							} else {
-								pauseTrack();
-							}
-						});
-						reactive.addButton("U+23ed", () -> {
-							nextTrack();
-						});
-						reactive.addButton("U+23ea", () -> {
-							long jumpSize = player.getPlayingTrack().getDuration() / 20;
-							long currentPosition = player.getPlayingTrack().getPosition();
-							if (currentPosition - jumpSize < 0) {
-								player.getPlayingTrack().setPosition(0);
-							} else {
-								player.getPlayingTrack().setPosition(currentPosition - jumpSize);
-							}
-						});
-						reactive.addButton("U+23e9", () -> {
-							long jumpSize = player.getPlayingTrack().getDuration() / 20;
-							long currentPosition = player.getPlayingTrack().getPosition();
-							if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
-								nextTrack();
-							} else {
-								player.getPlayingTrack().setPosition(currentPosition + jumpSize);
-							}
-						});
-						reactive.addButton("U+2139", () -> {
-							if(displayQueue) {
-								setPlaylistDisplay(false);
-							} else {
-								setPlaylistDisplay(true);
-							}
-						});
-						reactive.activate();
+						initNewSession();
 					}
 				} catch (NullPointerException e) {
-					MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-					if (reactive != null)
-						reactive.dispose();
-					reactive = new ReactiveMessage(channel);
-					reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
-					reactive.addButton("U+23f9", () -> {
-						stop();
-					});
-					reactive.addButton("U+23ef", () -> {
-						if (isPaused()) {
-							unpauseTrack();
-						} else {
-							pauseTrack();
-						}
-					});
-					reactive.addButton("U+23ed", () -> {
-						nextTrack();
-					});
-					reactive.addButton("U+23ea", () -> {
-						long jumpSize = player.getPlayingTrack().getDuration() / 20;
-						long currentPosition = player.getPlayingTrack().getPosition();
-						if (currentPosition - jumpSize < 0) {
-							player.getPlayingTrack().setPosition(0);
-						} else {
-							player.getPlayingTrack().setPosition(currentPosition - jumpSize);
-						}
-					});
-					reactive.addButton("U+23e9", () -> {
-						long jumpSize = player.getPlayingTrack().getDuration() / 20;
-						long currentPosition = player.getPlayingTrack().getPosition();
-						if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
-							nextTrack();
-						} else {
-							player.getPlayingTrack().setPosition(currentPosition + jumpSize);
-						}
-					});
-					reactive.addButton("U+2139", () -> {
-						if(displayQueue) {
-							setPlaylistDisplay(false);
-						} else {
-							setPlaylistDisplay(true);
-						}
-					});
-					reactive.activate();
+					initNewSession();
 				}
 			}
 
