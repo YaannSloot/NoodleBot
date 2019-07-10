@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
+import main.IanSloat.thiccbot.reactivecore.ReactiveMessage;
 import main.IanSloat.thiccbot.tools.MusicEmbedFactory;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,7 +21,7 @@ import java.util.function.Consumer;
 public class TrackScheduler extends AudioEventAdapter {
 
 	private TextChannel channel;
-	private Message message;
+	private ReactiveMessage reactive;
 	private Message playlistMessage;
 	private Guild guild;
 	private final BlockingQueue<AudioTrack> queue;
@@ -46,8 +47,8 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void setChannel(TextChannel channel) {
 		if (!(channel.equals(this.channel))) {
-			if (!(message == null))
-				message.delete().queue();
+			if (!(reactive == null))
+				reactive.dispose();
 			this.channel = channel;
 		}
 	}
@@ -75,8 +76,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void stop() {
 		player.stopTrack();
 		queue.clear();
-		if (message != null) {
-			message.delete().queue();
+		if (reactive != null) {
+			reactive.dispose();
 		}
 		if (playlistMessage != null) {
 			playlistMessage.delete().queue();
@@ -117,7 +118,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public Message getLastMessage() {
-		return message;
+		return reactive.getRegisteredMessage();
 	}
 
 	public Guild getGuild() {
@@ -129,17 +130,105 @@ public class TrackScheduler extends AudioEventAdapter {
 
 			@Override
 			public void accept(List<Message> t) {
-				if (t.get(0).equals(message)) {
+				try {
+					if (t.get(0).equals(reactive.getRegisteredMessage())) {
+						MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+						reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
+						reactive.update();
+					} else {
+						MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
+						if (reactive != null)
+							reactive.dispose();
+						reactive = new ReactiveMessage(channel);
+						reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
+						reactive.addButton("U+23f9", () -> {
+							stop();
+						});
+						reactive.addButton("U+23ef", () -> {
+							if (isPaused()) {
+								unpauseTrack();
+							} else {
+								pauseTrack();
+							}
+						});
+						reactive.addButton("U+23ed", () -> {
+							nextTrack();
+						});
+						reactive.addButton("U+23ea", () -> {
+							long jumpSize = player.getPlayingTrack().getDuration() / 20;
+							long currentPosition = player.getPlayingTrack().getPosition();
+							if (currentPosition - jumpSize < 0) {
+								player.getPlayingTrack().setPosition(0);
+							} else {
+								player.getPlayingTrack().setPosition(currentPosition - jumpSize);
+							}
+						});
+						reactive.addButton("U+23e9", () -> {
+							long jumpSize = player.getPlayingTrack().getDuration() / 20;
+							long currentPosition = player.getPlayingTrack().getPosition();
+							if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
+								nextTrack();
+							} else {
+								player.getPlayingTrack().setPosition(currentPosition + jumpSize);
+							}
+						});
+						reactive.addButton("U+2139", () -> {
+							if(displayQueue) {
+								setPlaylistDisplay(false);
+							} else {
+								setPlaylistDisplay(true);
+							}
+						});
+						reactive.activate();
+					}
+				} catch (NullPointerException e) {
 					MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-					message.editMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())).queue();
-				} else {
-					MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-					if (message != null)
-						message.delete().queue();
-					channel.sendMessage(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume())).queue((m) -> message = m);
+					if (reactive != null)
+						reactive.dispose();
+					reactive = new ReactiveMessage(channel);
+					reactive.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), getVolume()));
+					reactive.addButton("U+23f9", () -> {
+						stop();
+					});
+					reactive.addButton("U+23ef", () -> {
+						if (isPaused()) {
+							unpauseTrack();
+						} else {
+							pauseTrack();
+						}
+					});
+					reactive.addButton("U+23ed", () -> {
+						nextTrack();
+					});
+					reactive.addButton("U+23ea", () -> {
+						long jumpSize = player.getPlayingTrack().getDuration() / 20;
+						long currentPosition = player.getPlayingTrack().getPosition();
+						if (currentPosition - jumpSize < 0) {
+							player.getPlayingTrack().setPosition(0);
+						} else {
+							player.getPlayingTrack().setPosition(currentPosition - jumpSize);
+						}
+					});
+					reactive.addButton("U+23e9", () -> {
+						long jumpSize = player.getPlayingTrack().getDuration() / 20;
+						long currentPosition = player.getPlayingTrack().getPosition();
+						if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
+							nextTrack();
+						} else {
+							player.getPlayingTrack().setPosition(currentPosition + jumpSize);
+						}
+					});
+					reactive.addButton("U+2139", () -> {
+						if(displayQueue) {
+							setPlaylistDisplay(false);
+						} else {
+							setPlaylistDisplay(true);
+						}
+					});
+					reactive.activate();
 				}
 			}
-			
+
 		});
 	}
 

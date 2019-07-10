@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class Events extends ListenerAdapter{
@@ -50,4 +51,15 @@ public class Events extends ListenerAdapter{
 	public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
 		userMovedOutOfVoiceEvent.UserMovedOutOfVoiceEvent(event);
 	}
+	/*
+	@Override
+	public void onGenericMessageReaction(GenericMessageReactionEvent event) {
+		String emoji = "";
+		try {
+			emoji = event.getReaction().getReactionEmote().getAsCodepoints();
+		} catch (IllegalStateException e){
+			emoji = event.getReaction().getReactionEmote().getName();
+		}
+		System.out.println(emoji);
+	}*/
 }
