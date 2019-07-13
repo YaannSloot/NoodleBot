@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class ReactiveMessage extends ListenerAdapter {
@@ -234,7 +233,7 @@ public class ReactiveMessage extends ListenerAdapter {
 				registeredMessage.clearReactions().queue();
 				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
 			}
-		} catch (ErrorResponseException e) {
+		} catch (Exception e) {
 			logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
 					+ ") but the message either does not exist or a reaction failed to be added");
 		}
@@ -250,7 +249,7 @@ public class ReactiveMessage extends ListenerAdapter {
 				registeredMessage.clearReactions().queue();
 				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
 			}
-		} catch (ErrorResponseException e) {
+		} catch (Exception e) {
 			logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
 					+ ") but the message either does not exist or a reaction failed to be added");
 		}
