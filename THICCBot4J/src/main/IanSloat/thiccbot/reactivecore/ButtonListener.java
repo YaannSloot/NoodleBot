@@ -1,6 +1,6 @@
 package main.IanSloat.thiccbot.reactivecore;
 
 public interface ButtonListener {
-	void onButtonClick(String emojiName);
+	void onButtonClick(ButtonClickEvent event);
 	Button getButton();
 }

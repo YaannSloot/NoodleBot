@@ -18,15 +18,18 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class ReactiveMessage extends ListenerAdapter {
 
 	static final Logger logger = LoggerFactory.getLogger(ReactiveMessage.class);
 
+	/**
+	 * Used for general storage. List is specific to this reactive message
+	 */
 	public final List<Integer> integerTrackers = new ArrayList<Integer>();
-	
+
 	private final static Map<Message, ReactiveMessage> registeredMessages = new HashMap<>();
 	private final List<ButtonListener> buttonListeners = new ArrayList<ButtonListener>();
 	private final List<Menu> menus = new ArrayList<Menu>();
@@ -43,8 +46,9 @@ public class ReactiveMessage extends ListenerAdapter {
 			if (message == null) {
 				registeredMessages.put(this.getRegisteredMessage(), this);
 				ThiccBotMain.client.addEventListener(this);
-				logger.info("A new reactive message has been registered for channel " + channel.getName() + " of guild "
-						+ channel.getGuild().getName() + "(id:" + channel.getGuild().getId() + ')');
+				logger.info("A new reactive message has been registered (id:" + registeredMessage.getId()
+						+ " for channel " + channel.getName() + " of guild " + channel.getGuild().getName() + "(id:"
+						+ channel.getGuild().getId() + ')');
 			} else {
 				logger.warn("A reactive tried to be registered but for some reason already exists");
 			}
@@ -58,7 +62,8 @@ public class ReactiveMessage extends ListenerAdapter {
 		if (message != null) {
 			registeredMessages.remove(this.getRegisteredMessage(), this);
 			ThiccBotMain.client.removeEventListener(this);
-			logger.info("A new reactive message has been unregistered for channel " + channel.getName() + " of guild "
+			logger.info("An existing reactive message (id:" + registeredMessage.getId()
+					+ ") has been unregistered for channel " + channel.getName() + " of guild "
 					+ channel.getGuild().getName() + "(id:" + channel.getGuild().getId() + ')');
 		} else {
 			logger.warn("A reactive tried to be unregistered but for some reason does not exist");
@@ -95,7 +100,9 @@ public class ReactiveMessage extends ListenerAdapter {
 	}
 
 	/**
-	 * Returns the Message object associated with this reactive message
+	 * Returns the Message object associated with this reactive message. Usage of
+	 * this method for manipulating the associated message is not recommended.
+	 * Instead, use the setMessageContent() and update() methods
 	 * 
 	 * @return The Message object associated with this reactive message, null if the
 	 *         reactive message has not been activated
@@ -146,72 +153,106 @@ public class ReactiveMessage extends ListenerAdapter {
 		}
 	}
 
+	/**
+	 * Sets the embedded content that this reactive message will display in the
+	 * associated TextChannel when activated
+	 * 
+	 * @param content The MessageEmbed object to set as the content of this reactive
+	 *                message
+	 */
 	public void setMessageContent(MessageEmbed content) {
 		this.messageBody = content;
 	}
 
+	/**
+	 * If the content of this reactive message is not null and the message contains
+	 * at least one button, this method will send the message to discord, adding
+	 * necessary reactions and registering this reactive to the JDA event listener
+	 * pool
+	 */
 	public void activate() {
-		channel.sendMessage(messageBody).queue(new Consumer<Message>() {
+		if (messageBody != null && buttonListeners.size() > 0) {
+			channel.sendMessage(messageBody).queue(new Consumer<Message>() {
 
-			@Override
-			public void accept(Message msg) {
-				registeredMessage = msg;
-				cleanMessage(msg.getReactions());
-				isActive = true;
-				registerThisReactive();
-			}
+				@Override
+				public void accept(Message msg) {
+					registeredMessage = msg;
+					cleanMessage(msg.getReactions());
+					isActive = true;
+					registerThisReactive();
+				}
 
-		});
+			});
+		}
 	}
-	
+
+	/**
+	 * If the associated reactive message is active, this method will delete the
+	 * associated message from discord and remove this reactive from the JDA event
+	 * listener pool
+	 */
 	public void dispose() {
-		if(isActive) {
+		if (isActive) {
 			registeredMessage.delete().queue();
 			isActive = false;
 		}
 	}
 
+	/**
+	 * If the associated reactive message is active, this method will edit the
+	 * message and set buttons to the current list of set buttons
+	 */
 	public void update() {
 		if (isActive) {
 			registeredMessage.editMessage(messageBody).queue((msg) -> cleanMessage(msg.getReactions()));
 		}
 	}
 
-	private void alertButton(String emojiName) {
-		buttonListeners.forEach((listener) -> listener.onButtonClick(emojiName));
+	private void alertButton(String emoji, User user) {
+		buttonListeners.forEach((listener) -> listener.onButtonClick(new ButtonClickEvent(emoji, user)));
 	}
 
 	private void cleanMessage(List<MessageReaction> referenceList, User user) {
-		List<String> knownEmojis = new ArrayList<String>();
-		List<MessageReaction> processedList = new ArrayList<MessageReaction>();
-		processedList.addAll(referenceList);
-		buttonListeners.forEach((listener) -> knownEmojis.add(listener.getButton().getEmojiName()));
-		referenceList.forEach((reaction) -> {
-			String emoji = "";
-			try {
-				emoji = reaction.getReactionEmote().getAsCodepoints();
-			} catch (IllegalStateException e) {
-				emoji = reaction.getReactionEmote().getName();
+		try {
+			List<String> knownEmojis = new ArrayList<String>();
+			List<MessageReaction> processedList = new ArrayList<MessageReaction>();
+			processedList.addAll(referenceList);
+			buttonListeners.forEach((listener) -> knownEmojis.add(listener.getButton().getEmojiName()));
+			referenceList.forEach((reaction) -> {
+				String emoji = "";
+				try {
+					emoji = reaction.getReactionEmote().getAsCodepoints();
+				} catch (IllegalStateException e) {
+					emoji = reaction.getReactionEmote().getName();
+				}
+				if (!knownEmojis.contains(emoji)) {
+					reaction.removeReaction(user).queue();
+					processedList.remove(reaction);
+				}
+			});
+			if (processedList.size() < knownEmojis.size()) {
+				registeredMessage.clearReactions().queue();
+				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
 			}
-			if (!knownEmojis.contains(emoji)) {
-				reaction.removeReaction(user).queue();
-				processedList.remove(reaction);
-			}
-		});
-		if (processedList.size() < knownEmojis.size()) {
-			registeredMessage.clearReactions().queue();
-			knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
+		} catch (ErrorResponseException e) {
+			logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
+					+ ") but the message either does not exist or a reaction failed to be added");
 		}
 	}
-	
+
 	private void cleanMessage(List<MessageReaction> referenceList) {
-		List<String> knownEmojis = new ArrayList<String>();
-		List<MessageReaction> processedList = new ArrayList<MessageReaction>();
-		processedList.addAll(referenceList);
-		buttonListeners.forEach((listener) -> knownEmojis.add(listener.getButton().getEmojiName()));
-		if (processedList.size() < knownEmojis.size()) {
-			registeredMessage.clearReactions().queue();
-			knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
+		try {
+			List<String> knownEmojis = new ArrayList<String>();
+			List<MessageReaction> processedList = new ArrayList<MessageReaction>();
+			processedList.addAll(referenceList);
+			buttonListeners.forEach((listener) -> knownEmojis.add(listener.getButton().getEmojiName()));
+			if (processedList.size() < knownEmojis.size()) {
+				registeredMessage.clearReactions().queue();
+				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
+			}
+		} catch (ErrorResponseException e) {
+			logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
+					+ ") but the message either does not exist or a reaction failed to be added");
 		}
 	}
 
@@ -221,7 +262,8 @@ public class ReactiveMessage extends ListenerAdapter {
 				&& event.getMessageId().equals(registeredMessage.getId()) && isActive && !event.getUser().isBot()) {
 			logger.info("Reactive message event for message id " + registeredMessage.getId() + " in guild "
 					+ event.getGuild().getName() + "(id:" + event.getGuild().getId() + ") has occurred");
-			event.getChannel().retrieveMessageById(registeredMessage.getId()).queue((msg) -> cleanMessage(msg.getReactions(), event.getUser()));
+			event.getChannel().retrieveMessageById(registeredMessage.getId())
+					.queue((msg) -> cleanMessage(msg.getReactions(), event.getUser()));
 			if (!event.getUser().isBot()) {
 				String emoji = "";
 				try {
@@ -229,17 +271,17 @@ public class ReactiveMessage extends ListenerAdapter {
 				} catch (IllegalStateException e) {
 					emoji = event.getReaction().getReactionEmote().getName();
 				}
-				alertButton(emoji);
+				alertButton(emoji, event.getUser());
 			}
 		}
 	}
-	
+
 	@Override
 	public void onMessageDelete(MessageDeleteEvent event) {
 		if (event.getChannel().equals(registeredMessage.getChannel())
 				&& event.getMessageId().equals(registeredMessage.getId())) {
-			logger.info("A reactive message  in guild "
-					+ event.getGuild().getName() + "(id:" + event.getGuild().getId() + ") has been deleted");
+			logger.info("A reactive message  in guild " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
+					+ ") has been deleted");
 			unregisterThisReactive();
 		}
 	}

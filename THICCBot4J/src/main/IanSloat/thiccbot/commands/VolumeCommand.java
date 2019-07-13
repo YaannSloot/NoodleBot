@@ -1,5 +1,7 @@
 package main.IanSloat.thiccbot.commands;
 
+import java.util.concurrent.TimeUnit;
+
 import main.IanSloat.thiccbot.BotUtils;
 import main.IanSloat.thiccbot.lavaplayer.GuildMusicManager;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
@@ -42,12 +44,12 @@ public class VolumeCommand extends Command {
 					musicManager.scheduler.setVolume(Math.min(200, Math.max(0, Integer.parseInt(volume))));
 				}
 				musicManager.scheduler.updateStatus();
-				event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume)).queue();
+				event.getChannel().sendMessage("Set volume to " + Integer.parseInt(volume)).queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 			} catch (java.lang.NumberFormatException e) {
-				event.getChannel().sendMessage("Setting volume to... wait WHAT?!").queue();
+				event.getChannel().sendMessage("Setting volume to... wait WHAT?!").queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 			}
 		} else {
-			event.getChannel().sendMessage("Not currently connected to any voice channels").queue();
+			event.getChannel().sendMessage("Not currently connected to any voice channels").queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
 	}
 }
