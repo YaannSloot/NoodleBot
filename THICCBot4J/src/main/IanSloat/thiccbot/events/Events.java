@@ -3,13 +3,15 @@ package main.IanSloat.thiccbot.events;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.ReconnectedEvent;
+import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class Events extends ListenerAdapter{
@@ -21,6 +23,9 @@ public class Events extends ListenerAdapter{
 	private GuildLeave guildLeaveEvent = new GuildLeave();
 	private UserMovedOutOfVoice userMovedOutOfVoiceEvent = new UserMovedOutOfVoice();
 	private CommandHandler commandHandler = new CommandHandler();
+	private Disconnect disconnectEvent = new Disconnect();
+	private Reconnected reconnectEvent = new Reconnected();
+	private Resumed resumedEvent = new Resumed();
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
@@ -51,6 +56,22 @@ public class Events extends ListenerAdapter{
 	public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
 		userMovedOutOfVoiceEvent.UserMovedOutOfVoiceEvent(event);
 	}
+	
+	@Override
+	public void onDisconnect(DisconnectEvent event) {
+		disconnectEvent.DisconnectEvent(event);
+	}
+	
+	@Override
+	public void onReconnect(ReconnectedEvent event) {
+		reconnectEvent.ReconnectEvent(event);
+	}
+	
+	@Override 
+	public void onResume(ResumedEvent event){
+		resumedEvent.ResumedEvent(event);
+	}
+	
 	/*
 	@Override
 	public void onGenericMessageReaction(GenericMessageReactionEvent event) {

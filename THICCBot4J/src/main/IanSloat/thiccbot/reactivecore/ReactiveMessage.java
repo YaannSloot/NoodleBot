@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import main.IanSloat.thiccbot.ThiccBotMain;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -44,7 +43,7 @@ public class ReactiveMessage extends ListenerAdapter {
 
 			if (message == null) {
 				registeredMessages.put(this.getRegisteredMessage(), this);
-				ThiccBotMain.client.addEventListener(this);
+				channel.getJDA().addEventListener(this);
 				logger.info("A new reactive message has been registered (id:" + registeredMessage.getId()
 						+ " for channel " + channel.getName() + " of guild " + channel.getGuild().getName() + "(id:"
 						+ channel.getGuild().getId() + ')');
@@ -60,7 +59,7 @@ public class ReactiveMessage extends ListenerAdapter {
 
 		if (message != null) {
 			registeredMessages.remove(this.getRegisteredMessage(), this);
-			ThiccBotMain.client.removeEventListener(this);
+			channel.getJDA().addEventListener(this);
 			logger.info("An existing reactive message (id:" + registeredMessage.getId()
 					+ ") has been unregistered for channel " + channel.getName() + " of guild "
 					+ channel.getGuild().getName() + "(id:" + channel.getGuild().getId() + ')');

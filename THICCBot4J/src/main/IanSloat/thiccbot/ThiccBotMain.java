@@ -23,28 +23,26 @@ import org.slf4j.LoggerFactory;
 
 import main.IanSloat.thiccbot.events.Events;
 import main.IanSloat.thiccbot.guiclientserver.ClientServer;
-import main.IanSloat.thiccbot.tools.GeoLocator;
 import main.IanSloat.thiccbot.tools.RunScriptGenerator;
 import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class ThiccBotMain {
 
 	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where", "simplify" };
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(ThiccBotMain.class);
-	public static GeoLocator locator;
 	public static WebSocketServer server;
-	public static String versionNumber = "1.1.2";
+	public static String versionNumber = "1.1.3";
 	public static String botVersion = "thiccbot-v" + versionNumber + "_BETA";
 	public static String devMsg = "NOW IN BETA!";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	public static User botOwner;
-	public static JDA client;
+	public static ShardManager shardmgr;
 	
 	//Value Overrides
 	public static final int playerVolumeLimit =  2147483647;
@@ -190,17 +188,11 @@ public class ThiccBotMain {
 						+ "For more information on obtaining an AppID, please visit this link:\n"
 						+ "https://products.wolframalpha.com/api/documentation/#obtaining-an-appid");
 				String appID = lineReader.readLine(">");
-				System.out.println("\nPlease input this machines public ip.\n"
-						+ "You can find this out by searching \"what is my ip\" in google.\n"
-						+ "If you don't want this server's location to be shown on the info command,\n"
-						+ "just leave the line blank and hit enter");
-				String ip = lineReader.readLine(">");
 				System.out.println("\nWriting settings to config file...");
 				setMgr.addObj("StartupItems");
 				setMgr.setScope("StartupItems");
 				setMgr.addVal("TOKEN", token);
 				setMgr.addVal("APPID", appID);
-				setMgr.addVal("IP", ip);
 				System.out.println("Done.");
 			}
 			
@@ -211,18 +203,17 @@ public class ThiccBotMain {
 			setMgr.setScope("StartupItems");
 			
 			waAppID = setMgr.getFirstInValGroup("APPID");
-			
-			locator = new GeoLocator(setMgr.getFirstInValGroup("IP"));
 
-			client = new JDABuilder(setMgr.getFirstInValGroup("TOKEN"))
-					.useSharding(0, 1)
+			logger.info("Loading shards...");
+			
+			shardmgr = new DefaultShardManagerBuilder(setMgr.getFirstInValGroup("TOKEN"))
+					.setShardsTotal(-1)
+					.addEventListeners(new Events())
 					.build();
 			
-			client.addEventListener(new Events());
+			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 			
-			botOwner = client.retrieveApplicationInfo().complete().getOwner();
-			
-			server = new ClientServer(new InetSocketAddress("0.0.0.0", 443), client);
+			server = new ClientServer(new InetSocketAddress("0.0.0.0", 443), shardmgr);
 			
 			server.run();
 			

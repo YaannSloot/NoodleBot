@@ -30,13 +30,10 @@ public class InfoCommand extends Command {
 		}
 		event.getMessage().delete().queue();
 		EmbedBuilder response = new EmbedBuilder();
-		if (!(ThiccBotMain.locator.getIPAddress().equals("")))
-			response.addField("Current server location", ThiccBotMain.locator.getCity() + ", "
-					+ ThiccBotMain.locator.getRegion() + ", " + ThiccBotMain.locator.getCountry(), false);
 		response.addField("Powered by", "Java", false);
 		response.addField("Bot Version", ThiccBotMain.botVersion + "\n(Release #).(feature version).(patch #)", false);
 		response.addField("Status", ThiccBotMain.devMsg, false);
-		response.addField("Current number of guilds bot is a member of", ThiccBotMain.client.getGuilds().size() + " guilds", false);
+		response.addField("Current number of guilds bot is a member of", ThiccBotMain.shardmgr.getGuilds().size() + " guilds", false);
 		response.addField("Current shard count", event.getJDA().getShardInfo().getShardTotal() + " Shards active", false);
 		response.addField("Current amount of threads running on server", Thread.activeCount() + " Active threads",
 				false);

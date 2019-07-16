@@ -23,14 +23,14 @@ import main.IanSloat.thiccbot.events.CommandHandler;
 import main.IanSloat.thiccbot.tools.GuildSettingsManager;
 import main.IanSloat.thiccbot.tools.PermissionsManager;
 import main.IanSloat.thiccbot.tools.TBMLSettingsParser;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class ClientServer extends WebSocketServer {
 
 	private final Logger logger = LoggerFactory.getLogger(ClientServer.class);
 
-	private JDA client;
+	private ShardManager shardmgr;
 
 	private final static Map<WebSocket, Guild> sessionRegister = new HashMap<>();
 
@@ -65,9 +65,9 @@ public class ClientServer extends WebSocketServer {
 		return output;
 	}
 
-	public ClientServer(InetSocketAddress address, JDA client) {
+	public ClientServer(InetSocketAddress address, ShardManager shardmgr) {
 		super(address);
-		this.client = client;
+		this.shardmgr = shardmgr;
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class ClientServer extends WebSocketServer {
 					}
 				}
 				if (guildID != 0) {
-					Guild guild = client.getGuildById(guildID);
+					Guild guild = shardmgr.getGuildById(guildID);
 					if (guild != null) {
 						GuildSettingsManager setMgr = new GuildSettingsManager(guild);
 						TBMLSettingsParser setParser = setMgr.getTBMLParser();
@@ -133,7 +133,7 @@ public class ClientServer extends WebSocketServer {
 			} else if (message.equals("requestnewstatstream")) {
 				conn.send("requestapproved");
 			} else if (message.equals("updaterq")) {
-				conn.send("srdcnt:" + client.getShardInfo().getShardTotal());
+				conn.send("srdcnt:" + shardmgr.getShardsTotal());
 				conn.send("vsninf:" + ThiccBotMain.botVersion);
 				conn.send("trdcnt:" + Thread.activeCount());
 				conn.send("dvmsg:" + ThiccBotMain.devMsg);
@@ -143,7 +143,7 @@ public class ClientServer extends WebSocketServer {
 
 				if (request.equals("registernewsession")) {
 					if (msgJSON.opt("guildid") != null) {
-						Guild guild = ThiccBotMain.client.getGuildById(msgJSON.optLong("guildid"));
+						Guild guild = shardmgr.getGuildById(msgJSON.optLong("guildid"));
 						if (guild != null) {
 							if (sessionRegister.get(conn) == null) {
 								sessionRegister.put(conn, guild);
