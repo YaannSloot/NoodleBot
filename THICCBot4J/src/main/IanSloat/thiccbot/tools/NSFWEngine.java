@@ -14,7 +14,7 @@ public class NSFWEngine {
 		String result = "";
 		try {
 			Document doc;
-			doc = Jsoup.connect("https://r34-json-api.herokuapp.com/posts?tags=" + tags + "&limit=" + resultAmount)
+			doc = Jsoup.connect("https://custom-r34-api.herokuapp.com/posts?tags=" + tags + "&limit=" + resultAmount)
 					.ignoreContentType(true)
 					.get();
 			String JSONString = doc.getElementsByTag("body").text();
