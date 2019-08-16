@@ -213,7 +213,7 @@ public class NoodleBotMain {
 			
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 			
-			server = new ClientServer(new InetSocketAddress("0.0.0.0", 443), shardmgr);
+			server = new ClientServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
 			
 			server.run();
 			

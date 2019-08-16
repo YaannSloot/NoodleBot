@@ -72,7 +72,7 @@ public class ClientServer extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		conn.send("Connected to thiccbot gateway v1");
+		conn.send("Connected to noodlebot gateway v1");
 		logger.info("Started new gui client connection. client-ip:" + conn.getRemoteSocketAddress());
 	}
 
