@@ -13,10 +13,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class VolumeCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.VOLUME, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -51,5 +51,20 @@ public class VolumeCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("Not currently connected to any voice channels").queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood volume <0-200>** - Changes the player volume";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "volume";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

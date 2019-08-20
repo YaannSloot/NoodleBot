@@ -24,6 +24,12 @@ public abstract class Command {
 	public final static AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 	static final Logger logger = LoggerFactory.getLogger(Command.class);
 	
+	// Known command categories
+	public final static String CATEGORY_PLAYER = "player";
+	public final static String CATEGORY_MANAGEMENT = "management";
+	public final static String CATEGORY_UTILITY = "utility";
+	public final static String CATEGORY_MISC = "misc";
+	
 	public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, TextChannel channel) {
 		long guildId = guild.getIdLong();
 		GuildMusicManager musicManager = musicManagers.get(guildId);
@@ -47,7 +53,6 @@ public abstract class Command {
 			permMgr = new PermissionsManager(guild);
 			permManagers.put(guild, permMgr);
 		}
-
 		return permMgr;
 	}
 	
@@ -56,5 +61,11 @@ public abstract class Command {
 	public abstract boolean CheckForCommandMatch(Message command);
 	
 	public abstract void execute(MessageReceivedEvent event) throws NoMatchException;
+	
+	public abstract String getHelpSnippet();
+	
+	public abstract String getCommandId();
+	
+	public abstract String getCommandCategory();
 	
 }

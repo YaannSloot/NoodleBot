@@ -14,10 +14,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class WikiCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage("wiki", user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -68,6 +68,21 @@ public class WikiCommand extends Command {
 			}
 		});
 		
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood wiki** - Looks up an article on Wikipedia";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "wiki";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_UTILITY;
 	}
 
 }

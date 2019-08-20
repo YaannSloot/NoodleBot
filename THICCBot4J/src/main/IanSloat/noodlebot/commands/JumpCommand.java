@@ -13,10 +13,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class JumpCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage("jump", user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -56,5 +56,20 @@ public class JumpCommand extends Command {
 				event.getChannel().sendMessage("That's not a valid timecode").queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 			}
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood jump <position>** - Jumps to a specific position in the currently playing track specified by a timecode in HH:MM:SS.ss form";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "jump";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

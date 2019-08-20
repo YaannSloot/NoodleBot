@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.noodlebot.commands.Command;
+import main.IanSloat.noodlebot.commands.InfoCommand;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import net.dv8tion.jda.api.Permission;
@@ -38,13 +39,13 @@ public class GuildJoin {
 			guildUsers.remove(event.getGuild().getOwner());
 			for (Member user : guildUsers) {
 				if (user.hasPermission(Permission.ADMINISTRATOR) == false) {
-					permMgr.SetPermission(permMgr.INFO, user, permMgr.DENY);
+					permMgr.SetPermission(new InfoCommand().getCommandId(), user, permMgr.DENY);
 					permMgr.SetPermission(permMgr.MANAGE_GLOBAL, user, permMgr.DENY_GLOBAL);
 				}
 			}
 			for (Role role : guildRoles) {
 				if (!(role.getPermissions().contains(Permission.ADMINISTRATOR))) {
-					permMgr.SetPermission(permMgr.INFO, role, permMgr.DENY);
+					permMgr.SetPermission(new InfoCommand().getCommandId(), role, permMgr.DENY);
 					permMgr.SetPermission(permMgr.MANAGE_GLOBAL, role, permMgr.DENY_GLOBAL);
 				}
 			}

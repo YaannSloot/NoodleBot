@@ -21,10 +21,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PlayCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.PLAY, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -154,5 +154,20 @@ public class PlayCommand extends Command {
 			event.getChannel().sendMessage("Play what?")
 					.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood play <[scsearch:]Video name|Video URL>** - Plays a video or song";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "play";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

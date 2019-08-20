@@ -12,10 +12,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ListSettingsCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.LIST_SETTINGS, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -53,5 +53,20 @@ public class ListSettingsCommand extends Command {
 						+ setParser.getFirstInValGroup("volumecap"),
 				false);
 		event.getChannel().sendMessage(response.build()).queue();
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood list settings or nood settings** - Lists all of the settings and their values";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "listsettings";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 }

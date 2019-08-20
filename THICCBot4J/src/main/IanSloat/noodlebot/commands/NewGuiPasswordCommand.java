@@ -13,10 +13,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class NewGuiPasswordCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.GET_LOGIN, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -56,5 +56,20 @@ public class NewGuiPasswordCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("You must be an administrator of this server to use gui management").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood get new gui login** - Creates a new guild password for the bot's gui manager";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "adminlogin";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 }

@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class LeaveCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.LEAVE, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -35,5 +35,20 @@ public class LeaveCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("Not currently connected to any voice channels").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood leave** - Makes the bot leave the chat";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "leave";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

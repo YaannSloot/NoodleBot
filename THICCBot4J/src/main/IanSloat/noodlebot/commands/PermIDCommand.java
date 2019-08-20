@@ -11,10 +11,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PermIDCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.PERMMGR, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -63,6 +63,21 @@ public class PermIDCommand extends Command {
 	@Override
 	public boolean CheckForCommandMatch(Message command) {
 		return command.getContentRaw().toLowerCase().equals(BotUtils.BOT_PREFIX + "show permission ids");
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood show permission ids** - lists the command id/group id for all of the bot's available commands";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "permsettings";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 
 }

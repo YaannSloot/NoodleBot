@@ -15,10 +15,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class RemoveTrackCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage("queuemanage", user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -89,5 +89,20 @@ public class RemoveTrackCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("No tracks are currently playing").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood remove track <track number/range of track numbers>** - Removes a track or range of tracks from the queue";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "queuemanage";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

@@ -1,8 +1,6 @@
 package main.IanSloat.noodlebot.events;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -22,13 +20,7 @@ public class CommandHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
-	private List<Command> commands = new ArrayList<Command>(Arrays.asList(new FilterDeleteCommand(),
-			new GetGuiPasswordCommand(), new HelpCommand(), new InfoCommand(), new InspireMeCommand(),
-			new JumpCommand(), new LeaveCommand(), new ListSettingsCommand(), new NewGuiPasswordCommand(),
-			new PauseCommand(), new PermIDCommand(), new PlayCommand(), new QuestionCommand(), new RemoveTrackCommand(),
-			new SetPermDefaultsCommand(), new SetPermissionCommand(), new SettingsCommand(), new ShowQueueCommand(),
-			new SkipCommand(), new StopCommand(), new VolumeCommand(), new WikiCommand(), new VoiceChatKickCommand(),
-			new Rule34Command()));
+	public static List<Command> activeCommands = CommandRegistry.CommandInstances;
 
 	public void MessageReceivedEvent(MessageReceivedEvent event) {
 		if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX) && event.isFromGuild()) {
@@ -121,7 +113,7 @@ public class CommandHandler {
 			}
 
 			if (!commandMatch) {
-				for (Command c : commands) {
+				for (Command c : activeCommands) {
 					if (c.CheckForCommandMatch(event.getMessage())) {
 						commandMatch = true;
 						if (c.CheckUsagePermission(event.getMember(),

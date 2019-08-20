@@ -13,10 +13,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class InspireMeCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.INSPIRE_ME, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -39,5 +39,20 @@ public class InspireMeCommand extends Command {
 				+ new SimpleDateFormat("MM/dd/yyyy").format(Date.from(event.getMessage().getTimeCreated().toInstant())), null);
 		message.setColor(new Color(220, 20, 60));
 		event.getChannel().sendMessage(message.build()).queue();
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood inspire me** - Shows an inspirational image from InspiroBot\u2122";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "inspire";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MISC;
 	}
 }

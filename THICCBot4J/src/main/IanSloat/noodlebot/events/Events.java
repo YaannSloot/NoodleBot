@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.ReconnectedEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -70,6 +71,11 @@ public class Events extends ListenerAdapter{
 	@Override 
 	public void onResume(ResumedEvent event){
 		resumedEvent.ResumedEvent(event);
+	}
+	
+	@Override
+	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+		
 	}
 	
 	/*

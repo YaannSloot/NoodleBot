@@ -15,10 +15,10 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class SetPermissionCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.PERMMGR, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class SetPermissionCommand extends Command {
 				event.getMessage().delete().queue();
 				event.getChannel().sendMessage("You cannot apply a permission to yourself")
 						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
-			} else if (!(BotUtils.stringArrayContains(PermissionsManager.commandWords, words[0]))) {
+			} else if (!(BotUtils.stringArrayContains((String[])CommandRegistry.getCommandAndGlobalIds().toArray(), words[0]))) {
 				event.getMessage().delete().queue();
 				event.getChannel().sendMessage("You must reference a valid command identifier or command group")
 						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
@@ -121,6 +121,21 @@ public class SetPermissionCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("You must be an administrator of this server to manage permissions").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood permission <command id/command group> <allow/deny> <@user(s) and/or @role(s)>** - sets a permission for a command/command catagory";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "permsettings";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 
 }

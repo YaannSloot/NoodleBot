@@ -15,10 +15,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class Rule34Command extends Command{
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage("nsfw", user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -71,6 +71,23 @@ public class Rule34Command extends Command{
 			response.setColor(Color.red);
 			channel.sendMessage(response.build()).queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood r34 <search tag(s)>** - Searches for posts on rule 34. An image from the first 100 results is chosen at random. "
+				+ "Multiple tags are separated by whitespace characters "
+				+ "\nMUST HAVE NSFW ENABLED";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "nsfw";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MISC;
 	}
 	
 }

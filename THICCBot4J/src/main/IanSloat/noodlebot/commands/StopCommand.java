@@ -11,10 +11,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class StopCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.STOP, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -38,5 +38,20 @@ public class StopCommand extends Command {
 			event.getChannel().sendMessage("Not currently connected to any voice channels")
 					.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood stop** - Stops the currently playing song and clears the queue";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "stop";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

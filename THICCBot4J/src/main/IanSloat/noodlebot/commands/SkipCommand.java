@@ -14,10 +14,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class SkipCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.SKIP, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -55,5 +55,20 @@ public class SkipCommand extends Command {
 			event.getChannel().sendMessage("Not currently connected to any voice channels")
 					.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood skip** - Skips the currently playing song";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "skip";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

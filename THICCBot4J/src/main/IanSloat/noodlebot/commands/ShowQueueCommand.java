@@ -8,10 +8,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ShowQueueCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.SHOW_QUEUE, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -32,5 +32,20 @@ public class ShowQueueCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("Queue is currently empty").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood show queue** - Lists the songs currently in the song queue";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "showqueue";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

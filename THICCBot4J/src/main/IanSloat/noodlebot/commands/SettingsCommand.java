@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class SettingsCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.SET_COMMAND, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -91,5 +91,20 @@ public class SettingsCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("That is not a valid setting").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood set <setting> <value>** - Changes a server setting on the guild's settings file located on the bot server";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "set";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 }

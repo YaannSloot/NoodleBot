@@ -12,10 +12,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 
 public class InfoCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.INFO, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -40,5 +40,20 @@ public class InfoCommand extends Command {
 		response.setTitle("Bot Info");
 		response.setColor(new Color(0, 255, 0));
 		event.getChannel().sendMessage(response.build()).queue();
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood info** - Gets general info about the bot and it's current version number";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "info";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_UTILITY;
 	}
 }

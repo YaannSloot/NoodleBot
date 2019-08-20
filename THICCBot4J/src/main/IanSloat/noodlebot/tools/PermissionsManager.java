@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.noodlebot.NoodleBotMain;
+import main.IanSloat.noodlebot.commands.Command;
+import main.IanSloat.noodlebot.commands.CommandRegistry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -15,20 +17,6 @@ public class PermissionsManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(PermissionsManager.class);
 
-	public final String BY_FILTER = "filter";
-	public final String GET_LOGIN = "adminlogin";
-	public final String INFO = "info";
-	public final String INSPIRE_ME = "inspire";
-	public final String LEAVE = "leave";
-	public final String LIST_SETTINGS = "listsettings";
-	public final String PLAY = "play";
-	public final String QUESTION = "question";
-	public final String SET_COMMAND = "set";
-	public final String SKIP = "skip";
-	public final String STOP = "stop";
-	public final String VOLUME = "volume";
-	public final String SHOW_QUEUE = "showqueue";
-	public final String PERMMGR = "permsettings";
 	public final String PLAYER_GLOBAL = "player";
 	public final String MANAGE_GLOBAL = "management";
 	public final String UTIL_GLOBAL = "utility";
@@ -37,20 +25,6 @@ public class PermissionsManager {
 	public final String ALLOW = "Allow";
 	public final String ALLOW_GLOBAL = "GlobalAllow";
 	public final String DENY_GLOBAL = "GlobalDeny";
-
-	public static final String[] commandWords = { "player", "play", "volume", "skip", "jump", "stop", "pause",
-			"queuemanage", "showqueue", "leave", "management", "filter", "set", "listsettings", "adminlogin",
-			"permsettings", "utility", "info", "question", "wiki", "misc", "inspire", "vckick" };
-
-	public static final String[] playerCommands = { "player", "play", "volume", "skip", "jump", "stop", "pause",
-			"queuemanage", "showqueue", "leave" };
-
-	public static final String[] managementCommands = { "management", "filter", "set", "listsettings",
-			"adminlogin", "permsettings", "vckick" };
-
-	public static final String[] utilityCommands = { "utility", "info", "question", "wiki" };
-
-	public static final String[] miscCommands = { "misc", "inspire", "nsfw" };
 
 	private Guild guild;
 	private NBMLSettingsParser setParser;
@@ -91,13 +65,13 @@ public class PermissionsManager {
 	// Based on the provided command id, checks to see which category the command belongs in and returns the category name
 	private String getCategory(String command) {
 		String regDirectory = "";
-		if (Arrays.asList(playerCommands).contains(command)) {
+		if (CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_PLAYER).contains(command)) {
 			regDirectory = "PlayerPermissions";
-		} else if (Arrays.asList(managementCommands).contains(command)) {
+		} else if (CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_MANAGEMENT).contains(command)) {
 			regDirectory = "ManagementPermissions";
-		} else if (Arrays.asList(utilityCommands).contains(command)) {
+		} else if (CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_UTILITY).contains(command)) {
 			regDirectory = "UtilityPermissions";
-		} else if (Arrays.asList(miscCommands).contains(command)) {
+		} else if (CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_MISC).contains(command)) {
 			regDirectory = "MiscPermissions";
 		}
 		return regDirectory;

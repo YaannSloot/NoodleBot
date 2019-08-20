@@ -13,10 +13,10 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class SetPermDefaultsCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.PERMMGR, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -40,13 +40,13 @@ public class SetPermDefaultsCommand extends Command {
 			guildUsers.remove(event.getGuild().getOwner());
 			for (Member user : guildUsers) {
 				if (user.hasPermission(Permission.ADMINISTRATOR) == false) {
-					permMgr.SetPermission(permMgr.INFO, user, permMgr.DENY);
+					permMgr.SetPermission(new InfoCommand().getCommandId(), user, permMgr.DENY);
 					permMgr.SetPermission(permMgr.MANAGE_GLOBAL, user, permMgr.DENY_GLOBAL);
 				}
 			}
 			for (Role role : guildRoles) {
 				if (!(role.getPermissions().contains(Permission.ADMINISTRATOR))) {
-					permMgr.SetPermission(permMgr.INFO, role, permMgr.DENY);
+					permMgr.SetPermission(new InfoCommand().getCommandId(), role, permMgr.DENY);
 					permMgr.SetPermission(permMgr.MANAGE_GLOBAL, role, permMgr.DENY_GLOBAL);
 				}
 			}
@@ -55,6 +55,21 @@ public class SetPermDefaultsCommand extends Command {
 			event.getChannel().sendMessage("You must be the owner of this server to set default permissions")
 				.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood apply default permissions** - Sets the recommended default permissions for your server";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "permsettings";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 	
 }

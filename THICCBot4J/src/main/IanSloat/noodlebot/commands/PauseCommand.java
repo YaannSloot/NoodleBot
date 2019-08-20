@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PauseCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage("pause", user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -39,5 +39,20 @@ public class PauseCommand extends Command {
 		} else {
 			event.getChannel().sendMessage("No tracks are currently playing").queue();
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood pause** - This command is a toggle. It will either pause or unpause the current track";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "pause";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_PLAYER;
 	}
 }

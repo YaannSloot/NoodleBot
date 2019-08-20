@@ -9,6 +9,8 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import main.IanSloat.noodlebot.tools.PermissionsManager;
+import main.IanSloat.noodlebot.commands.Command;
+import main.IanSloat.noodlebot.commands.CommandRegistry;
 import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -85,16 +87,16 @@ public class PermissionPayloadLoader {
 		List<String> manage = new ArrayList<String>();
 		List<String> util = new ArrayList<String>();
 		List<String> misc = new ArrayList<String>();
-		for(String command : PermissionsManager.playerCommands) {
+		for(String command : CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_PLAYER)) {
 			player.add(command);
 		}
-		for(String command : PermissionsManager.managementCommands) {
+		for(String command : CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_MANAGEMENT)) {
 			manage.add(command);
 		}
-		for(String command : PermissionsManager.utilityCommands) {
+		for(String command : CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_UTILITY)) {
 			util.add(command);
 		}
-		for(String command : PermissionsManager.miscCommands) {
+		for(String command : CommandRegistry.getCommandIdsByCategory(Command.CATEGORY_MISC)) {
 			misc.add(command);
 		}
 		String catagory = player.get(0);

@@ -16,7 +16,7 @@ public class VoiceChatKickCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage("vckick", user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -82,5 +82,21 @@ public class VoiceChatKickCommand extends Command {
 			event.getChannel().sendMessage("Kicked " + members.size() + " users from connected voice channels")
 					.queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood vckick <@user(s)|@role(s)>** - Kicks any mentioned users or roles from whatever voice channel they are connected to. "
+				+ "The person using this command does not need to be connected to any voice channels.";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "vckick";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 }

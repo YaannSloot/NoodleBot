@@ -16,10 +16,10 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class FilterDeleteCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.BY_FILTER, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -139,5 +139,23 @@ public class FilterDeleteCommand extends Command {
 					"Not sure what kind of calendar you are using,\n" + "but I cannot understand what you just said")
 				.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 		}
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood delete messages**\n" + "Parameters:\n"
+				+ "older than <number> <day(s)/week(s)/month(s)/year(S)>\n" + "from <@user|@role>\n"
+				+ "Ex 1 - nood delete messages older than 1 week 3 days from @everyone\n"
+				+ "Ex 2 - nood delete messages from @someuser";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "filter";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_MANAGEMENT;
 	}
 }

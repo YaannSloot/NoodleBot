@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class QuestionCommand extends Command {
-
+	
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
-		return permMgr.authUsage(permMgr.QUESTION, user);
+		return permMgr.authUsage(getCommandId(), user);
 	}
 
 	@Override
@@ -31,5 +31,20 @@ public class QuestionCommand extends Command {
 		WolframController waClient = new WolframController(NoodleBotMain.waAppID);
 		waClient.askQuestionAndSend(event.getMessage().getContentRaw().substring(BotUtils.BOT_PREFIX.length()),
 				event.getTextChannel());
+	}
+
+	@Override
+	public String getHelpSnippet() {
+		return "**nood <question>** - Sends a question to WolframAlpha";
+	}
+
+	@Override
+	public String getCommandId() {
+		return "question";
+	}
+
+	@Override
+	public String getCommandCategory() {
+		return Command.CATEGORY_UTILITY;
 	}
 }
