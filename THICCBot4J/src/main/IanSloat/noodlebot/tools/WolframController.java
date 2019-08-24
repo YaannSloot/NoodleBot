@@ -53,7 +53,7 @@ public class WolframController {
 						}
 					}
 				}
-				response.setAuthor("WolframAlpha", null, "http://thiccbot.site/boticons/wolframalphaicon.png");
+				response.setAuthor("WolframAlpha", null, "https://noodlebot.io/boticons/wolframalphaicon.png");
 				response.setColor(new Color(255, 127, 0));
 			}
 		} catch (WAException e) {

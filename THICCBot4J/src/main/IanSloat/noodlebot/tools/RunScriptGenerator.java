@@ -33,9 +33,9 @@ public class RunScriptGenerator {
 				try {
 					FileWriter fileWriter = new FileWriter(script);
 					if (makeBat == true) {
-						fileWriter.write("cls\r\n@echo off\r\necho Starting bot...\r\njava -jar thiccbot.jar");
+						fileWriter.write("cls\r\n@echo off\r\necho Starting bot...\r\njava -jar noodlebot.jar");
 					} else {
-						fileWriter.write("#!/bin/bash\r\necho \"Starting bot...\"\r\njava -jar thiccbot.jar");
+						fileWriter.write("#!/bin/bash\r\necho \"Starting bot...\"\r\njava -jar noodlebot.jar");
 					}
 					fileWriter.close();
 					System.exit(0);

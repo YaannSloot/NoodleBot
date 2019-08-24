@@ -171,7 +171,7 @@ public class NoodleBotMain {
 				logger.info("Bot settings file not found. Creating new file...");
 				setMgr = new NBMLSettingsParser(configFile);
 				logger.info("Bot settings file created successfully. Starting bot setup wizard...");
-				System.out.println("\n\n\n\nWelcome to the ThiccBot setup wizard\n"
+				System.out.println("\n\n\n\nWelcome to the NoodleBot setup wizard\n"
 						+ "Before you start using your bot, you will have to provide a few details\n\n"
 						+ "Please input your bots token");
 				String token = lineReader.readLine(">");

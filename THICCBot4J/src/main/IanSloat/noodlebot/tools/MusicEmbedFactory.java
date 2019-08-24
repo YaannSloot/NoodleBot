@@ -42,7 +42,7 @@ public class MusicEmbedFactory {
 		}
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("YouTube", null, "http://thiccbot.site/boticons/youtubeicon.png");
+		response.setAuthor("YouTube", null, "https://noodlebot.io/boticons/youtubeicon.png");
 		response.setColor(new Color(238, 36, 21));
 		return response;
 	}
@@ -54,7 +54,7 @@ public class MusicEmbedFactory {
 		String duration = DurationFormatUtils.formatDuration(track.getInfo().length, "**H:mm:ss**", true);
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("Vimeo", null, "http://thiccbot.site/boticons/vimeoicon.png");
+		response.setAuthor("Vimeo", null, "https://noodlebot.io/boticons/vimeoicon.png");
 		response.setColor(new Color(26, 183, 234));
 		return response;
 	}
@@ -71,7 +71,7 @@ public class MusicEmbedFactory {
 		}
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("Twitch", null, "http://thiccbot.site/boticons/twitchicon.png");
+		response.setAuthor("Twitch", null, "https://noodlebot.io/boticons/twitchicon.png");
 		response.setColor(new Color(142, 36, 170));
 		return response;
 	}
@@ -83,7 +83,7 @@ public class MusicEmbedFactory {
 		String duration = DurationFormatUtils.formatDuration(track.getInfo().length, "**H:mm:ss**", true);
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("SoundCloud", null, "http://thiccbot.site/boticons/soundcloudicon.png");
+		response.setAuthor("SoundCloud", null, "https://noodlebot.io/boticons/soundcloudicon.png");
 		response.setColor(new Color(247, 98, 14));
 		return response;
 	}
@@ -95,7 +95,7 @@ public class MusicEmbedFactory {
 		String duration = DurationFormatUtils.formatDuration(track.getInfo().length, "**H:mm:ss**", true);
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("bandcamp", null, "http://thiccbot.site/boticons/bandcampicon.png");
+		response.setAuthor("bandcamp", null, "https://noodlebot.io/boticons/bandcampicon.png");
 		response.setColor(new Color(97, 146, 156));
 		return response;
 	}
@@ -106,7 +106,7 @@ public class MusicEmbedFactory {
 		String duration = DurationFormatUtils.formatDuration(track.getInfo().length, "**H:mm:ss**", true);
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("Music Track", null, "http://thiccbot.site/boticons/generic.png");
+		response.setAuthor("Music Track", null, "https://noodlebot.io/boticons/generic.png");
 		response.setColor(new Color(0, 0, 0));
 		return response;
 	}

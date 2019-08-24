@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Standard parser and editor class for the proprietary TBML file format used by
- * ThiccBot. Document contents are organized in a hierarchical tree structure,
+ * Standard parser and editor class for the proprietary NBML file format used by
+ * NoodleBot. Document contents are organized in a hierarchical tree structure,
  * much like the structure of directories and subdirectories found on most
  * modern file systems.
  * 
@@ -34,26 +34,26 @@ public class NBMLSettingsParser {
 	public static final String DOCROOT = "docroot";
 
 	/**
-	 * Creates a new TBML parser and opens the provided TBML file, or creates one if
+	 * Creates a new NBML parser and opens the provided NBML file, or creates one if
 	 * it does not exist
 	 * 
-	 * @param tbmlFile The file to be opened or created
+	 * @param nbmlFile The file to be opened or created
 	 */
-	public NBMLSettingsParser(File tbmlFile) {
-		if (!(tbmlFile.exists())) {
+	public NBMLSettingsParser(File nbmlFile) {
+		if (!(nbmlFile.exists())) {
 			try {
-				tbmlFile.createNewFile();
-				FileWriter fileWriter = new FileWriter(tbmlFile);
+				nbmlFile.createNewFile();
+				FileWriter fileWriter = new FileWriter(nbmlFile);
 				fileWriter.write("<?nbml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<docroot>\r\n</docroot>");
 				fileWriter.close();
-				this.nbmlFile = tbmlFile;
+				this.nbmlFile = nbmlFile;
 				setScope("docroot");
 			} catch (IOException e) {
-				logger.error("A new nbml file could not be created at " + tbmlFile.getAbsolutePath());
+				logger.error("A new nbml file could not be created at " + nbmlFile.getAbsolutePath());
 				somethingWrong = true;
 			}
 		} else {
-			this.nbmlFile = tbmlFile;
+			this.nbmlFile = nbmlFile;
 			setScope("docroot");
 		}
 	}
