@@ -7,11 +7,22 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Properties;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -22,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.IanSloat.noodlebot.events.Events;
-import main.IanSloat.noodlebot.guiclientserver.ClientServer;
+import main.IanSloat.noodlebot.gateway.GatewayServer;
 import main.IanSloat.noodlebot.tools.RunScriptGenerator;
 import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
 import net.dv8tion.jda.api.entities.User;
@@ -204,9 +215,43 @@ public class NoodleBotMain {
 			
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 			
-			server = new ClientServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
+			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
 			
-			server.run();
+			if(args.length > 0) {
+				if(Arrays.asList(args).contains("useSSL")) {
+					System.out.println("/n/nGateway is set to use SSL. Please input required passwords.\nInput the store password:");
+					String sp = lineReader.readLine(">", '*');
+					System.out.println("Input the key password");
+					String kp = lineReader.readLine(">", '*');
+					try {
+						KeyStore ks = KeyStore.getInstance("JKS");
+						File kf = new File("keystore.jks");
+						if(!kf.exists()) {
+							logger.error("Keystore file does not exist. Bot is shutting down...");
+							System.exit(0);
+						} else {
+							try {
+								ks.load(new FileInputStream(kf), sp.toCharArray());
+								KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+								kmf.init(ks, kp.toCharArray());
+								TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+								tmf.init(ks);
+								SSLContext sslContext = SSLContext.getInstance("TLS");
+								sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+								server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+							} catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException e) {
+								e.printStackTrace();
+								System.exit(0);
+							}
+						}
+					} catch (KeyStoreException e) {
+						e.printStackTrace();
+						System.exit(0);
+					}
+				}
+			}
+			
+			server.start();
 			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
