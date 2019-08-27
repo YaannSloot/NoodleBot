@@ -198,6 +198,8 @@ public class NoodleBotMain {
 				System.out.println("Done.");
 			}
 			
+			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
+			
 			if(args.length > 0) {
 				if(Arrays.asList(args).contains("useSSL")) {
 					System.out.println("\n\nGateway is set to use SSL. Please input required passwords.\nInput the store password:");
@@ -248,8 +250,6 @@ public class NoodleBotMain {
 					.build();
 			
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
-			
-			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
 			
 			server.start();
 			
