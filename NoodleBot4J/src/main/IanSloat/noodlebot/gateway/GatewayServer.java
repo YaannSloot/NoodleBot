@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.noodlebot.NoodleBotMain;
 import main.IanSloat.noodlebot.gateway.sessions.GuestSession;
 import main.IanSloat.noodlebot.gateway.sessions.Session;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -22,8 +23,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 public class GatewayServer extends WebSocketServer {
 
 	private final static Logger logger = LoggerFactory.getLogger(GatewayServer.class);
-
-	private static ShardManager shardmgr;
 
 	private final static Map<WebSocket, Session> sessionRegister = new HashMap<>();
 
@@ -68,7 +67,7 @@ public class GatewayServer extends WebSocketServer {
 				msgJSON = new JSONObject(lastMsg);
 				if (msgJSON != null) {
 					if(msgJSON.getString("sessiontype").equals("guest") && msgJSON.length() == 2) {
-						sessionRegister.put(connection, new GuestSession(connection, shardmgr));
+						sessionRegister.put(connection, new GuestSession(connection, NoodleBotMain.shardmgr));
 						current = sessionRegister.get(connection);
 						logger.info("Client:" + connection.getRemoteSocketAddress() + " has registered a new guest session with the gateway");
 					} else if(msgJSON.getString("sessiontype").equals("permview")) {
@@ -85,7 +84,6 @@ public class GatewayServer extends WebSocketServer {
 	
 	public GatewayServer(InetSocketAddress address, ShardManager shardmgr) {
 		super(address);
-		GatewayServer.shardmgr = shardmgr;
 	}
 
 	@Override
