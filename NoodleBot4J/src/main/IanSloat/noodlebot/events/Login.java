@@ -1,5 +1,6 @@
 package main.IanSloat.noodlebot.events;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -107,6 +108,11 @@ public class Login {
 
 					System.out.println("Bot is shutting down...");
 					NoodleBotMain.shardmgr.shutdown();
+					try {
+						NoodleBotMain.server.stop();
+					} catch (IOException | InterruptedException e) {
+						e.printStackTrace();
+					}
 					System.exit(0);
 				}
 
