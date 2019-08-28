@@ -106,13 +106,15 @@ public class Login {
 
 					}
 
-					System.out.println("Bot is shutting down...");
 					NoodleBotMain.shardmgr.shutdown();
 					try {
 						NoodleBotMain.server.stop();
 					} catch (IOException | InterruptedException e) {
 						e.printStackTrace();
 					}
+					
+					System.out.println("Bot is shutting down...");
+					
 					System.exit(0);
 				}
 
