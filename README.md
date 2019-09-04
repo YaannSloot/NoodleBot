@@ -9,7 +9,7 @@ But what is **NoodleBot** you ask?
 - [Commands](#Commands)
 - [Q&A](#Q&A)
 
-### Side note: report issues here
+### Side note: report issues here @ GitHub
 
 ## <a id="Features"></a>Features
 
