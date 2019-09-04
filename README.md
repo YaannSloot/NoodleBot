@@ -9,6 +9,8 @@ But what is **NoodleBot** you ask?
 - [Commands](#Commands)
 - [Q&A](#Q&A)
 
+### Side note: report issues here
+
 ## <a id="Features"></a>Features
 
 Currently, **NoodleBot** has the ability to:
