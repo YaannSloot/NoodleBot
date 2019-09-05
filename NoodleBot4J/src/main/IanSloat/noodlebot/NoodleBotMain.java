@@ -32,6 +32,8 @@ import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
+
 import main.IanSloat.noodlebot.events.Events;
 import main.IanSloat.noodlebot.gateway.GatewayServer;
 import main.IanSloat.noodlebot.tools.RunScriptGenerator;
@@ -247,6 +249,7 @@ public class NoodleBotMain {
 			shardmgr = new DefaultShardManagerBuilder(setMgr.getFirstInValGroup("TOKEN"))
 					.setShardsTotal(-1)
 					.addEventListeners(new Events())
+					.setAudioSendFactory(new NativeAudioSendFactory())
 					.build();
 			
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();

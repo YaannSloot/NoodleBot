@@ -48,7 +48,7 @@ public class WikiCommand extends Command {
 				boolean isFound = search.search(searchCommand);
 				if (isFound) {
 					EmbedBuilder messageEdit = new EmbedBuilder();
-					messageEdit.setAuthor("Wikipedia", null, "http://thiccbot.site/boticons/wikipedia.png");
+					messageEdit.setAuthor("Wikipedia", null, "https://noodlebot.io/boticons/wikipedia.png");
 					messageEdit.setTitle(search.getTitle());
 					messageEdit.appendDescription("[Page Link](" + search.getPageUrl() + ")");
 					messageEdit.addField("Summary", search.getSummary(), false);
