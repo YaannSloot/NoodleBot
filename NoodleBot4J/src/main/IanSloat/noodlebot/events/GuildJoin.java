@@ -21,12 +21,17 @@ public class GuildJoin {
 
 	public void GuildJoinEvent(GuildJoinEvent event) {
 		if (!(Events.knownGuildIds.contains(event.getGuild().getId()))) {
-			event.getGuild().getTextChannels().get(0)
-					.sendMessage(
-							"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"thicc help\"")
-					.queue();
-			logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
-					+ ")");
+			try {
+				event.getGuild().getTextChannels().get(0)
+						.sendMessage(
+								"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"nood help\"")
+						.queue();
+				logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
+						+ ")");
+			} catch (Exception e){
+				e.printStackTrace();
+			}
+			
 			GuildSettingsManager sManager = new GuildSettingsManager(event.getGuild());
 			sManager.CreateSettings();
 			Events.knownGuildIds.add(event.getGuild().getId());
