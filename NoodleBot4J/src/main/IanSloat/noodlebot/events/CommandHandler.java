@@ -29,17 +29,17 @@ public class CommandHandler {
 					+ event.getGuild().getName() + ", Content=\"" + event.getMessage().getContentStripped() + "\"");
 
 			boolean commandMatch = false;
-			
-			event.getMessage().delete().queue();
 
 			if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping")) {
 				event.getChannel().sendMessage("Pong!").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				commandMatch = true;
+				event.getMessage().delete().queue();
 			}
 
 			if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "die")) {
 				event.getChannel().sendMessage("no u").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				commandMatch = true;
+				event.getMessage().delete().queue();
 			}
 
 			if (event.getAuthor().equals(NoodleBotMain.botOwner)
@@ -127,6 +127,7 @@ public class CommandHandler {
 								e.printStackTrace();
 							}
 						} else {
+							event.getMessage().delete().queue();
 							event.getChannel().sendMessage("You do not have permission to use that command").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 						}
 						break;
@@ -137,14 +138,19 @@ public class CommandHandler {
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
 				if (random == 1) {
+					event.getMessage().delete().queue();
 					event.getChannel().sendMessage("What?").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else if (random == 2) {
+					event.getMessage().delete().queue();
 					event.getChannel().sendMessage("What are you saying?").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else if (random == 3) {
+					event.getMessage().delete().queue();
 					event.getChannel().sendMessage("What language is that?").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else if (random == 4) {
+					event.getMessage().delete().queue();
 					event.getChannel().sendMessage("Are you ok?").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else {
+					event.getMessage().delete().queue();
 					event.getChannel().sendMessage("What you're saying makes no sense.").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 				logger.info("Message did not match any commands");
