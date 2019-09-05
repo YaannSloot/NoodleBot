@@ -27,7 +27,7 @@ public class GuildJoin {
 						.queue();
 				if (!event.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
 					event.getGuild().getDefaultChannel().sendMessage(
-							"WARNING: bot does not have administrator privileges which are required to function");
+							"WARNING: bot does not have administrator privileges which are required to function").queue();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -36,7 +36,7 @@ public class GuildJoin {
 						.queue());
 				if (!event.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
 					event.getGuild().getOwner().getUser().openPrivateChannel().queue(channel -> channel.sendMessage(
-							"WARNING: bot does not have administrator privileges which are required to function"));
+							"WARNING: bot does not have administrator privileges which are required to function").queue());
 				}
 			}
 			logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
