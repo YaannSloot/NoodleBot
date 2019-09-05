@@ -22,16 +22,25 @@ public class GuildJoin {
 	public void GuildJoinEvent(GuildJoinEvent event) {
 		if (!(Events.knownGuildIds.contains(event.getGuild().getId()))) {
 			try {
-				event.getGuild().getTextChannels().get(0)
-						.sendMessage(
-								"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"nood help\"")
+				event.getGuild().getDefaultChannel().sendMessage(
+						"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"nood help\"")
 						.queue();
-				logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
-						+ ")");
-			} catch (Exception e){
+				if (!event.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
+					event.getGuild().getDefaultChannel().sendMessage(
+							"WARNING: bot does not have administrator privileges which are required to function");
+				}
+			} catch (Exception e) {
 				e.printStackTrace();
+				event.getGuild().getOwner().getUser().openPrivateChannel().queue(channel -> channel.sendMessage(
+						"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"nood help\"")
+						.queue());
+				if (!event.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
+					event.getGuild().getOwner().getUser().openPrivateChannel().queue(channel -> channel.sendMessage(
+							"WARNING: bot does not have administrator privileges which are required to function"));
+				}
 			}
-			
+			logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
+					+ ")");
 			GuildSettingsManager sManager = new GuildSettingsManager(event.getGuild());
 			sManager.CreateSettings();
 			Events.knownGuildIds.add(event.getGuild().getId());
