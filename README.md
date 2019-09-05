@@ -11,7 +11,7 @@ But what is **NoodleBot** you ask?
 
 ### Side note: report issues here @ GitHub
 
-## <a id="Features"></a>Features
+## (#Features)Features
 
 Currently, **NoodleBot** has the ability to:
 * Play music complete with volume controls using the powerful LavaPlayer library
