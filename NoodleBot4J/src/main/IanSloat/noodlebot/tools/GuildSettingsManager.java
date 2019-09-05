@@ -1,8 +1,10 @@
 package main.IanSloat.noodlebot.tools;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
@@ -51,10 +53,20 @@ public class GuildSettingsManager {
 
 	public void CreateSettings() {
 		if (settingsDirectory.exists()) {
-			settingsDirectory.delete();
-			settingsDirectory.mkdirs();
+			FileSystemUtils.deleteRecursively(settingsDirectory);
+			try {
+				FileUtils.forceMkdir(settingsDirectory);
+				getTBMLParser();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} else {
-			settingsDirectory.mkdirs();
+			try {
+				FileUtils.forceMkdir(settingsDirectory);
+				getTBMLParser();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
