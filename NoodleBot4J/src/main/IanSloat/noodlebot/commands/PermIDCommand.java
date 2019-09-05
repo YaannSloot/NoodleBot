@@ -28,30 +28,30 @@ public class PermIDCommand extends Command {
 			message.setTitle("Permission IDs");
 			message.setColor(Color.ORANGE);
 			message.addField("**Player command IDs (global id: player)**",
-					"**play** - thicc play/thicc add\n" + "**volume** - thicc volume\n" + "**skip** - thicc skip\n"
-							+ "**jump** - thicc jump\n"
-							+ "**stop** - thicc stop\n"
-							+ "**pause** - thicc pause\n"
-							+ "**queuemanage - thicc remove track"
-							+ "**showqueue** - thicc show queue\n"
-							+ "**leave** - thicc leave",
+					"**play** - nood play/nood add\n" + "**volume** - nood volume\n" + "**skip** - nood skip\n"
+							+ "**jump** - nood jump\n"
+							+ "**stop** - nood stop\n"
+							+ "**pause** - nood pause\n"
+							+ "**queuemanage - nood remove track"
+							+ "**showqueue** - nood show queue\n"
+							+ "**leave** - nood leave",
 					false);
 			message.addField("**Server management command IDs (global id: management)**",
-							"**filter** - thicc delete messages\n"
-							+ "**set** - thicc set\n" + "**listsettings** - thicc list settings\n"
-							+ "**adminlogin**:\nthicc get gui login\nthicc get new gui login\n"
-							+ "**permsettings** - thicc permission/thicc show permission ids/thicc apply default permissions",
+							"**filter** - nood delete messages\n"
+							+ "**set** - nood set\n" + "**listsettings** - nood list settings\n"
+							+ "**adminlogin**:\nnood get gui login\nnood get new gui login\n"
+							+ "**permsettings** - nood permission/nood show permission ids/nood apply default permissions",
 					false);
 			message.addField("**Utility command IDs (global id: utility)**",
-					"**info** - thicc info\n" 
+					"**info** - nood info\n" 
 							+ "**question** - wolfram question command\n"
-							+ "**wiki** - thicc wiki", 
+							+ "**wiki** - nood wiki", 
 					false);
-			message.addField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - thicc inspire me",
+			message.addField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - nood inspire me",
 					false);
-			message.addField("View the current settings for your guild's permissions:",
-					"[Click Here](http://thiccbot.site/pro/permissions?guildid=" + event.getGuild().getId() + ")",
-					false);
+			//message.addField("View the current settings for your guild's permissions:",
+			//		"[Click Here](http://noodbot.site/pro/permissions?guildid=" + event.getGuild().getId() + ")",
+			//		false);
 			
 			event.getAuthor().openPrivateChannel().queue((channel) -> channel.sendMessage(message.build()).queue());
 		} else {
