@@ -54,23 +54,16 @@ public class GuildJoin {
 						Events.knownGuildIds.add(event.getGuild().getId());
 						PermissionsManager permMgr = Command.getPermissionsManager(event.getGuild());
 						permMgr.clearPermissions();
-						List<Member> guildUsers = new ArrayList<Member>();
 						List<Role> guildRoles = new ArrayList<Role>();
-						guildUsers.addAll(event.getGuild().getMembers());
 						guildRoles.addAll(event.getGuild().getRoles());
-						guildUsers.remove(event.getGuild().getOwner());
-						for (Member user : guildUsers) {
-							if (user.hasPermission(Permission.ADMINISTRATOR) == false) {
-								permMgr.SetPermission(new InfoCommand().getCommandId(), user, permMgr.DENY);
-								permMgr.SetPermission(permMgr.MANAGE_GLOBAL, user, permMgr.DENY_GLOBAL);
-							}
-						}
 						for (Role role : guildRoles) {
 							if (!(role.getPermissions().contains(Permission.ADMINISTRATOR))) {
 								permMgr.SetPermission(new InfoCommand().getCommandId(), role, permMgr.DENY);
 								permMgr.SetPermission(permMgr.MANAGE_GLOBAL, role, permMgr.DENY_GLOBAL);
 							}
 						}
+						permMgr.SetPermission(new InfoCommand().getCommandId(), event.getGuild().getPublicRole(), permMgr.DENY);
+						permMgr.SetPermission(permMgr.MANAGE_GLOBAL, event.getGuild().getPublicRole(), permMgr.DENY_GLOBAL);
 					}
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();

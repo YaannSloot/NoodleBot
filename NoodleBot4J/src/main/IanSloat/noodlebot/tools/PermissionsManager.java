@@ -1,7 +1,6 @@
 package main.IanSloat.noodlebot.tools;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +92,7 @@ public class PermissionsManager {
 		ArrayList<String> UserAllow;
 		ArrayList<String> RoleDeny;
 		ArrayList<String> RoleAllow;
-		ArrayList<String> UserRoles = new ArrayList<String>();
+		String UserHighestRole;
 		String User = user.getId();
 		String regDirectory = "";
 		boolean match = false;
@@ -114,16 +113,14 @@ public class PermissionsManager {
 			setParser.setScopePath("PermissionsRegistry/" + regDirectory + "/" + command + "/Allow");
 			UserAllow = setParser.getValGroup("User");
 			RoleAllow = setParser.getValGroup("Role");
-			for (Role role : user.getRoles()) {
-				UserRoles.add(role.getId());
-			}
+			UserHighestRole = HierarchyUtils.getMemberHighestRole(user).getId();
 			if (guild.getOwner().getId().equals(User)) {
 				allow = true;
 			} else if (NoodleBotMain.botOwner.getId().equals(User)) {
 				allow = true;
 			} else if (globalUserDeny.contains(User)) {
 				allow = false;
-				if (checkForElement(RoleAllow, UserRoles)) {
+				if (RoleAllow.contains(UserHighestRole)) {
 					allow = true;
 					if (UserDeny.contains(User)) {
 						allow = false;
@@ -133,7 +130,7 @@ public class PermissionsManager {
 				}
 			} else if (globalUserAllow.contains(User)) {
 				allow = true;
-				if (checkForElement(RoleDeny, UserRoles)) {
+				if (RoleDeny.contains(UserHighestRole)) {
 					allow = false;
 					if (UserAllow.contains(User)) {
 						allow = true;
@@ -141,9 +138,9 @@ public class PermissionsManager {
 				} else if (UserDeny.contains(User)) {
 					allow = false;
 				}
-			} else if (checkForElement(globalRoleDeny, UserRoles)) {
+			} else if (globalRoleDeny.contains(UserHighestRole)) {
 				allow = false;
-				if (checkForElement(RoleAllow, UserRoles)) {
+				if (RoleAllow.contains(UserHighestRole)) {
 					allow = true;
 					if (UserDeny.contains(User)) {
 						allow = false;
@@ -151,9 +148,9 @@ public class PermissionsManager {
 				} else if (UserAllow.contains(User)) {
 					allow = true;
 				}
-			} else if (checkForElement(globalRoleAllow, UserRoles)) {
+			} else if (globalRoleAllow.contains(UserHighestRole)) {
 				allow = true;
-				if (checkForElement(RoleDeny, UserRoles)) {
+				if (RoleDeny.contains(UserHighestRole)) {
 					allow = false;
 					if (UserAllow.contains(User)) {
 						allow = true;
@@ -161,12 +158,12 @@ public class PermissionsManager {
 				} else if (UserDeny.contains(User)) {
 					allow = false;
 				}
-			} else if (checkForElement(RoleDeny, UserRoles)) {
+			} else if (RoleDeny.contains(UserHighestRole)) {
 				allow = false;
 				if (UserAllow.contains(User)) {
 					allow = true;
 				}
-			} else if (checkForElement(RoleAllow, UserRoles)) {
+			} else if (RoleAllow.contains(UserHighestRole)) {
 				allow = true;
 				if (UserDeny.contains(User)) {
 					allow = false;
