@@ -9,6 +9,8 @@ But what is **NoodleBot** you ask?
 - [Commands](#Commands)
 - [Q&A](#Q&A)
 
+Important: Admin privileges must be given to this bot in order for it to function properly (notably management commands). DO NOT remove the permission from the invite link. Otherwise, the bot may not work.
+
 ### Side note: report issues here @ GitHub
 
 ## Features
