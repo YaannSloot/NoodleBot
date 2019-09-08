@@ -127,6 +127,9 @@ A good way to see what commands you have access to is to issue the help command.
 	nood info - Gets general info about the bot and it's current version number 
 	nood <question> - Sends a question to WolframAlpha 
 	nood wiki - Looks up an article on Wikipedia
+	
+### Misc commands
+	nood inspire me - Shows an inspirational image from InspiroBot™
 ### Other misc commands viewable at either the website or with the help command 
 
 ## <a id="Q&A"></a>Some Q&A
