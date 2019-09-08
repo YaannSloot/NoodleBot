@@ -66,6 +66,8 @@ Commands are separated into 4 different categories:
 These categories as well as every command on the bot have a command id associated with them.
 Access to these commands as well as entire command categories can be adjusted via permission settings for each of these ids. *ANY* of the guild permissions settings, including admin privileges, are completely ignored by this system. This is an independent system for adjusting command access, with the only discord-related factor being role hierarchy. Role hierarchy can affect the way command access is determined, and this is explained below.
 
+A default set of permissions are also added as soon as the bot is added to a guild. All roles lacking admisistrator will have the bot's info and management commands disabled.
+
 **Permission hierarchy**
 
 If the command user is the guild owner, access is immediately given, otherise:
