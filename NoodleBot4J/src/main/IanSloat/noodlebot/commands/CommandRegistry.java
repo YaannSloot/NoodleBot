@@ -15,8 +15,7 @@ public class CommandRegistry {
 			new JumpCommand(), new LeaveCommand(), new ListSettingsCommand(), new NewGuiPasswordCommand(),
 			new PauseCommand(), new PermIDCommand(), new PlayCommand(), new QuestionCommand(), new RemoveTrackCommand(),
 			new SetPermDefaultsCommand(), new SetPermissionCommand(), new SettingsCommand(), new ShowQueueCommand(),
-			new SkipCommand(), new StopCommand(), new VolumeCommand(), new WikiCommand(), new VoiceChatKickCommand(),
-			new Rule34Command()));
+			new SkipCommand(), new StopCommand(), new VolumeCommand(), new WikiCommand(), new VoiceChatKickCommand()));
 
 	public static List<String> getCommandIdsByCategory(String category) {
 		List<String> result = new ArrayList<String>();
