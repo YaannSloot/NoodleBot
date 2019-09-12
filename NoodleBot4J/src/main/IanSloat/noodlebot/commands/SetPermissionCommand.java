@@ -50,7 +50,7 @@ public class SetPermissionCommand extends Command {
 				event.getMessage().delete().queue();
 				event.getChannel().sendMessage("You cannot apply a permission to yourself")
 						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));
-			} else if (!(BotUtils.stringArrayContains((String[])CommandRegistry.getCommandAndGlobalIds().toArray(), words[0]))) {
+			} else if (!(CommandRegistry.getCommandAndGlobalIds().contains(words[0]))) {
 				event.getMessage().delete().queue();
 				event.getChannel().sendMessage("You must reference a valid command identifier or command group")
 						.queue((message) -> message.delete().queueAfter(5, TimeUnit.SECONDS));

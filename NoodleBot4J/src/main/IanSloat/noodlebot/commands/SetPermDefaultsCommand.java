@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.noodlebot.BotUtils;
+import main.IanSloat.noodlebot.NoodleBotMain;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -30,7 +31,7 @@ public class SetPermDefaultsCommand extends Command {
 			throw new NoMatchException();
 		}
 		event.getMessage().delete().queue();
-		if (event.getGuild().getOwner().equals(event.getMember())) {
+		if (event.getGuild().getOwner().equals(event.getMember()) || NoodleBotMain.botOwner.equals(event.getAuthor())) {
 			PermissionsManager permMgr = getPermissionsManager(event.getGuild());
 			permMgr.clearPermissions();
 			List<Role> guildRoles = new ArrayList<Role>();

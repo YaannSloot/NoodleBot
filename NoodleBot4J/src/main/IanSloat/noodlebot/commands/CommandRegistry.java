@@ -21,6 +21,10 @@ public class CommandRegistry {
 		List<String> result = new ArrayList<String>();
 		CommandInstances.stream().filter(cmd -> cmd.getCommandCategory().equals(category)).collect(Collectors.toList())
 				.forEach(cmd -> result.add(cmd.getCommandId()));
+		if (category.equals(Command.CATEGORY_MANAGEMENT) || category.equals(Command.CATEGORY_MISC)
+				|| category.equals(Command.CATEGORY_PLAYER) || category.equals(Command.CATEGORY_UTILITY)) {
+			result.add(category);
+		}
 		return result;
 	}
 
@@ -29,7 +33,7 @@ public class CommandRegistry {
 		CommandInstances.forEach(cmd -> result.add(cmd.getCommandId()));
 		return result;
 	}
-	
+
 	public static List<String> getCommandAndGlobalIds() {
 		List<String> result = new ArrayList<String>();
 		CommandInstances.forEach(cmd -> result.add(cmd.getCommandId()));
@@ -39,23 +43,26 @@ public class CommandRegistry {
 		result.add(Command.CATEGORY_UTILITY);
 		return result;
 	}
-	
+
 	public static boolean checkIfUserHasAccessToCategory(PermissionsManager permMgr, Member user, String category) {
 		boolean result = false;
-		for(Command command : CommandInstances.stream().filter(cmd -> cmd.getCommandCategory().equals(category)).collect(Collectors.toList())) {
+		for (Command command : CommandInstances.stream().filter(cmd -> cmd.getCommandCategory().equals(category))
+				.collect(Collectors.toList())) {
 			result = command.CheckUsagePermission(user, permMgr);
 		}
 		return result;
 	}
-	
-	public static List<String> getUserSpecificHelpListForCategory(PermissionsManager permMgr, Member user, String category) {
+
+	public static List<String> getUserSpecificHelpListForCategory(PermissionsManager permMgr, Member user,
+			String category) {
 		List<String> result = new ArrayList<String>();
-		for(Command command : CommandInstances.stream().filter(cmd -> cmd.getCommandCategory().equals(category)).collect(Collectors.toList())) {
-			if(command.CheckUsagePermission(user, permMgr)) {
+		for (Command command : CommandInstances.stream().filter(cmd -> cmd.getCommandCategory().equals(category))
+				.collect(Collectors.toList())) {
+			if (command.CheckUsagePermission(user, permMgr)) {
 				result.add(command.getHelpSnippet());
 			}
 		}
 		return result;
 	}
-	
+
 }
