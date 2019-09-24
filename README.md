@@ -130,7 +130,6 @@ A good way to see what commands you have access to is to issue the help command.
 	
 ### Misc commands
 	nood inspire me - Shows an inspirational image from InspiroBot™
-### Other misc commands viewable at either the website or with the help command 
 
 ## <a id="Q&A"></a>Some Q&A
 *How many people are working on this bot?* - Currently, just me. 
