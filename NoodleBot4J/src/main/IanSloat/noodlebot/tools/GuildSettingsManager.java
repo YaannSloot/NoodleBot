@@ -73,5 +73,13 @@ public class GuildSettingsManager {
 	public NBMLSettingsParser getTBMLParser() {
 		return new NBMLSettingsParser(settingsFile);
 	}
+	
+	public File getSettingsDirectory() {
+		return settingsDirectory;
+	}
+	
+	public File getSettingsFile() {
+		return settingsFile;
+	}
 
 }

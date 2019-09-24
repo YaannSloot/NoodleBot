@@ -9,9 +9,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 public class PermIDCommand extends Command {
-	
+
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
 		return permMgr.authUsage(getCommandId(), user);
@@ -19,45 +20,53 @@ public class PermIDCommand extends Command {
 
 	@Override
 	public void execute(MessageReceivedEvent event) throws NoMatchException {
-		if(!(CheckForCommandMatch(event.getMessage()))) {
+		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
-		event.getMessage().delete().queue();
-		if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+		try {
+			event.getMessage().delete().queue();
+			if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+				EmbedBuilder message = new EmbedBuilder();
+				message.setTitle("Permission IDs");
+				message.setColor(Color.ORANGE);
+				message.addField("**Player command IDs (global id: player)**",
+						"**play** - nood play/nood add\n" + "**volume** - nood volume\n" + "**skip** - nood skip\n"
+								+ "**jump** - nood jump\n" + "**stop** - nood stop\n" + "**pause** - nood pause\n"
+								+ "**queuemanage - nood remove track" + "**showqueue** - nood show queue\n"
+								+ "**leave** - nood leave",
+						false);
+				message.addField("**Server management command IDs (global id: management)**",
+						"**filter** - nood delete messages\n" + "**set** - nood set\n"
+								+ "**listsettings** - nood list settings\n"
+								+ "**adminlogin**:\nnood get gui login\nnood get new gui login\n"
+								+ "**permsettings** - nood permission/nood show permission ids/nood apply default permissions",
+						false);
+				message.addField("**Utility command IDs (global id: utility)**",
+						"**info** - nood info\n" + "**question** - wolfram question command\n" + "**wiki** - nood wiki",
+						false);
+				message.addField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - nood inspire me",
+						false);
+				// message.addField("View the current settings for your guild's permissions:",
+				// "[Click Here](http://noodbot.site/pro/permissions?guildid=" +
+				// event.getGuild().getId() + ")",
+				// false);
+
+				event.getAuthor().openPrivateChannel().queue((channel) -> channel.sendMessage(message.build()).queue());
+			} else {
+				event.getChannel().sendMessage("You must be an administrator of this server to manage permissions")
+						.queue();
+			}
+		} catch (InsufficientPermissionException e) {
+			String permission = e.getPermission().getName();
 			EmbedBuilder message = new EmbedBuilder();
-			message.setTitle("Permission IDs");
-			message.setColor(Color.ORANGE);
-			message.addField("**Player command IDs (global id: player)**",
-					"**play** - nood play/nood add\n" + "**volume** - nood volume\n" + "**skip** - nood skip\n"
-							+ "**jump** - nood jump\n"
-							+ "**stop** - nood stop\n"
-							+ "**pause** - nood pause\n"
-							+ "**queuemanage - nood remove track"
-							+ "**showqueue** - nood show queue\n"
-							+ "**leave** - nood leave",
+			message.setTitle("Missing permission error | " + event.getGuild().getName());
+			message.addField("Error message:", "Bot is missing required permission **" + permission
+					+ "**. Please grant this permission to the bot's role or contact a guild administrator to apply this permission to the bot's role.",
 					false);
-			message.addField("**Server management command IDs (global id: management)**",
-							"**filter** - nood delete messages\n"
-							+ "**set** - nood set\n" + "**listsettings** - nood list settings\n"
-							+ "**adminlogin**:\nnood get gui login\nnood get new gui login\n"
-							+ "**permsettings** - nood permission/nood show permission ids/nood apply default permissions",
-					false);
-			message.addField("**Utility command IDs (global id: utility)**",
-					"**info** - nood info\n" 
-							+ "**question** - wolfram question command\n"
-							+ "**wiki** - nood wiki", 
-					false);
-			message.addField("**Miscellaneous command IDs (global id: misc)**", "**inspire** - nood inspire me",
-					false);
-			//message.addField("View the current settings for your guild's permissions:",
-			//		"[Click Here](http://noodbot.site/pro/permissions?guildid=" + event.getGuild().getId() + ")",
-			//		false);
-			
-			event.getAuthor().openPrivateChannel().queue((channel) -> channel.sendMessage(message.build()).queue());
-		} else {
-			event.getChannel().sendMessage("You must be an administrator of this server to manage permissions").queue();
+			message.setColor(Color.red);
+			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
 		}
-		
+
 	}
 
 	@Override

@@ -10,9 +10,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 public class ListSettingsCommand extends Command {
-	
+
 	@Override
 	public boolean CheckUsagePermission(Member user, PermissionsManager permMgr) {
 		return permMgr.authUsage(getCommandId(), user);
@@ -29,30 +30,41 @@ public class ListSettingsCommand extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
-		event.getMessage().delete().queue();
-		GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-		NBMLSettingsParser setParser = setMgr.getTBMLParser();
-		setParser.setScope(NBMLSettingsParser.DOCROOT);
-		setParser.addObj("PlayerSettings");
-		setParser.setScope("PlayerSettings");
-		if (setParser.getFirstInValGroup("volume").equals("")) {
-			setParser.addVal("volume", "100");
+		try {
+			event.getMessage().delete().queue();
+			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
+			NBMLSettingsParser setParser = setMgr.getTBMLParser();
+			setParser.setScope(NBMLSettingsParser.DOCROOT);
+			setParser.addObj("PlayerSettings");
+			setParser.setScope("PlayerSettings");
+			if (setParser.getFirstInValGroup("volume").equals("")) {
+				setParser.addVal("volume", "100");
+			}
+			if (setParser.getFirstInValGroup("autoplay").equals("")) {
+				setParser.addVal("autoplay", "off");
+			}
+			if (setParser.getFirstInValGroup("volumecap").equals("")) {
+				setParser.addVal("volumecap", "on");
+			}
+			EmbedBuilder response = new EmbedBuilder();
+			response.setColor(new Color(0, 200, 0));
+			response.setTitle("Settings | " + event.getGuild().getName());
+			response.addField("Voice channel settings",
+					"Default volume = " + setParser.getFirstInValGroup("volume") + "\nAutoPlay = "
+							+ setParser.getFirstInValGroup("autoplay") + "\nEnforce volume cap = "
+							+ setParser.getFirstInValGroup("volumecap"),
+					false);
+			event.getChannel().sendMessage(response.build()).queue();
+		} catch (InsufficientPermissionException e) {
+			String permission = e.getPermission().getName();
+			EmbedBuilder message = new EmbedBuilder();
+			message.setTitle("Missing permission error | " + event.getGuild().getName());
+			message.addField("Error message:", "Bot is missing required permission **" + permission
+					+ "**. Please grant this permission to the bot's role or contact a guild administrator to apply this permission to the bot's role.",
+					false);
+			message.setColor(Color.red);
+			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
 		}
-		if (setParser.getFirstInValGroup("autoplay").equals("")) {
-			setParser.addVal("autoplay", "off");
-		}
-		if (setParser.getFirstInValGroup("volumecap").equals("")) {
-			setParser.addVal("volumecap", "on");
-		}
-		EmbedBuilder response = new EmbedBuilder();
-		response.setColor(new Color(0, 200, 0));
-		response.setTitle("Settings | " + event.getGuild().getName());
-		response.addField("Voice channel settings",
-				"Default volume = " + setParser.getFirstInValGroup("volume") + "\nAutoPlay = "
-						+ setParser.getFirstInValGroup("autoplay") + "\nEnforce volume cap = "
-						+ setParser.getFirstInValGroup("volumecap"),
-				false);
-		event.getChannel().sendMessage(response.build()).queue();
 	}
 
 	@Override

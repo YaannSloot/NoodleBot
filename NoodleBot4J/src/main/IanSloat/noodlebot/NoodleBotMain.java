@@ -48,7 +48,7 @@ public class NoodleBotMain {
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
 	public static WebSocketServer server;
-	public static String versionNumber = "1.1.8";
+	public static String versionNumber = "1.1.9";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
 	public static String devMsg = "NOW IN BETA!";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
