@@ -9,7 +9,11 @@ But what is **NoodleBot** you ask?
 - [Commands](#Commands)
 - [Q&A](#Q&A)
 
-Important: Admin privileges must be given to this bot in order for it to function properly (notably management commands). DO NOT remove the permission from the invite link. Otherwise, the bot may not work.
+Required permissions:
+* Manage messages - Needed so that the bot can clean up its own spam
+* Move members - Needed for the vckick command to function
+
+If additional permissions are required based on your guild's settings the bot will send you a missing permissions error detailing the required permission upon trying to use a command
 
 ### Side note: report issues here @ GitHub
 
