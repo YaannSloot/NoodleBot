@@ -1,12 +1,20 @@
 package main.IanSloat.noodlebot;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 public class BotUtils {
 
 	// Constants for use throughout the bot
 	public static String BOT_PREFIX = "nood ";
 	public static String PATH_SEPARATOR = System.getProperty("file.separator");
+	private static final Logger logger = LoggerFactory.getLogger(BotUtils.class);
 
 	// Helpful input processing methods
 	public static boolean checkForWords(String inputSentence, String[] Wordlist, boolean isCaseSensitive,
@@ -46,7 +54,7 @@ public class BotUtils {
 				isTrue = true;
 		return isTrue;
 	}
-	
+
 	public static boolean checkForWords(List<String> inputList, String[] Wordlist) {
 		boolean isTrue = false;
 		for (String word : Wordlist)
@@ -76,23 +84,45 @@ public class BotUtils {
 
 	public static boolean checkForElement(List<?> list, List<?> elements) {
 		boolean value = false;
-		for(Object element : elements) {
-			if(list.contains(element)) {
+		for (Object element : elements) {
+			if (list.contains(element)) {
 				value = true;
 				break;
 			}
 		}
 		return value;
 	}
-	
+
 	public static boolean stringArrayContains(String[] array, String word) {
 		boolean result = false;
-		for(String w : array) {
-			if(w.equals(word)) {
+		for (String w : array) {
+			if (w.equals(word)) {
 				result = true;
 			}
 		}
 		return result;
 	}
+
+	public static void messageSafeDelete(Message message) {
+		try {
+			message.delete().queue();
+		} catch (InsufficientPermissionException e) {
+			logger.warn("Attempted to delete a message in #" + message.getChannel().getName() + '@'
+					+ message.getGuild().getName() + "(id:" + message.getGuild().getId()
+					+ ") but the required permission \"" + e.getPermission().getName()
+					+ "\" is missing from the bot's role");
+		}
+	}
 	
+	public static void messageSafeDelete(Message message, long time, TimeUnit timescale) {
+		try {
+			message.delete().queueAfter(time, timescale);
+		} catch (InsufficientPermissionException e) {
+			logger.warn("Attempted to delete a message in #" + message.getChannel().getName() + '@'
+					+ message.getGuild().getName() + "(id:" + message.getGuild().getId()
+					+ ") but the required permission \"" + e.getPermission().getName()
+					+ "\" is missing from the bot's role");
+		}
+	}
+
 }

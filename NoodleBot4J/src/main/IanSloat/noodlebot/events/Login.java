@@ -23,19 +23,19 @@ public class Login {
 
 	private static int loginCounter = 0;
 	private boolean disableInitialLoad = false;
-	
+
 	private final Logger logger = LoggerFactory.getLogger(Login.class);
 
 	public void BotLoginEvent(ReadyEvent event) {
 		logger.info("Shard " + event.getJDA().getShardInfo().getShardId() + " has logged in.");
 		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE,
 				Activity.playing("Please wait... Bot is starting up"));
-		
+
 		loginCounter++;
 
 		if (loginCounter == NoodleBotMain.shardmgr.getShardsTotal() && disableInitialLoad == false) {
 			event.getJDA().getShardManager().setPresence(OnlineStatus.ONLINE,
-				Activity.playing(BotUtils.BOT_PREFIX + "help | Beta v" + NoodleBotMain.versionNumber));
+					Activity.playing(BotUtils.BOT_PREFIX + "help | Beta v" + NoodleBotMain.versionNumber));
 			AudioSourceManagers.registerRemoteSources(Command.playerManager);
 			disableInitialLoad = true;
 			logger.info("All shards have logged in successfully");
@@ -65,45 +65,52 @@ public class Login {
 				public void run() {
 					String command = "";
 					while (!(command.equals("shutdown"))) {
-						command = NoodleBotMain.lineReader.readLine(">");
-						List<String> words = Arrays.asList(command.trim().split(" "));
-						switch (words.get(0)) {
-						case "status":
-							System.out.println("\nCurrent version: " + NoodleBotMain.botVersion + "\n"
-									+ "\nBot Stats\n---------------\nShards: "
-									+ event.getJDA().getShardManager().getShardsTotal() + "\n" + "Guilds: "
-									+ event.getJDA().getShardManager().getGuilds().size() + "\n" + "\nResource usage\n---------------\n"
-									+ "Threads: " + Thread.activeCount() + "\n" + "Memory Usage: "
-									+ (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000
-									+ "/" + Runtime.getRuntime().maxMemory() / 1000000 + " MB\n");
-							break;
+						try {
+							command = NoodleBotMain.lineReader.readLine(">");
+							List<String> words = Arrays.asList(command.trim().split(" "));
+							switch (words.get(0)) {
+							case "status":
+								System.out.println("\nCurrent version: " + NoodleBotMain.botVersion + "\n"
+										+ "\nBot Stats\n---------------\nShards: "
+										+ event.getJDA().getShardManager().getShardsTotal() + "\n" + "Guilds: "
+										+ event.getJDA().getShardManager().getGuilds().size() + "\n"
+										+ "\nResource usage\n---------------\n" + "Threads: " + Thread.activeCount()
+										+ "\n" + "Memory Usage: "
+										+ (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())
+												/ 1000000
+										+ "/" + Runtime.getRuntime().maxMemory() / 1000000 + " MB\n");
+								break;
 
-						case "message": {
-							if (words.get(1).equals("help")) {
-								System.out.println("message <guildid> <message>");
-							} else {
-								TextChannel channel = event.getJDA().getTextChannelById(Long.parseLong(words.get(1)));
-								String message = command.replace("message " + words.get(1), "");
-								channel.sendMessage(message).queue();
+							case "message": {
+								if (words.get(1).equals("help")) {
+									System.out.println("message <guildid> <message>");
+								} else {
+									TextChannel channel = event.getJDA()
+											.getTextChannelById(Long.parseLong(words.get(1)));
+									String message = command.replace("message " + words.get(1), "");
+									channel.sendMessage(message).queue();
+								}
+								break;
 							}
-							break;
-						}
-						case "shutdown":
-							System.out.println("Shutdown requested. Halting threads...");
-							break;
-						case "whois":
-							Guild guild = event.getJDA().getGuildById(words.get(1));
-							if (guild != null) {
-								System.out.println("The specified guild goes by the name \"" + guild.getName() + "\"");
-							} else {
-								System.out.println("The bot is not connected to that guild");
+							case "shutdown":
+								System.out.println("Shutdown requested. Halting threads...");
+								break;
+							case "whois":
+								Guild guild = event.getJDA().getGuildById(words.get(1));
+								if (guild != null) {
+									System.out.println(
+											"The specified guild goes by the name \"" + guild.getName() + "\"");
+								} else {
+									System.out.println("The bot is not connected to that guild");
+								}
+								break;
+							default:
+								System.out.println("ERROR: Command not recognized");
+								break;
 							}
-							break;
-						default:
-							System.out.println("ERROR: Command not recognized");
-							break;
+						} catch (Exception e) {
+							System.out.println("ERROR: Command parse error");
 						}
-
 					}
 
 					NoodleBotMain.shardmgr.shutdown();
@@ -112,9 +119,9 @@ public class Login {
 					} catch (IOException | InterruptedException e) {
 						e.printStackTrace();
 					}
-					
+
 					System.out.println("Bot is shutting down...");
-					
+
 					System.exit(0);
 				}
 

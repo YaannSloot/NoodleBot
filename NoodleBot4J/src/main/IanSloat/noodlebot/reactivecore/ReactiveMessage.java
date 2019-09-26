@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.noodlebot.BotUtils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -191,7 +192,7 @@ public class ReactiveMessage extends ListenerAdapter {
 	 */
 	public void dispose() {
 		if (isActive) {
-			registeredMessage.delete().queue();
+			BotUtils.messageSafeDelete(registeredMessage);
 			isActive = false;
 		}
 	}

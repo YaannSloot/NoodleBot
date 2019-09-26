@@ -11,7 +11,6 @@ import main.IanSloat.noodlebot.commands.InfoCommand;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 
@@ -29,23 +28,12 @@ public class GuildJoin {
 							event.getGuild().getDefaultChannel().sendMessage(
 									"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"nood help\"")
 									.queue();
-							if (!event.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
-								event.getGuild().getDefaultChannel().sendMessage(
-										"WARNING: bot does not have administrator privileges which are required to function")
-										.queue();
-							}
 						} catch (Exception e) {
 							e.printStackTrace();
 							event.getGuild().getOwner().getUser().openPrivateChannel()
 									.queue(channel -> channel.sendMessage(
 											"Hello! Thanks for adding me to your server.\nFor a list of commands, type \"nood help\"")
 											.queue());
-							if (!event.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
-								event.getGuild().getOwner().getUser().openPrivateChannel()
-										.queue(channel -> channel.sendMessage(
-												"WARNING: bot does not have administrator privileges which are required to function")
-												.queue());
-							}
 						}
 						logger.info("Added to new guild. Guild: " + event.getGuild().getName() + "(id:"
 								+ event.getGuild().getId() + ")");

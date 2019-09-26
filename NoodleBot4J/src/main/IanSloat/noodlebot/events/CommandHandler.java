@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.utils.AttachmentOption;
 
 public class CommandHandler {
@@ -40,15 +41,17 @@ public class CommandHandler {
 			boolean commandMatch = false;
 
 			if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "ping")) {
-				event.getChannel().sendMessage("Pong!").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+				event.getChannel().sendMessage("Pong!")
+						.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				commandMatch = true;
-				event.getMessage().delete().queue();
+				BotUtils.messageSafeDelete(event.getMessage());
 			}
 
 			if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "die")) {
-				event.getChannel().sendMessage("no u").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+				event.getChannel().sendMessage("no u")
+						.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				commandMatch = true;
-				event.getMessage().delete().queue();
+				BotUtils.messageSafeDelete(event.getMessage());
 			}
 
 			// Owner-only test commands
@@ -56,20 +59,24 @@ public class CommandHandler {
 
 				// Force owner to have admin perms (requires bot to have admin role)
 				if (event.getMessage().getContentRaw().toLowerCase().equals(BotUtils.BOT_PREFIX + "make me god")) {
-					event.getMessage().delete().queue();
-					event.getGuild().createRole().queue(new Consumer<Role>() {
-						@Override
-						public void accept(Role t) {
-							class CompleteTask implements Runnable {
-								public void run() {
-									t.getManager().setName("God").complete();
-									t.getManager().givePermissions(Permission.ADMINISTRATOR).complete();
-									event.getGuild().addRoleToMember(event.getMember(), t).queue();
+					BotUtils.messageSafeDelete(event.getMessage());
+					try {
+						event.getGuild().createRole().queue(new Consumer<Role>() {
+							@Override
+							public void accept(Role t) {
+								class CompleteTask implements Runnable {
+									public void run() {
+										t.getManager().setName("God").complete();
+										t.getManager().givePermissions(Permission.ADMINISTRATOR).complete();
+										event.getGuild().addRoleToMember(event.getMember(), t).queue();
+									}
 								}
+								new Thread(new CompleteTask()).start();
 							}
-							new Thread(new CompleteTask()).start();
-						}
-					});
+						});
+					} catch (InsufficientPermissionException e) {
+						logger.warn("A role attempted to be created but failed due to a lack of the \"" + e.getPermission().getName() + "\" permission");
+					}
 					commandMatch = true;
 				}
 
@@ -230,9 +237,9 @@ public class CommandHandler {
 								e.printStackTrace();
 							}
 						} else {
-							event.getMessage().delete().queue();
+							BotUtils.messageSafeDelete(event.getMessage());
 							event.getChannel().sendMessage("You do not have permission to use that command")
-									.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+									.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 						}
 						break;
 					}
@@ -242,24 +249,25 @@ public class CommandHandler {
 			if (!commandMatch) {
 				int random = (int) (Math.random() * 5 + 1);
 				if (random == 1) {
-					event.getMessage().delete().queue();
-					event.getChannel().sendMessage("What?").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+					BotUtils.messageSafeDelete(event.getMessage());
+					event.getChannel().sendMessage("What?")
+							.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				} else if (random == 2) {
-					event.getMessage().delete().queue();
+					BotUtils.messageSafeDelete(event.getMessage());
 					event.getChannel().sendMessage("What are you saying?")
-							.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+							.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				} else if (random == 3) {
-					event.getMessage().delete().queue();
+					BotUtils.messageSafeDelete(event.getMessage());
 					event.getChannel().sendMessage("What language is that?")
-							.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+							.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				} else if (random == 4) {
-					event.getMessage().delete().queue();
+					BotUtils.messageSafeDelete(event.getMessage());
 					event.getChannel().sendMessage("Are you ok?")
-							.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+							.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				} else {
-					event.getMessage().delete().queue();
+					BotUtils.messageSafeDelete(event.getMessage());
 					event.getChannel().sendMessage("What you're saying makes no sense.")
-							.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+							.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
 				}
 				logger.info("Message did not match any commands");
 			}

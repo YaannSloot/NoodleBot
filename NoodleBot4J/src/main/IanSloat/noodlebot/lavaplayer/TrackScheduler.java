@@ -29,7 +29,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private TextChannel channel;
 	private ReactiveMessage reactive;
-	private Message playlistMessage;
 	private Guild guild;
 	private final BlockingQueue<AudioTrack> queue;
 	private final AudioPlayer player;
@@ -85,9 +84,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		queue.clear();
 		if (reactive != null) {
 			reactive.dispose();
-		}
-		if (playlistMessage != null) {
-			playlistMessage.delete().queue();
 		}
 	}
 
