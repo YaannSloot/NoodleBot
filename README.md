@@ -15,7 +15,7 @@ Required permissions (this may change when new features are added):
 
 If additional permissions are required based on your guild's settings the bot will send you a missing permissions error detailing the required permission upon trying to use a command
 
-### Side note: report issues @ [GitHub](https://github.com/YaannSloot/NoodleBot)
+### Side note: report issues here
 
 ## Features
 
@@ -37,7 +37,7 @@ Many more features are on the way, notably:
 * Video live streaming so you can watch online videos with friends
 * A custom WebSocket gateway which will be used to support features such as:
 	* A complete web dashboard where you can adjust settings and permissions
-	* An announcement framework where you can send requests to the gateway for **NoodleBot** to send an announcement message to your guild. This means if your guild is a support hub for a private game server you can send automated server status messages and the like through **NoodleBot**. More details on this located on the bot website.
+	* An announcement framework where you can send requests to the gateway for **NoodleBot** to send an announcement message to your guild. This means if for example your guild is a support hub for a private game server you can send automated server status messages and the like through **NoodleBot**. More details on this located on the bot website.
 	* A custom management client for Desktop/Mobile users. This will definitely take a while to complete, with a desktop client coming first, and a phone app later.
 * More customization tools
 * Since this bot is in open beta, a bug reporting tool as well as a patch notes announcer so you can keep up with the bot's development
@@ -148,8 +148,6 @@ nood inspire me - Shows an inspirational image from InspiroBot™
 *How stable is this bot?* - As stable as I can make it. If anything major keeps happening I'll try as hard as I can to get a patch out ASAP
 
 *Do you have a website for this bot?* - Yes. It is currently in the works and everything is being done from scratch. Once it looks presentable I'll add a link to it here
-
-*Do you plan on putting a dev team together?* - Maybe. Given how busy I am management for this project will be a lot of work and I don't know if I'll be able to keep an organized team together. If I do look in to it, I won't start exploring possible candidates until next summer.
 
 *Where can I report bugs? Do you have a support discord server?* - Will I make a support discord server? Maybe. At the very least I will be adding either a bug report command or a link to some bug reporting site i.e. zendesk or something.
 
