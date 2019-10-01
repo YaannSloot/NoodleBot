@@ -2,20 +2,20 @@
 
 But what is **NoodleBot** you ask?
 
-**NoodleBot** is an advanced discord bot with many useful features. Created about 1 year ago, it has been designed with the idea that it should have as many commands as possible while eliminating many potential flaws often seen on other popular bots.
+**NoodleBot** is a pure server moderation and management tool. No spam, no economy BS, just automatic moderation and admin commands. Not to mention it cleans up after itself. You'll barely notice its there. It also has a few extra fun features and a music player if you're in to that.
 
 ### Quick links
 - [Features](#Features)
 - [Commands](#Commands)
 - [Q&A](#Q&A)
 
-Required permissions:
+Required permissions (this may change when new features are added):
 * Manage messages - Needed so that the bot can clean up its own spam
 * Move members - Needed for the vckick command to function
 
 If additional permissions are required based on your guild's settings the bot will send you a missing permissions error detailing the required permission upon trying to use a command
 
-### Side note: report issues here @ GitHub
+### Side note: report issues @ [GitHub](https://github.com/YaannSloot/NoodleBot)
 
 ## Features
 
@@ -25,7 +25,6 @@ Currently, **NoodleBot** has the ability to:
 * Batch kick user(s) and/or role(s) from any connected voice chats
 * Query WolframAlpha for math answers or other WolframAlpha related things
 * Query Wikipedia for articles
-* A few other fun things you can read more about using the help command
 * Access to all of these features can be adjusted via a custom per user/role permission system
 * Custom per guild bot settings to adjust the way **NoodleBot** functions
 * Some commands can be controlled via reactions on output messages. Read more about it at the [**Reactive Messages**](#Reactive) section
@@ -33,20 +32,19 @@ Currently, **NoodleBot** has the ability to:
 Many more features are on the way, notably:
 * Complete server logging (output channel adjusted via settings)
 * Adjustable bot prefix
-* Schedulable chat cleanup to remove spam complete with adjustable message filters
-* Anti-spam functionality with adjustable filters
+* Schedulable chat cleanup to remove spam complete with adjustable message filters (also regex filters if you want to make a filter yourself)
+* Anti-spam functionality with adjustable filters (regex here as well)
 * Video live streaming so you can watch online videos with friends
 * A custom WebSocket gateway which will be used to support features such as:
 	* A complete web dashboard where you can adjust settings and permissions
 	* An announcement framework where you can send requests to the gateway for **NoodleBot** to send an announcement message to your guild. This means if your guild is a support hub for a private game server you can send automated server status messages and the like through **NoodleBot**. More details on this located on the bot website.
 	* A custom management client for Desktop/Mobile users. This will definitely take a while to complete, with a desktop client coming first, and a phone app later.
 * More customization tools
-* Possible user requested features that can be voted on somewhere. Probably the website but I'll figure that out later
 * Since this bot is in open beta, a bug reporting tool as well as a patch notes announcer so you can keep up with the bot's development
 
 **NoodleBot** is spam resistant. That means that it will try to clean up after itself as much as possible. You may have an issue with tracking who uses commands, so the logger will be added sooner rather than later
 
-### Supported audio sources
+### Supported music player audio sources
 Since **NoodleBot** uses LavaPlayer, you can load audio from the following sources:
 * YouTube
 * SoundCloud
@@ -97,44 +95,47 @@ A good way to see what commands you have access to is to issue the help command.
 
 ## <a id="Commands"></a>Commands
 ### General Commands
-
-	nood help - Lists available commands
-
+```
+nood help - Lists available commands
+```
 ### Player commands
-
-	nood jump <position> - Jumps to a specific position in the currently playing track specified by a timecode in HH:MM:SS.ss form 
-	nood leave - Makes the bot leave the chat 
-	nood pause - This command is a toggle. It will either pause or unpause the current track 
-	nood play <[scsearch:]Video name|Video URL> - Plays a video or song 
-	nood remove track <track number/range of track numbers> - Removes a track or range of tracks from the queue 
-	nood show queue - Lists the songs currently in the song queue 
-	nood skip - Skips the currently playing song 
-	nood stop - Stops the currently playing song and clears the queue 
-	nood volume <0-200> - Changes the player volume
-
+```
+nood jump <position> - Jumps to a specific position in the currently playing track specified by a timecode in HH:MM:SS.ss form 
+nood leave - Makes the bot leave the chat 
+nood pause - This command is a toggle. It will either pause or unpause the current track 
+nood play <[scsearch:]Video name|Video URL> - Plays a video or song 
+nood remove track <track number/range of track numbers> - Removes a track or range of tracks from the queue 
+nood show queue - Lists the songs currently in the song queue 
+nood skip - Skips the currently playing song 
+nood stop - Stops the currently playing song and clears the queue 
+nood volume <0-200> - Changes the player volume
+```
 ### Server management commands
-
-	nood delete messages
-		Parameters: 
-		older than <number> <day(s)/week(s)/month(s)/year(S)> from <@user|@role> 
-		Ex 1 - nood delete messages older than 1 week 3 days from @everyone 
-		Ex 2 - nood delete messages from @someuser 
-	nood get gui login - Creates a guild password for the bot's gui manager 
-	nood list settings or nood settings - Lists all of the settings and their values 
-	nood get new gui login - Creates a new guild password for the bot's gui manager 
-	nood show permission ids - lists the command id/group id for all of the bot's available commands 
-	nood apply default permissions - Sets the recommended default permissions for your server 
-	nood permission <command id/command group> <allow/deny> <@user(s) and/or @role(s)> - sets a permission for a command/command catagory 
-	nood set <setting> <value> - Changes a server setting on the guild's settings file located on the bot server
-	nood vckick <@user(s)|@role(s)> - Kicks any mentioned users or roles from whatever voice channel they are connected to. The person using this command does not need to be connected to any voice channels.
+```
+nood delete messages
+	Parameters: 
+	older than <number> <day(s)/week(s)/month(s)/year(S)> from <@user|@role> 
+	Ex 1 - nood delete messages older than 1 week 3 days from @everyone 
+	Ex 2 - nood delete messages from @someuser 
+nood get gui login - Creates a guild password for the bot's gui manager 
+nood list settings or nood settings - Lists all of the settings and their values 
+nood get new gui login - Creates a new guild password for the bot's gui manager 
+nood show permission ids - lists the command id/group id for all of the bot's available commands 
+nood apply default permissions - Sets the recommended default permissions for your server 
+nood permission <command id/command group> <allow/deny> <@user(s) and/or @role(s)> - sets a permission for a command/command catagory 
+nood set <setting> <value> - Changes a server setting on the guild's settings file located on the bot server
+nood vckick <@user(s)|@role(s)> - Kicks any mentioned users or roles from whatever voice channel they are connected to. The person using this command does not need to be connected to any voice channels.
+```
 ### Utility commands
-	nood info - Gets general info about the bot and it's current version number 
-	nood <question> - Sends a question to WolframAlpha 
-	nood wiki - Looks up an article on Wikipedia
-	
+```
+nood info - Gets general info about the bot and it's current version number 
+nood <question> - Sends a question to WolframAlpha 
+nood wiki - Looks up an article on Wikipedia
+```
 ### Misc commands
-	nood inspire me - Shows an inspirational image from InspiroBot™
-
+```
+nood inspire me - Shows an inspirational image from InspiroBot™
+```
 ## <a id="Q&A"></a>Some Q&A
 *How many people are working on this bot?* - Currently, just me. 
 
@@ -152,7 +153,5 @@ A good way to see what commands you have access to is to issue the help command.
 
 *Where can I report bugs? Do you have a support discord server?* - Will I make a support discord server? Maybe. At the very least I will be adding either a bug report command or a link to some bug reporting site i.e. zendesk or something.
 
-*Do you need money and how can I donate?* - Ah yes money. Good question. 
+*WHY ARE SOME OF THE COMMANDS SO COMPLICATED!?* - I know they are complicated and I'm sorry. Command syntax will be adjusted in the near future, along with unix style alternative syntax so you can do more and type less. Hold on to your butts in the meantime.
 
-Here's the thing:
-Everything. The bot, the website, **EVERYTHING,** is being hosted in house at the moment. I will probably need to move to an actual host if traffic for this bot gets too large, and that will cost an annual fee. A fee which I'm not all that keen on paying just so a bunch of randos can use my bot. Some people are going to have to chip in to AT LEAST cover the annual hosting cost via donations. Additional profit would be lovely since I am a college student with a bit of debt that I'll have to be worrying about pretty soon. It would also encourage me to work on this bot more often since it means you people like it enough to pay me for it. Nevertheless, nothing is free and server hosting can be expensive for one person, so a donation link (paypal, patreon, idk) will be made eventually. I'll make a meter or some kind of ui thing on the website that shows you how much of the annual hosting cost has been covered so you know if you should probably donate at least a small amount towards the cause.
