@@ -149,7 +149,6 @@ nood inspire me - Shows an inspirational image from InspiroBot™
 
 *Do you have a website for this bot?* - Yes. It is currently in the works and everything is being done from scratch. Once it looks presentable I'll add a link to it here
 
-*Where can I report bugs? Do you have a support discord server?* - Will I make a support discord server? Maybe. At the very least I will be adding either a bug report command or a link to some bug reporting site i.e. zendesk or something.
-
+*Where can I report bugs? Do you have a support discord server?* - Will I make a support discord server? Maybe. If you need to report bugs, report them here.
 *WHY ARE SOME OF THE COMMANDS SO COMPLICATED!?* - I know they are complicated and I'm sorry. Command syntax will be adjusted in the near future, along with unix style alternative syntax so you can do more and type less. Hold on to your butts in the meantime.
 
