@@ -47,19 +47,35 @@ public class WikiCommand extends Command {
 
 				@Override
 				public void accept(Message sent) {
-					boolean isFound = search.search(searchCommand);
+					boolean isFound = false;
+					if (event.getTextChannel().isNSFW()) {
+						isFound = search.search(searchCommand);
+					} else {
+						isFound = search.search(searchCommand, true);
+					}
 					if (isFound) {
-						EmbedBuilder messageEdit = new EmbedBuilder();
-						messageEdit.setAuthor("Wikipedia", null, "https://noodlebot.io/boticons/wikipedia.png");
-						messageEdit.setTitle(search.getTitle());
-						messageEdit.appendDescription("[Page Link](" + search.getPageUrl() + ")");
-						messageEdit.addField("Summary", search.getSummary(), false);
-						if (!(search.getThumbnailUrl().equals(""))) {
-							messageEdit.setImage(search.getThumbnailUrl());
+						if (search.isNSFW() && !event.getTextChannel().isNSFW()) {
+							EmbedBuilder messageEdit = new EmbedBuilder();
+							messageEdit.setTitle("NSFW Article Warning");
+							messageEdit.appendDescription(
+									"The article you searched for contains nsfw content. A full article summary may not be appropriate to display in this current channel. If you would like to see the full article summary, please use the same command again in an nsfw enabled channel. An article link will still be provided [here]("
+											+ search.getPageUrl() + ") if you wish to read it.");
+							messageEdit.setColor(Color.red);
+							final MessageEmbed MessageSent1 = messageEdit.build();
+							sent.editMessage(MessageSent1).queue();
+						} else {
+							EmbedBuilder messageEdit = new EmbedBuilder();
+							messageEdit.setAuthor("Wikipedia", null, "https://www.dropbox.com/s/f577bax9vawwfz0/wikipedia.png?dl=1");
+							messageEdit.setTitle(search.getTitle());
+							messageEdit.appendDescription("[Page Link](" + search.getPageUrl() + ")");
+							messageEdit.addField("Summary", search.getSummary(), false);
+							if (!(search.getThumbnailUrl().equals(""))) {
+								messageEdit.setImage(search.getThumbnailUrl());
+							}
+							messageEdit.setColor(Color.GRAY);
+							final MessageEmbed MessageSent1 = messageEdit.build();
+							sent.editMessage(MessageSent1).queue();
 						}
-						messageEdit.setColor(Color.GRAY);
-						final MessageEmbed MessageSent1 = messageEdit.build();
-						sent.editMessage(MessageSent1).queue();
 					} else {
 						EmbedBuilder messageEdit = new EmbedBuilder();
 						messageEdit.setTitle("No results found.");
