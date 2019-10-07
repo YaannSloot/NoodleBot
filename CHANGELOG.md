@@ -1,44 +1,44 @@
-Changelog (as of beta v1.1.4):
-Version number = (Release #).(feature version).(patch #)
-Beta v1.1.4
+# Changelog (as of beta v1.1.4):
+### Version number = (Release #).(feature version).(patch #)
+## Beta v1.1.4
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
+\+ Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Permission system being modified to allow for more efficient permission info requests. System is also easier to integrate into future features
+\+ Permission system being modified to allow for more efficient permission info requests. System is also easier to integrate into future features
 
-Beta v1.1.3
+## Beta v1.1.3
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Modified bot to use sharding when needed (important for later release to public)
+\* Modified bot to use sharding when needed (important for later release to public)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ vckick command now accepts mentionable roles for batch disconnecting members from voice chats
+\+ vckick command now accepts mentionable roles for batch disconnecting members from voice chats
 
-Beta v1.1.2
+## Beta v1.1.2
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Stability patch for reactive message performance
+\* Stability patch for reactive message performance
 
-Beta v1.1.1
+## Beta v1.1.1
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Minor stability patch for the new reactive buttons that have been added to the music player
+\* Minor stability patch for the new reactive buttons that have been added to the music player
 
-Beta v1.1.0
+## Beta v1.1.0
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Major feature addition: reactive messages
+\+ Major feature addition: reactive messages
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Reactive messages are normal messages that have event driven reaction emojis
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* This means that emoji reactions can be used as buttons, making certain commands easier to use
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Added reactive buttons to the music player. Commands such as stop, skip, fast forward, rewind, etc have all been made into easy to use buttons for those that are too lazy to type
+\+ Added reactive buttons to the music player. Commands such as stop, skip, fast forward, rewind, etc have all been made into easy to use buttons for those that are too lazy to type
 
-Beta v1.0.2
+## Beta v1.0.2
 
 \* Fixed a potentially serious issue where default permissions for commands would not be set automatically when the bot would be added to a new server
 
-Beta v1.0.1
+## Beta v1.0.1
 
 \* Minor patch changing the status message from the info command
 
-Beta v1.0.0
+## Beta v1.0.0
 
 \* Message delete commands that were broken after changing from D4J to JDA were finally fixed
 
@@ -46,7 +46,7 @@ Beta v1.0.0
 
 \- Removed the "clear message history" command since it was redundant and the same task could be achieved by typing "delete messages from @everyone"
 
-Alpha v0.9.5 - v0.9.9
+## Alpha v0.9.5 - v0.9.9
 
 \* Nothing major of note. Performance improvements mostly
 
@@ -54,13 +54,13 @@ Alpha v0.9.5 - v0.9.9
 
 \+ Added r34 command (because every bot needs nsfw stuff and I was bored)
 
-Alpha v0.9.4
+## Alpha v0.9.4
 
 ! Major change from using D4J as the primary java discord library to JDA due to changes that were made in the newest version of D4J
 
 \* Made a hotfix to all incompatable classes that were affected by the library change
 
-Alpha v0.6 - v0.9
+## Alpha v0.6 - v0.9
 
 \~ Primary development period
 
@@ -103,6 +103,6 @@ audio library wasn't great, etc)
 
 \- noodlebot no longer open source. Github repository moved to a private server
 
-Pre-Alpha v0.1 - v0.5
+## Pre-Alpha v0.1 - v0.5
 
 \* The noodlebot project had been started as a privately hosted bot with open source code. During these initial versions, the whole bot was written in python and ran on a raspberry pi
