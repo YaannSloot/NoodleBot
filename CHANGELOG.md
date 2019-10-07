@@ -1,5 +1,44 @@
-# Changelog (as of beta v1.1.4):
+# Changelog (as of beta v1.1.12):
 ### Version number = (Release #).(feature version).(patch #)
+
+## Beta v1.1.12
+
+\+ Updated wiki command to do nsfw checking
+
+## Beta v1.1.11
+
+\+ Stability patch
+
+## Beta v1.1.10
+
+\+ Updated help command to work regardless of any permissions present. If the bot is missing the minimum required permissions, the help command will warn of what is missing
+
+## Beta v1.1.9
+
+\+ Updated commands to respond to missing permissions needed for the command to function. NoodleBot no longer needs an admin role to function. Minimum of manage messages and move members is needed for commands to work. A warning will be sent in case these permissions are not present
+
+## Beta v1.1.8
+
+\+ Additional stability patch for the permissions system
+
+## Beta v1.1.7
+
+\- Removed the r34 command from the command registry indefinitely. It is now effectively disabled
+
+## Beta v1.1.6
+
+\+ Added JDA-NAS library in an attempt to improve audio playback
+
+\+ Fixed permissions manager not authorizing users properly
+
+## Beta v1.1.5
+
+\+ Completely rewrote gateway server. Everything is now event driven and different sessions can be registered each with their own functions
+
+\+ Added the guest session to the gateway server. This session can be used to retrieve bot statistics and shard info.
+
+\+ Minor stability improvements and bug fixes
+
 ## Beta v1.1.4
 
 \+ Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
