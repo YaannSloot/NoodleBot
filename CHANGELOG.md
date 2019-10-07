@@ -1,9 +1,9 @@
 Changelog (as of beta v1.1.4):
 Version number = (Release #).(feature version).(patch #)
 Beta v1.1.4
-+ Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
+  + Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
 
-+ Permission system being modified to allow for more efficient permission info requests. System is also easier to integrate into future features
+  + Permission system being modified to allow for more efficient permission info requests. System is also easier to integrate into future features
 
 Beta v1.1.3
 * Modified bot to use sharding when needed (important for later release to public)
