@@ -2,33 +2,33 @@ Changelog (as of beta v1.1.4):
 Version number = (Release #).(feature version).(patch #)
 Beta v1.1.4
 
-\+ Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Updated help command to operate via a help snippet request system so that a help list can be compiled from all active commands
 
-\+ Permission system being modified to allow for more efficient permission info requests. System is also easier to integrate into future features
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Permission system being modified to allow for more efficient permission info requests. System is also easier to integrate into future features
 
 Beta v1.1.3
 
-\* Modified bot to use sharding when needed (important for later release to public)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Modified bot to use sharding when needed (important for later release to public)
 
-\+ vckick command now accepts mentionable roles for batch disconnecting members from voice chats
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ vckick command now accepts mentionable roles for batch disconnecting members from voice chats
 
 Beta v1.1.2
 
-\* Stability patch for reactive message performance
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Stability patch for reactive message performance
 
 Beta v1.1.1
 
-\* Minor stability patch for the new reactive buttons that have been added to the music player
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Minor stability patch for the new reactive buttons that have been added to the music player
 
 Beta v1.1.0
 
-\+ Major feature addition: reactive messages
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Major feature addition: reactive messages
 
-\* Reactive messages are normal messages that have event driven reaction emojis
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* Reactive messages are normal messages that have event driven reaction emojis
 
-\* This means that emoji reactions can be used as buttons, making certain commands easier to use
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\* This means that emoji reactions can be used as buttons, making certain commands easier to use
 
-\+ Added reactive buttons to the music player. Commands such as stop, skip, fast forward, rewind, etc have all been made into easy to use buttons for those that are too lazy to type
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\+ Added reactive buttons to the music player. Commands such as stop, skip, fast forward, rewind, etc have all been made into easy to use buttons for those that are too lazy to type
 
 Beta v1.0.2
 
