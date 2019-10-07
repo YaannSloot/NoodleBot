@@ -42,7 +42,7 @@ public class Wikisearch {
 				JSONObject resultPage = parsedResult.getJSONObject("api").getJSONObject("query").getJSONObject("search").getJSONArray("p").getJSONObject(0);
 				this.title = resultPage.getString("title");
 				if(doNsfwCheck) {
-					Document nsfwCrossCheck = Jsoup.connect("https://wiki.kidzsearch.com/w/api.php?action=query&srsearch=" + term + "&srprop&list=search&format=xml")
+					Document nsfwCrossCheck = Jsoup.connect("https://wiki.kidzsearch.com/w/api.php?action=query&srsearch=" + title + "&srprop&list=search&format=xml")
 						.ignoreContentType(true)
 						.get();
 					JSONObject parsedCleanTitles = XML.toJSONObject(nsfwCrossCheck.toString());
