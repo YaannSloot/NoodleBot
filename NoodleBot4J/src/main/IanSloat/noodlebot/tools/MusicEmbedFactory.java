@@ -42,7 +42,7 @@ public class MusicEmbedFactory {
 		}
 		response.addField("Duration: ", duration, false);
 		response.addField("Current volume: ", volume + "%", false);
-		response.setAuthor("YouTube", null, "https://www.dropbox.com/s/dh3pqvwto1abhdn/wolframalphaicon.png?dl=1");
+		response.setAuthor("YouTube", null, "https://www.dropbox.com/s/fc3c205wed6tl0l/youtubeicon.png?dl=1");
 		response.setColor(new Color(238, 36, 21));
 		return response;
 	}
