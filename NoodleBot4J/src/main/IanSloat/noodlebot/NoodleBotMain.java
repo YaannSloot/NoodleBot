@@ -50,7 +50,7 @@ public class NoodleBotMain {
 	public static WebSocketServer server;
 	public static String versionNumber = "1.1.12";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
-	public static String devMsg = "NOW IN BETA!";
+	public static String devMsg = "Working as expected";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
