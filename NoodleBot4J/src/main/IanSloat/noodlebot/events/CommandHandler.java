@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-
+import net.dv8tion.jda.api.utils.AttachmentOption;
 
 public class CommandHandler {
 
