@@ -25,7 +25,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import net.dv8tion.jda.api.utils.AttachmentOption;
 
 public class CommandHandler {
 
@@ -46,7 +45,7 @@ public class CommandHandler {
 				commandMatch = true;
 				BotUtils.messageSafeDelete(event.getMessage());
 			}
-
+			
 			if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "die")) {
 				event.getChannel().sendMessage("no u")
 						.queue(msg -> BotUtils.messageSafeDelete(msg, 5, TimeUnit.SECONDS));
