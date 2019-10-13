@@ -3,7 +3,11 @@ package main.IanSloat.noodlebot.events;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.discordbots.api.client.DiscordBotListAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +17,7 @@ import main.IanSloat.noodlebot.BotUtils;
 import main.IanSloat.noodlebot.NoodleBotMain;
 import main.IanSloat.noodlebot.commands.Command;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
+import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -58,6 +63,25 @@ public class Login {
 			}
 			logger.info("Loading guild settings...");
 			new loadSettings().run();
+			
+			NBMLSettingsParser setMgr = new NBMLSettingsParser(NoodleBotMain.configFile);
+			
+			if(setMgr.getFirstInValGroup("DBLTOKEN").length() != 0) {
+				NoodleBotMain.dblEndpoint = new DiscordBotListAPI.Builder()
+						.token(setMgr.getFirstInValGroup("DBLTOKEN"))
+						.botId(NoodleBotMain.shardmgr.getShards().get(0).getSelfUser().getId())
+						.build();
+				ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+				final Runnable UpdateTask = new Runnable() {
+
+					@Override
+					public void run() {
+						NoodleBotMain.dblEndpoint.setStats(NoodleBotMain.shardmgr.getGuilds().size());
+					}
+					
+				};
+				scheduler.scheduleAtFixedRate(UpdateTask, 5, 5, TimeUnit.MINUTES);
+			}
 
 			class commandReader implements Runnable {
 

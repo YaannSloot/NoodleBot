@@ -55,7 +55,7 @@ public class NoodleBotMain {
 	public static String versionNumber = "1.1.13";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
 	public static String devMsg = "Working as expected";
-	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
+	public static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
 			+ BotUtils.PATH_SEPARATOR + "settings.bot");
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	public static User botOwner;
@@ -276,23 +276,6 @@ public class NoodleBotMain {
 					.addEventListeners(new Events())
 					.setAudioSendFactory(new NativeAudioSendFactory())
 					.build();
-			
-			if(setMgr.getFirstInValGroup("DBLTOKEN").length() != 0) {
-				dblEndpoint = new DiscordBotListAPI.Builder()
-						.token(setMgr.getFirstInValGroup("DBLTOKEN"))
-						.botId(shardmgr.getShards().get(0).getSelfUser().getId())
-						.build();
-				ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-				final Runnable UpdateTask = new Runnable() {
-
-					@Override
-					public void run() {
-						dblEndpoint.setStats(shardmgr.getGuilds().size());
-					}
-					
-				};
-				scheduler.scheduleAtFixedRate(UpdateTask, 5, 5, TimeUnit.MINUTES);
-			}
 			
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 			
