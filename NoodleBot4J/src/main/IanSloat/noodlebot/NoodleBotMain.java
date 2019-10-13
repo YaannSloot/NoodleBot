@@ -15,6 +15,9 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -22,6 +25,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.discordbots.api.client.DiscordBotListAPI;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.jline.reader.LineReader;
@@ -48,7 +52,7 @@ public class NoodleBotMain {
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
 	public static WebSocketServer server;
-	public static String versionNumber = "1.1.12";
+	public static String versionNumber = "1.1.13";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
 	public static String devMsg = "Working as expected";
 	private static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
@@ -56,6 +60,7 @@ public class NoodleBotMain {
 	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	public static User botOwner;
 	public static ShardManager shardmgr;
+	public static DiscordBotListAPI dblEndpoint = null;
 	
 	//Value Overrides
 	public static final int playerVolumeLimit =  2147483647;
@@ -204,10 +209,18 @@ public class NoodleBotMain {
 			
 			if(args.length > 0) {
 				if(Arrays.asList(args).contains("useSSL")) {
-					System.out.println("\n\nGateway is set to use SSL. Please input required passwords.\nInput the store password:");
-					String sp = lineReader.readLine(">", '*');
-					System.out.println("Input the key password");
-					String kp = lineReader.readLine(">", '*');
+					setMgr = new NBMLSettingsParser(configFile);
+					setMgr.setScopePath("StartupItems");
+					String sp = setMgr.getFirstInValGroup("SSLSTOREPASS");
+					String kp = setMgr.getFirstInValGroup("SSLKEYPASS");
+					if(sp.length() == 0 && kp.length() == 0) {
+						System.out.println("\n\nGateway is set to use SSL. Please input required passwords.\nInput the store password:");
+						sp = lineReader.readLine(">", '*');
+						System.out.println("Input the key password");
+						kp = lineReader.readLine(">", '*');
+						setMgr.addVal("SSLSTOREPASS", sp);
+						setMgr.addVal("SSLKEYPASS", kp);
+					}
 					try {
 						KeyStore ks = KeyStore.getInstance("JKS");
 						File kf = new File("keystore.jks");
@@ -226,12 +239,24 @@ public class NoodleBotMain {
 								server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
 							} catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException e) {
 								e.printStackTrace();
+								setMgr.removeValGroup("SSLSTOREPASS");
+								setMgr.removeValGroup("SSLKEYPASS");
 								System.exit(0);
 							}
 						}
 					} catch (KeyStoreException e) {
 						e.printStackTrace();
 						System.exit(0);
+					}
+				}
+				if(Arrays.asList(args).contains("useDBL")) {
+					setMgr = new NBMLSettingsParser(configFile);
+					setMgr.setScopePath("StartupItems");
+					String dblToken = setMgr.getFirstInValGroup("DBLTOKEN");
+					if(dblToken.length() == 0) {
+						System.out.println("Bot is set to connect to a DBL endpoint. Please input a valid DBL api token.");
+						dblToken = lineReader.readLine(">");
+						setMgr.addVal("DBLTOKEN", dblToken);
 					}
 				}
 			}
@@ -251,6 +276,23 @@ public class NoodleBotMain {
 					.addEventListeners(new Events())
 					.setAudioSendFactory(new NativeAudioSendFactory())
 					.build();
+			
+			if(setMgr.getFirstInValGroup("DBLTOKEN").length() != 0) {
+				dblEndpoint = new DiscordBotListAPI.Builder()
+						.token(setMgr.getFirstInValGroup("DBLTOKEN"))
+						.botId(shardmgr.getShards().get(0).getSelfUser().getId())
+						.build();
+				ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+				final Runnable UpdateTask = new Runnable() {
+
+					@Override
+					public void run() {
+						dblEndpoint.setStats(shardmgr.getGuilds().size());
+					}
+					
+				};
+				scheduler.scheduleAtFixedRate(UpdateTask, 5, 5, TimeUnit.MINUTES);
+			}
 			
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 			
