@@ -66,6 +66,8 @@ public class Login {
 			
 			NBMLSettingsParser setMgr = new NBMLSettingsParser(NoodleBotMain.configFile);
 			
+			setMgr.setScope("StartupItems");
+			
 			if(setMgr.getFirstInValGroup("DBLTOKEN").length() != 0) {
 				NoodleBotMain.dblEndpoint = new DiscordBotListAPI.Builder()
 						.token(setMgr.getFirstInValGroup("DBLTOKEN"))
