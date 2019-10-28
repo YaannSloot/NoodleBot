@@ -65,7 +65,7 @@ public class PlayCommand extends Command {
 							GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(),
 									event.getTextChannel());
 							GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-							NBMLSettingsParser setParser = setMgr.getTBMLParser();
+							NBMLSettingsParser setParser = setMgr.getNBMLParser();
 							setParser.setScope(NBMLSettingsParser.DOCROOT);
 							setParser.addObj("PlayerSettings");
 							setParser.setScope("PlayerSettings");

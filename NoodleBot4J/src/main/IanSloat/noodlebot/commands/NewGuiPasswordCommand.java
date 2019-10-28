@@ -36,7 +36,7 @@ public class NewGuiPasswordCommand extends Command {
 				EmbedBuilder message = new EmbedBuilder();
 				message.addField("Guild ID:", event.getGuild().getId(), false);
 				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-				NBMLSettingsParser setParser = setMgr.getTBMLParser();
+				NBMLSettingsParser setParser = setMgr.getNBMLParser();
 				setParser.setScope(NBMLSettingsParser.DOCROOT);
 				setParser.addObj("GuiSettings");
 				setParser.setScope("GuiSettings");

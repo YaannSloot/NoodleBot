@@ -24,8 +24,6 @@ public class GuildSettingsManager {
 		settingsDirectory = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "GuildSettings"
 				+ BotUtils.PATH_SEPARATOR + guild.getId());
 		settingsFile = new File(settingsDirectory.getAbsolutePath() + BotUtils.PATH_SEPARATOR + "settings.guild");
-		logger.info(
-				"Started guild settings manager for guild: " + guild.getName() + "(id:" + guild.getId() + ')');
 	}
 
 	public static void CreateSettingsDirectoriesForGuilds(List<Guild> Guilds) {
@@ -56,21 +54,21 @@ public class GuildSettingsManager {
 			FileSystemUtils.deleteRecursively(settingsDirectory);
 			try {
 				FileUtils.forceMkdir(settingsDirectory);
-				getTBMLParser();
+				getNBMLParser();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
 				FileUtils.forceMkdir(settingsDirectory);
-				getTBMLParser();
+				getNBMLParser();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	public NBMLSettingsParser getTBMLParser() {
+	public NBMLSettingsParser getNBMLParser() {
 		return new NBMLSettingsParser(settingsFile);
 	}
 	

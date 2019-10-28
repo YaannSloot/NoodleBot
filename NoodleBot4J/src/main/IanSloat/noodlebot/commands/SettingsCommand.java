@@ -1,6 +1,7 @@
 package main.IanSloat.noodlebot.commands;
 
 import java.awt.Color;
+import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.noodlebot.BotUtils;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
@@ -32,7 +33,7 @@ public class SettingsCommand extends Command {
 		try {
 			event.getMessage().delete().queue();
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-			NBMLSettingsParser setParser = setMgr.getTBMLParser();
+			NBMLSettingsParser setParser = setMgr.getNBMLParser();
 			setParser.setScope(NBMLSettingsParser.DOCROOT);
 			String command = BotUtils.normalizeSentence(
 					event.getMessage().getContentRaw().toLowerCase().substring((BotUtils.BOT_PREFIX + "set").length()));
@@ -90,6 +91,30 @@ public class SettingsCommand extends Command {
 				} else if (words[1].toLowerCase().equals("off")) {
 					setParser.setFirstInValGroup("volumecap", "off");
 					event.getChannel().sendMessage("Set volume limit to \'off\'").queue();
+				} else {
+					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
+				}
+			} else if (command.toLowerCase().startsWith("loggingchannel")
+					&& event.getMessage().getMentionedChannels().size() > 0) {
+				if (event.getMessage().getMentionedChannels().size() >= 1) {
+					if (event.getMessage().getMentionedChannels().size() == 1) {
+						setParser.setScopePath("LoggerSettings");
+						setParser.removeValGroup("LoggerChannel");
+						setParser.addVal("LoggerChannel", event.getMessage().getMentionedChannels().get(0).getId());
+						event.getChannel()
+								.sendMessage("Set logging channel to <#"
+										+ event.getMessage().getMentionedChannels().get(0).getId() + ">")
+								.queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+					} else {
+						event.getChannel().sendMessage("Please only mention one channel")
+								.queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+					}
+				} else if (words.length == 2) {
+					if (words[1].equals("disable")) {
+						setParser.removeValGroup("LoggerChannel");
+						event.getChannel().sendMessage("Disabled logging")
+								.queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+					}
 				} else {
 					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
 				}

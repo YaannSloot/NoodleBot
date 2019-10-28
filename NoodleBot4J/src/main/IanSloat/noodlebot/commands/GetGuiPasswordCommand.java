@@ -37,7 +37,7 @@ public class GetGuiPasswordCommand extends Command {
 				message.setTitle("Your server's login credentials");
 				message.addField("Guild ID:", event.getGuild().getId(), false);
 				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-				NBMLSettingsParser setParser = setMgr.getTBMLParser();
+				NBMLSettingsParser setParser = setMgr.getNBMLParser();
 				setParser.setScope(NBMLSettingsParser.DOCROOT);
 				setParser.addObj("GuiSettings");
 				setParser.setScope("GuiSettings");

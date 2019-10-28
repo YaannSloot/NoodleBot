@@ -3,7 +3,9 @@ package main.IanSloat.noodlebot.events;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.IanSloat.noodlebot.services.LoggerService;
 import net.dv8tion.jda.api.events.DisconnectEvent;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ReconnectedEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;
@@ -27,6 +29,7 @@ public class Events extends ListenerAdapter{
 	private Disconnect disconnectEvent = new Disconnect();
 	private Reconnected reconnectEvent = new Reconnected();
 	private Resumed resumedEvent = new Resumed();
+	private LoggerService loggerService = new LoggerService();
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
@@ -76,6 +79,12 @@ public class Events extends ListenerAdapter{
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		
+	}
+	
+	// Event forwarding
+	@Override
+	public void onGenericEvent(GenericEvent event) {
+		loggerService.logEvent(event);
 	}
 	
 	/*

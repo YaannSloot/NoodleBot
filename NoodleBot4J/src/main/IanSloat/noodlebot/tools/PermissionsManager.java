@@ -36,7 +36,7 @@ public class PermissionsManager {
 	public PermissionsManager(Guild guild) {
 		GuildSettingsManager setMgr = new GuildSettingsManager(guild);
 		this.guild = guild;
-		this.setParser = setMgr.getTBMLParser();
+		this.setParser = setMgr.getNBMLParser();
 		this.setParser.setScope(NBMLSettingsParser.DOCROOT);
 		initRegistry();
 		regRoot();

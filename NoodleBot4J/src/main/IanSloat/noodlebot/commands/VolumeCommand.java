@@ -39,7 +39,7 @@ public class VolumeCommand extends Command {
 				String volume = event.getMessage().getContentRaw()
 						.substring((BotUtils.BOT_PREFIX + "volume ").length());
 				GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-				NBMLSettingsParser setParser = setMgr.getTBMLParser();
+				NBMLSettingsParser setParser = setMgr.getNBMLParser();
 				try {
 					GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild(), event.getTextChannel());
 					setParser.setScope("PlayerSettings");

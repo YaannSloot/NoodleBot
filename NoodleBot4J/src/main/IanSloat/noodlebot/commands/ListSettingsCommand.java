@@ -33,10 +33,8 @@ public class ListSettingsCommand extends Command {
 		try {
 			event.getMessage().delete().queue();
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
-			NBMLSettingsParser setParser = setMgr.getTBMLParser();
-			setParser.setScope(NBMLSettingsParser.DOCROOT);
-			setParser.addObj("PlayerSettings");
-			setParser.setScope("PlayerSettings");
+			NBMLSettingsParser setParser = setMgr.getNBMLParser();
+			setParser.setScopePath("PlayerSettings");
 			if (setParser.getFirstInValGroup("volume").equals("")) {
 				setParser.addVal("volume", "100");
 			}
@@ -54,6 +52,14 @@ public class ListSettingsCommand extends Command {
 							+ setParser.getFirstInValGroup("autoplay") + "\nEnforce volume cap = "
 							+ setParser.getFirstInValGroup("volumecap"),
 					false);
+			setParser.setScopePath("LoggerSettings");
+			String loggerDestination = setParser.getFirstInValGroup("LoggerChannel");
+			if(loggerDestination.equals("")) {
+				loggerDestination = "logging is disabled";
+			} else {
+				loggerDestination = "<#" + loggerDestination + ">";
+			}
+			response.addField("Logging settings", "Logger channel = " + loggerDestination, false);
 			event.getChannel().sendMessage(response.build()).queue();
 		} catch (InsufficientPermissionException e) {
 			String permission = e.getPermission().getName();
