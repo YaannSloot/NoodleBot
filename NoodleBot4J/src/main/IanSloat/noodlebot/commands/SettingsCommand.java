@@ -94,8 +94,8 @@ public class SettingsCommand extends Command {
 				} else {
 					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
 				}
-			} else if (command.toLowerCase().startsWith("loggingchannel")
-					&& event.getMessage().getMentionedChannels().size() > 0) {
+			} else if (command.toLowerCase().startsWith("logchannel")
+					&& (event.getMessage().getMentionedChannels().size() > 0 || words.length == 2)) {
 				if (event.getMessage().getMentionedChannels().size() >= 1) {
 					if (event.getMessage().getMentionedChannels().size() == 1) {
 						setParser.setScopePath("LoggerSettings");
@@ -111,6 +111,7 @@ public class SettingsCommand extends Command {
 					}
 				} else if (words.length == 2) {
 					if (words[1].equals("disable")) {
+						setParser.setScopePath("LoggerSettings");
 						setParser.removeValGroup("LoggerChannel");
 						event.getChannel().sendMessage("Disabled logging")
 								.queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));

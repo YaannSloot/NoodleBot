@@ -113,7 +113,7 @@ public class BotUtils {
 					+ "\" is missing from the bot's role");
 		}
 	}
-	
+
 	public static void messageSafeDelete(Message message, long time, TimeUnit timescale) {
 		try {
 			message.delete().queueAfter(time, timescale);
