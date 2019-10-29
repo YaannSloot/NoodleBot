@@ -50,7 +50,7 @@ public class NoodleBotMain {
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
 	public static WebSocketServer server;
-	public static String versionNumber = "1.1.13";
+	public static String versionNumber = "1.2.0";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
 	public static String devMsg = "Working as expected";
 	public static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
