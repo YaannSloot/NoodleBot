@@ -40,6 +40,7 @@ import main.IanSloat.noodlebot.gateway.GatewayServer;
 import main.IanSloat.noodlebot.tools.RunScriptGenerator;
 import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -58,6 +59,7 @@ public class NoodleBotMain {
 	public static User botOwner;
 	public static ShardManager shardmgr;
 	public static DiscordBotListAPI dblEndpoint = null;
+	public static EventListener eventListener = new Events();
 	
 	//Value Overrides
 	public static final int playerVolumeLimit =  2147483647;
@@ -270,7 +272,7 @@ public class NoodleBotMain {
 			
 			shardmgr = new DefaultShardManagerBuilder(setMgr.getFirstInValGroup("TOKEN"))
 					.setShardsTotal(-1)
-					.addEventListeners(new Events())
+					.addEventListeners(eventListener)
 					.setAudioSendFactory(new NativeAudioSendFactory())
 					.build();
 			

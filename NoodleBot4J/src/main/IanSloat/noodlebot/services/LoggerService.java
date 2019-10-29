@@ -20,6 +20,21 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateAfkChannelEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateAfkTimeoutEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateBannerEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostTierEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateDescriptionEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateExplicitContentLevelEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateIconEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateMFALevelEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateOwnerEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateRegionEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateSplashEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateSystemChannelEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateVerificationLevelEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceGuildDeafenEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceGuildMuteEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -195,6 +210,106 @@ public class LoggerService {
 										+ ((GuildMemberRoleRemoveEvent) event).getUser().getAsTag() + "(<@"
 										+ ((GuildMemberRoleRemoveEvent) event).getMember().getId() + ">)**").queue();
 							}
+						} else if (event instanceof GuildMemberUpdateNicknameEvent) {
+							String oldNick = "";
+							String newNick = "";
+							if (((GuildMemberUpdateNicknameEvent) event).getOldNickname() == null)
+								oldNick = ((GuildMemberUpdateNicknameEvent) event).getUser().getName();
+							else
+								oldNick = ((GuildMemberUpdateNicknameEvent) event).getOldNickname();
+							if (((GuildMemberUpdateNicknameEvent) event).getNewNickname() == null)
+								newNick = ((GuildMemberUpdateNicknameEvent) event).getUser().getName();
+							else
+								newNick = ((GuildMemberUpdateNicknameEvent) event).getNewNickname();
+							channel.sendMessage(getUTCTimestamp() + " - **"
+									+ ((GuildMemberUpdateNicknameEvent) event).getUser().getAsTag() + "(<@"
+									+ ((GuildMemberUpdateNicknameEvent) event).getMember().getId()
+									+ ">)\'s** nickname was changed from **" + oldNick + "** to **" + newNick + "**")
+									.queue();
+						} else if (event instanceof GuildUpdateAfkChannelEvent) {
+							if (((GuildUpdateAfkChannelEvent) event).getNewAfkChannel() != null) {
+								channel.sendMessage(getUTCTimestamp()
+										+ " - Afk voice channel was changed to **:loud_sound:"
+										+ ((GuildUpdateAfkChannelEvent) event).getNewAfkChannel().getName() + "**")
+										.queue();
+							} else {
+								channel.sendMessage(getUTCTimestamp() + " - Afk voice channel was disabled").queue();
+							}
+						} else if (event instanceof GuildUpdateAfkTimeoutEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Afk timeout interval was changed to **"
+									+ ((GuildUpdateAfkTimeoutEvent) event).getNewAfkTimeout().getSeconds() / 60
+									+ " minutes**").queue();
+						} else if (event instanceof GuildUpdateBannerEvent) {
+							if (((GuildUpdateBannerEvent) event).getNewBannerId() != null) {
+								channel.sendMessage(getUTCTimestamp() + " -  Server banner was changed").queue();
+							} else {
+								channel.sendMessage(getUTCTimestamp() + " - Server banner was removed").queue();
+							}
+						} else if (event instanceof GuildUpdateBoostTierEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Server boost tier changed to **"
+									+ ((GuildUpdateBoostTierEvent) event).getNewBoostTier().toString() + "**").queue();
+						} else if (event instanceof GuildUpdateDescriptionEvent) {
+							if (((GuildUpdateDescriptionEvent) event).getNewDescription() != null) {
+								channel.sendMessage(getUTCTimestamp() + " - Server description was changed").queue();
+							} else {
+								channel.sendMessage(getUTCTimestamp() + " - Server description was removed").queue();
+							}
+						} else if (event instanceof GuildUpdateExplicitContentLevelEvent) {
+							channel.sendMessage(getUTCTimestamp()
+									+ " - Server NSFW content filtering settings were changed to **"
+									+ ((GuildUpdateExplicitContentLevelEvent) event).getNewLevel().toString() + "**")
+									.queue();
+						} else if (event instanceof GuildUpdateIconEvent) {
+							if (((GuildUpdateIconEvent) event).getNewIconId() != null) {
+								channel.sendMessage(getUTCTimestamp() + " - Server icon was changed").queue();
+							} else {
+								channel.sendMessage(getUTCTimestamp() + " - Server icon was removed").queue();
+							}
+						} else if (event instanceof GuildUpdateMFALevelEvent) {
+							channel.sendMessage(
+									getUTCTimestamp() + " - Administrator 2FA verification level changed to **"
+											+ ((GuildUpdateMFALevelEvent) event).getNewMFALevel().toString() + "**")
+									.queue();
+						} else if (event instanceof GuildUpdateNameEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Server name was changed from **"
+									+ ((GuildUpdateNameEvent) event).getOldName() + "** to **"
+									+ ((GuildUpdateNameEvent) event).getNewName() + "**").queue();
+						} else if (event instanceof GuildUpdateOwnerEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Server owner was changed from **"
+									+ ((GuildUpdateOwnerEvent) event).getOldOwner().getUser().getAsTag() + "(<@"
+									+ ((GuildUpdateOwnerEvent) event).getOldOwner().getId() + ">)** to **"
+									+ ((GuildUpdateOwnerEvent) event).getNewOwner().getUser().getAsTag() + "(<@"
+									+ ((GuildUpdateOwnerEvent) event).getNewOwner().getId() + ">)**").queue();
+						} else if (event instanceof GuildUpdateRegionEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Server region was changed from **"
+									+ ((GuildUpdateRegionEvent) event).getOldRegionRaw() + "** to **"
+									+ ((GuildUpdateRegionEvent) event).getNewRegionRaw() + "**").queue();
+						} else if (event instanceof GuildUpdateSplashEvent) {
+							if (((GuildUpdateSplashEvent) event).getNewSplashId() != null) {
+								channel.sendMessage(getUTCTimestamp() + " - Server splash was changed").queue();
+							} else {
+								channel.sendMessage(getUTCTimestamp() + " - Server splash was removed").queue();
+							}
+						} else if (event instanceof GuildUpdateSystemChannelEvent) {
+							if (((GuildUpdateSystemChannelEvent) event).getNewSystemChannel() != null
+									&& ((GuildUpdateSystemChannelEvent) event).getOldSystemChannel() != null) {
+								channel.sendMessage(getUTCTimestamp() + " - Server system channel was changed from <#"
+										+ ((GuildUpdateSystemChannelEvent) event).getOldSystemChannel().getId()
+										+ "> to <#"
+										+ ((GuildUpdateSystemChannelEvent) event).getNewSystemChannel().getId() + ">")
+										.queue();
+							} else if (((GuildUpdateSystemChannelEvent) event).getNewSystemChannel() != null) {
+								channel.sendMessage(getUTCTimestamp() + " - Server system channel was changed to <#"
+										+ ((GuildUpdateSystemChannelEvent) event).getNewSystemChannel().getId() + ">")
+										.queue();
+							} else {
+								channel.sendMessage(getUTCTimestamp() + " - Server system channel was disabled")
+										.queue();
+							}
+						} else if (event instanceof GuildUpdateVerificationLevelEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Server member verification level changed to **"
+									+ ((GuildUpdateVerificationLevelEvent) event).getNewVerificationLevel().toString()
+									+ "**").queue();
 						}
 
 					} else {
