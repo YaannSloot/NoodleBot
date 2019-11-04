@@ -3,6 +3,9 @@ package main.IanSloat.noodlebot.commands;
 import java.awt.Color;
 
 import main.IanSloat.noodlebot.BotUtils;
+import main.IanSloat.noodlebot.NoodleBotMain;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandErrorEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandEvent;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
@@ -30,6 +33,8 @@ public class ListSettingsCommand extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
+		NoodleBotMain.eventListener.onEvent(new GenericCommandEvent(event.getJDA(), event.getResponseNumber(),
+				event.getGuild(), this, event.getMessage().getContentRaw().toLowerCase(), event.getMember()));
 		try {
 			event.getMessage().delete().queue();
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
@@ -54,12 +59,17 @@ public class ListSettingsCommand extends Command {
 					false);
 			setParser.setScopePath("LoggerSettings");
 			String loggerDestination = setParser.getFirstInValGroup("LoggerChannel");
-			if(loggerDestination.equals("")) {
+			if (loggerDestination.equals("")) {
 				loggerDestination = "logging is disabled";
 			} else {
 				loggerDestination = "<#" + loggerDestination + ">";
 			}
-			response.addField("Logging settings", "Logger channel = " + loggerDestination, false);
+			String loggerMentions = setParser.getFirstInValGroup("LoggerMentions");
+			if (loggerMentions.equals("")) {
+				loggerMentions = "true";
+			}
+			response.addField("Logging settings",
+					"Logger channel = " + loggerDestination + "\nUse @ mentions on entries = " + loggerMentions, false);
 			event.getChannel().sendMessage(response.build()).queue();
 		} catch (InsufficientPermissionException e) {
 			String permission = e.getPermission().getName();
@@ -70,6 +80,9 @@ public class ListSettingsCommand extends Command {
 					false);
 			message.setColor(Color.red);
 			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
+			NoodleBotMain.eventListener.onEvent(new GenericCommandErrorEvent(event.getJDA(), event.getResponseNumber(),
+					event.getGuild(), this, event.getMessage().getContentRaw(), event.getMember(),
+					"Command execution failed due to missing permission: " + permission));
 		}
 	}
 

@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.noodlebot.BotUtils;
+import main.IanSloat.noodlebot.NoodleBotMain;
+import main.IanSloat.noodlebot.jdaevents.FilterDeleteCommandEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandErrorEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandEvent;
 import main.IanSloat.noodlebot.threadbox.FilterMessageDeletionJob;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -36,6 +40,8 @@ public class FilterDeleteCommand extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
+		NoodleBotMain.eventListener.onEvent(new GenericCommandEvent(event.getJDA(), event.getResponseNumber(),
+				event.getGuild(), this, event.getMessage().getContentRaw().toLowerCase(), event.getMember()));
 		try {
 			event.getMessage().delete().queue();
 			String ageString = event.getMessage().getContentRaw().toLowerCase()
@@ -137,12 +143,19 @@ public class FilterDeleteCommand extends Command {
 				final String dateString = dateFormatter.format(date.getTime());
 				event.getChannel().sendMessage("Finding messages older than " + dateString)
 						.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-				job.startJob();
+				List<Member> users = usersMentioned;
+				List<Role> roles = rolesMentioned;
+				job.startJob(history -> NoodleBotMain.eventListener.onEvent(
+						new FilterDeleteCommandEvent(event.getJDA(), event.getResponseNumber(), event.getGuild(), this,
+								event.getMessage().getContentRaw(), event.getMember(), users, roles, history)));
 			} else {
 				event.getChannel()
 						.sendMessage("Not sure what kind of calendar you are using,\n"
 								+ "but I cannot understand what you just said")
 						.queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+				NoodleBotMain.eventListener.onEvent(new GenericCommandErrorEvent(event.getJDA(),
+						event.getResponseNumber(), event.getGuild(), this, event.getMessage().getContentRaw(),
+						event.getMember(), "Failed to parse specified age as a valid notation of time"));
 			}
 		} catch (InsufficientPermissionException e) {
 			String permission = e.getPermission().getName();
@@ -153,6 +166,9 @@ public class FilterDeleteCommand extends Command {
 					false);
 			message.setColor(Color.red);
 			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
+			NoodleBotMain.eventListener.onEvent(new GenericCommandErrorEvent(event.getJDA(), event.getResponseNumber(),
+					event.getGuild(), this, event.getMessage().getContentRaw(), event.getMember(),
+					"Command execution failed due to missing permission: " + permission));
 		}
 	}
 

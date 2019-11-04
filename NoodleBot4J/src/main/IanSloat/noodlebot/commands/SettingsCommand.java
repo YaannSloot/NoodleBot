@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.noodlebot.BotUtils;
+import main.IanSloat.noodlebot.NoodleBotMain;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandErrorEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandEvent;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
@@ -30,6 +33,8 @@ public class SettingsCommand extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
+		NoodleBotMain.eventListener.onEvent(new GenericCommandEvent(event.getJDA(), event.getResponseNumber(),
+				event.getGuild(), this, event.getMessage().getContentRaw().toLowerCase(), event.getMember()));
 		try {
 			event.getMessage().delete().queue();
 			GuildSettingsManager setMgr = new GuildSettingsManager(event.getGuild());
@@ -58,9 +63,11 @@ public class SettingsCommand extends Command {
 						setParser.addVal("volume", "100");
 					}
 					setParser.setFirstInValGroup("volume", Integer.toString(value));
-					event.getChannel().sendMessage("Changed default volume to " + value).queue();
+					event.getChannel().sendMessage("Changed default volume to " + value)
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				} catch (NumberFormatException e) {
-					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
+					event.getChannel().sendMessage("The value provided is not valid for that setting")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 			} else if (command.toLowerCase().startsWith("autoplay ") && words.length >= 2) {
 				setParser.setScope(NBMLSettingsParser.DOCROOT);
@@ -71,12 +78,15 @@ public class SettingsCommand extends Command {
 				}
 				if (words[1].toLowerCase().equals("on")) {
 					setParser.setFirstInValGroup("autoplay", "on");
-					event.getChannel().sendMessage("Set AutoPlay to \'on\'").queue();
+					event.getChannel().sendMessage("Set AutoPlay to \'on\'")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else if (words[1].toLowerCase().equals("off")) {
 					setParser.setFirstInValGroup("autoplay", "off");
-					event.getChannel().sendMessage("Set AutoPlay to \'off\'").queue();
+					event.getChannel().sendMessage("Set AutoPlay to \'off\'")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else {
-					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
+					event.getChannel().sendMessage("The value provided is not valid for that setting")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 			} else if (command.toLowerCase().startsWith("volumecap ") && words.length >= 2) {
 				setParser.setScope(NBMLSettingsParser.DOCROOT);
@@ -87,12 +97,15 @@ public class SettingsCommand extends Command {
 				}
 				if (words[1].toLowerCase().equals("on")) {
 					setParser.setFirstInValGroup("volumecap", "on");
-					event.getChannel().sendMessage("Set volume limit to \'on\'").queue();
+					event.getChannel().sendMessage("Set volume limit to \'on\'")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else if (words[1].toLowerCase().equals("off")) {
 					setParser.setFirstInValGroup("volumecap", "off");
-					event.getChannel().sendMessage("Set volume limit to \'off\'").queue();
+					event.getChannel().sendMessage("Set volume limit to \'off\'")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				} else {
-					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
+					event.getChannel().sendMessage("The value provided is not valid for that setting")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 			} else if (command.toLowerCase().startsWith("logchannel")
 					&& (event.getMessage().getMentionedChannels().size() > 0 || words.length == 2)) {
@@ -117,10 +130,28 @@ public class SettingsCommand extends Command {
 								.queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
 					}
 				} else {
-					event.getChannel().sendMessage("The value provided is not valid for that setting").queue();
+					event.getChannel().sendMessage("The value provided is not valid for that setting")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
+				}
+			} else if (command.toLowerCase().startsWith("logmentions") && words.length == 2) {
+				setParser.setScopePath("LoggerSettings");
+				if (words[1].equals("enable") || words[1].equals("on") || words[1].equals("true")) {
+					setParser.removeValGroup("LoggerMentions");
+					setParser.addVal("LoggerMentions", "true");
+					event.getChannel().sendMessage("Enabled @ mentions on log entries")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
+				} else if (words[1].equals("disable") || words[1].equals("off") || words[1].equals("false")) {
+					setParser.removeValGroup("LoggerMentions");
+					setParser.addVal("LoggerMentions", "false");
+					event.getChannel().sendMessage("Disabled @ mentions on log entries")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
+				} else {
+					event.getChannel().sendMessage("The value provided is not valid for that setting")
+							.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				}
 			} else {
-				event.getChannel().sendMessage("That is not a valid setting").queue();
+				event.getChannel().sendMessage("That is not a valid setting")
+						.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 			}
 		} catch (InsufficientPermissionException e) {
 			String permission = e.getPermission().getName();
@@ -131,6 +162,9 @@ public class SettingsCommand extends Command {
 					false);
 			message.setColor(Color.red);
 			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
+			NoodleBotMain.eventListener.onEvent(new GenericCommandErrorEvent(event.getJDA(), event.getResponseNumber(),
+					event.getGuild(), this, event.getMessage().getContentRaw(), event.getMember(),
+					"Command execution failed due to missing permission: " + permission));
 		}
 	}
 

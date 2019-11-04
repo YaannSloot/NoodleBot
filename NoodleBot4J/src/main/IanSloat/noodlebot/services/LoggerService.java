@@ -9,9 +9,13 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.IanSloat.noodlebot.jdaevents.FilterDeleteCommandEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandErrorEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandEvent;
 import main.IanSloat.noodlebot.tools.GuildSettingsManager;
 import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
 import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
@@ -62,14 +66,12 @@ public class LoggerService {
 						// Event mapping
 						if (event instanceof GuildMemberJoinEvent) {
 							if (((GuildMemberJoinEvent) event).getUser().isBot()) {
-								channel.sendMessage(getUTCTimestamp() + " - A new bot **"
-										+ ((GuildMemberJoinEvent) event).getUser().getAsTag() + "(<@"
-										+ ((GuildMemberJoinEvent) event).getUser().getId() + ">)"
-										+ "** was added to the server").queue();
+								channel.sendMessage(getUTCTimestamp() + " - A new bot "
+										+ getUserStamp(((GuildMemberJoinEvent) event).getMember())
+										+ " was added to the server").queue();
 							} else {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildMemberJoinEvent) event).getUser().getAsTag() + "(<@"
-										+ ((GuildMemberJoinEvent) event).getUser().getId() + ">)**"
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildMemberJoinEvent) event).getMember())
 										+ " has joined the server").queue();
 							}
 						} else if (event instanceof GuildMemberLeaveEvent) {
@@ -77,29 +79,27 @@ public class LoggerService {
 								if (auditLog.size() > 0) {
 									if (auditLog.get(0).getType().equals(ActionType.BAN) && auditLog.get(0)
 											.getTargetId().equals(((GuildMemberLeaveEvent) event).getUser().getId())) {
-										channel.sendMessage(getUTCTimestamp() + " - **"
-												+ auditLog.get(0).getUser().getAsTag() + "(<@"
-												+ auditLog.get(0).getUser().getId() + ">)" + "** banned **"
-												+ ((GuildMemberLeaveEvent) event).getUser().getAsTag() + "(<@"
-												+ ((GuildMemberLeaveEvent) event).getUser().getId() + ">)**").queue();
+										channel.sendMessage(getUTCTimestamp() + " - "
+												+ getUserStamp(((GenericGuildEvent) event).getGuild()
+														.getMember(auditLog.get(0).getUser()))
+												+ " banned "
+												+ getUserStamp(((GuildMemberLeaveEvent) event).getMember())).queue();
 									} else if (auditLog.get(0).getType().equals(ActionType.KICK) && auditLog.get(0)
 											.getTargetId().equals(((GuildMemberLeaveEvent) event).getUser().getId())) {
-										channel.sendMessage(getUTCTimestamp() + " - **"
-												+ auditLog.get(0).getUser().getAsTag() + "(<@"
-												+ auditLog.get(0).getUser().getId() + ">)" + "** kicked **"
-												+ ((GuildMemberLeaveEvent) event).getUser().getAsTag() + "(<@"
-												+ ((GuildMemberLeaveEvent) event).getUser().getId() + ">)**").queue();
+										channel.sendMessage(getUTCTimestamp() + " - "
+												+ getUserStamp(((GenericGuildEvent) event).getGuild()
+														.getMember(auditLog.get(0).getUser()))
+												+ " kicked "
+												+ getUserStamp(((GuildMemberLeaveEvent) event).getMember())).queue();
 									} else {
-										channel.sendMessage(getUTCTimestamp() + " - **"
-												+ ((GuildMemberLeaveEvent) event).getUser().getAsTag() + "(<@"
-												+ ((GuildMemberLeaveEvent) event).getUser().getId() + ">)"
-												+ "** has left the server").queue();
+										channel.sendMessage(getUTCTimestamp() + " - "
+												+ getUserStamp(((GuildMemberLeaveEvent) event).getMember())
+												+ " has left the server").queue();
 									}
 								} else {
-									channel.sendMessage(getUTCTimestamp() + " - **"
-											+ ((GuildMemberLeaveEvent) event).getUser().getAsTag() + "(<@"
-											+ ((GuildMemberLeaveEvent) event).getUser().getId() + ">)"
-											+ "** has left the server").queue();
+									channel.sendMessage(getUTCTimestamp() + " - "
+											+ getUserStamp(((GuildMemberLeaveEvent) event).getMember())
+											+ " has left the server").queue();
 								}
 							});
 						} else if (event instanceof GuildUnbanEvent) {
@@ -107,108 +107,97 @@ public class LoggerService {
 								if (auditLog.size() > 0) {
 									if (auditLog.get(0).getType().equals(ActionType.UNBAN) && auditLog.get(0)
 											.getTargetId().equals(((GuildUnbanEvent) event).getUser().getId())) {
-										channel.sendMessage(getUTCTimestamp() + " - **"
-												+ auditLog.get(0).getUser().getAsTag() + "(<@"
-												+ auditLog.get(0).getUser().getId() + ">)" + "** unbanned **"
-												+ ((GuildUnbanEvent) event).getUser().getAsTag() + "(<@"
-												+ ((GuildUnbanEvent) event).getUser().getId() + ">)**").queue();
+										channel.sendMessage(
+												getUTCTimestamp() + " - "
+														+ getUserStamp(((GenericGuildEvent) event)
+																.getGuild().getMember(auditLog.get(0).getUser()))
+														+ " unbanned "
+														+ getUserStamp(((GuildUnbanEvent) event).getGuild()
+																.getMember(((GuildUnbanEvent) event).getUser())))
+												.queue();
 									}
 								}
 							});
 						} else if (event instanceof GuildVoiceGuildDeafenEvent) {
 							if (((GuildVoiceGuildDeafenEvent) event).isGuildDeafened()) {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceGuildDeafenEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceGuildDeafenEvent) event).getMember().getId()
-										+ ">)** was server deafened").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceGuildDeafenEvent) event).getMember())
+										+ " was server deafened").queue();
 							} else {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceGuildDeafenEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceGuildDeafenEvent) event).getMember().getId()
-										+ ">)** was server undeafened").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceGuildDeafenEvent) event).getMember())
+										+ " was server undeafened").queue();
 							}
 						} else if (event instanceof GuildVoiceGuildMuteEvent) {
 							if (((GuildVoiceGuildMuteEvent) event).isGuildMuted()) {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceGuildMuteEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceGuildMuteEvent) event).getMember().getId()
-										+ ">)** was server muted").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceGuildMuteEvent) event).getMember())
+										+ " was server muted").queue();
 							} else {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceGuildMuteEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceGuildMuteEvent) event).getMember().getId()
-										+ ">)** was server unmuted").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceGuildMuteEvent) event).getMember())
+										+ " was server unmuted").queue();
 							}
 						} else if (event instanceof GuildVoiceJoinEvent) {
-							channel.sendMessage(getUTCTimestamp() + " - **"
-									+ ((GuildVoiceJoinEvent) event).getMember().getUser().getAsTag() + "(<@"
-									+ ((GuildVoiceJoinEvent) event).getMember().getId()
-									+ ">)** joined voice channel **:loud_sound:"
-									+ ((GuildVoiceJoinEvent) event).getChannelJoined().getName() + "**").queue();
+							channel.sendMessage(
+									getUTCTimestamp() + " - " + getUserStamp(((GuildVoiceJoinEvent) event).getMember())
+											+ " joined voice channel **:loud_sound:"
+											+ ((GuildVoiceJoinEvent) event).getChannelJoined().getName() + "**")
+									.queue();
 						} else if (event instanceof GuildVoiceLeaveEvent) {
-							channel.sendMessage(getUTCTimestamp() + " - **"
-									+ ((GuildVoiceLeaveEvent) event).getMember().getUser().getAsTag() + "(<@"
-									+ ((GuildVoiceLeaveEvent) event).getMember().getId()
-									+ ">)** left voice channel **:loud_sound:"
+							channel.sendMessage(getUTCTimestamp() + " - " + (((GuildVoiceLeaveEvent) event).getMember())
+									+ " left voice channel **:loud_sound:"
 									+ ((GuildVoiceLeaveEvent) event).getChannelLeft().getName() + "**").queue();
 						} else if (event instanceof GuildVoiceMoveEvent) {
-							channel.sendMessage(getUTCTimestamp() + " - **"
-									+ ((GuildVoiceMoveEvent) event).getMember().getUser().getAsTag() + "(<@"
-									+ ((GuildVoiceMoveEvent) event).getMember().getId()
-									+ ">)** moved from voice channel **:loud_sound:"
-									+ ((GuildVoiceMoveEvent) event).getChannelLeft().getName()
-									+ "** to voice channel **:loud_sound:"
-									+ ((GuildVoiceMoveEvent) event).getChannelJoined().getName() + "**").queue();
+							channel.sendMessage(
+									getUTCTimestamp() + " - " + getUserStamp(((GuildVoiceMoveEvent) event).getMember())
+											+ " moved from voice channel **:loud_sound:"
+											+ ((GuildVoiceMoveEvent) event).getChannelLeft().getName()
+											+ " to voice channel **:loud_sound:"
+											+ ((GuildVoiceMoveEvent) event).getChannelJoined().getName() + "**")
+									.queue();
 						} else if (event instanceof GuildVoiceSelfDeafenEvent) {
 							if (((GuildVoiceSelfDeafenEvent) event).isSelfDeafened()) {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceSelfDeafenEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceSelfDeafenEvent) event).getMember().getId()
-										+ ">)** deafened themselves").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceSelfDeafenEvent) event).getMember())
+										+ " deafened themselves").queue();
 							} else {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceSelfDeafenEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceSelfDeafenEvent) event).getMember().getId()
-										+ ">)** undeafened themselves").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceSelfDeafenEvent) event).getMember())
+										+ " undeafened themselves").queue();
 							}
 						} else if (event instanceof GuildVoiceSelfMuteEvent) {
 							if (((GuildVoiceSelfMuteEvent) event).isSelfMuted()) {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceSelfMuteEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceSelfMuteEvent) event).getMember().getId()
-										+ ">)** muted themselves").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceSelfMuteEvent) event).getMember())
+										+ " muted themselves").queue();
 							} else {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildVoiceSelfMuteEvent) event).getMember().getUser().getAsTag() + "(<@"
-										+ ((GuildVoiceSelfMuteEvent) event).getMember().getId()
-										+ ">)** unmuted themselves").queue();
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildVoiceSelfMuteEvent) event).getMember())
+										+ " unmuted themselves").queue();
 							}
 						} else if (event instanceof GuildMemberRoleAddEvent) {
 							if (((GuildMemberRoleAddEvent) event).getRoles().size() > 1) {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildMemberRoleAddEvent) event).getUser().getAsTag() + "(<@"
-										+ ((GuildMemberRoleAddEvent) event).getMember().getId() + ">)** was given **"
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildMemberRoleAddEvent) event).getMember()) + " was given **"
 										+ ((GuildMemberRoleAddEvent) event).getRoles().size() + " new roles**").queue();
 							} else {
-								channel.sendMessage(getUTCTimestamp() + " - **"
-										+ ((GuildMemberRoleAddEvent) event).getUser().getAsTag() + "(<@"
-										+ ((GuildMemberRoleAddEvent) event).getMember().getId()
-										+ ">)** was given the role <@&"
+								channel.sendMessage(getUTCTimestamp() + " - "
+										+ getUserStamp(((GuildMemberRoleAddEvent) event).getMember())
+										+ " was given the role <@&"
 										+ ((GuildMemberRoleAddEvent) event).getRoles().get(0).getId() + ">").queue();
 							}
 						} else if (event instanceof GuildMemberRoleRemoveEvent) {
 							if (((GuildMemberRoleRemoveEvent) event).getRoles().size() > 1) {
 								channel.sendMessage(getUTCTimestamp() + " - **"
 										+ ((GuildMemberRoleRemoveEvent) event).getRoles().size()
-										+ " roles** were removed from **"
-										+ ((GuildMemberRoleRemoveEvent) event).getUser().getAsTag() + "(<@"
-										+ ((GuildMemberRoleRemoveEvent) event).getMember().getId() + ">)**").queue();
+										+ " roles** were removed from "
+										+ getUserStamp(((GuildMemberRoleRemoveEvent) event).getMember())).queue();
 							} else {
 								channel.sendMessage(getUTCTimestamp() + " - The role <@&"
 										+ ((GuildMemberRoleRemoveEvent) event).getRoles().get(0).getId()
-										+ "> was removed from **"
-										+ ((GuildMemberRoleRemoveEvent) event).getUser().getAsTag() + "(<@"
-										+ ((GuildMemberRoleRemoveEvent) event).getMember().getId() + ">)**").queue();
+										+ "> was removed from "
+										+ getUserStamp(((GuildMemberRoleRemoveEvent) event).getMember())).queue();
 							}
 						} else if (event instanceof GuildMemberUpdateNicknameEvent) {
 							String oldNick = "";
@@ -221,10 +210,9 @@ public class LoggerService {
 								newNick = ((GuildMemberUpdateNicknameEvent) event).getUser().getName();
 							else
 								newNick = ((GuildMemberUpdateNicknameEvent) event).getNewNickname();
-							channel.sendMessage(getUTCTimestamp() + " - **"
-									+ ((GuildMemberUpdateNicknameEvent) event).getUser().getAsTag() + "(<@"
-									+ ((GuildMemberUpdateNicknameEvent) event).getMember().getId()
-									+ ">)\'s** nickname was changed from **" + oldNick + "** to **" + newNick + "**")
+							channel.sendMessage(getUTCTimestamp() + " - "
+									+ getUserStamp(((GuildMemberUpdateNicknameEvent) event).getMember())
+									+ "**\'s** nickname was changed from **" + oldNick + "** to **" + newNick + "**")
 									.queue();
 						} else if (event instanceof GuildUpdateAfkChannelEvent) {
 							if (((GuildUpdateAfkChannelEvent) event).getNewAfkChannel() != null) {
@@ -275,11 +263,9 @@ public class LoggerService {
 									+ ((GuildUpdateNameEvent) event).getOldName() + "** to **"
 									+ ((GuildUpdateNameEvent) event).getNewName() + "**").queue();
 						} else if (event instanceof GuildUpdateOwnerEvent) {
-							channel.sendMessage(getUTCTimestamp() + " - Server owner was changed from **"
-									+ ((GuildUpdateOwnerEvent) event).getOldOwner().getUser().getAsTag() + "(<@"
-									+ ((GuildUpdateOwnerEvent) event).getOldOwner().getId() + ">)** to **"
-									+ ((GuildUpdateOwnerEvent) event).getNewOwner().getUser().getAsTag() + "(<@"
-									+ ((GuildUpdateOwnerEvent) event).getNewOwner().getId() + ">)**").queue();
+							channel.sendMessage(getUTCTimestamp() + " - Server owner was changed from "
+									+ getUserStamp(((GuildUpdateOwnerEvent) event).getOldOwner()) + " to "
+									+ getUserStamp(((GuildUpdateOwnerEvent) event).getNewOwner())).queue();
 						} else if (event instanceof GuildUpdateRegionEvent) {
 							channel.sendMessage(getUTCTimestamp() + " - Server region was changed from **"
 									+ ((GuildUpdateRegionEvent) event).getOldRegionRaw() + "** to **"
@@ -310,6 +296,45 @@ public class LoggerService {
 							channel.sendMessage(getUTCTimestamp() + " - Server member verification level changed to **"
 									+ ((GuildUpdateVerificationLevelEvent) event).getNewVerificationLevel().toString()
 									+ "**").queue();
+						} else if (event instanceof FilterDeleteCommandEvent) {
+							String targets = "";
+							if(((FilterDeleteCommandEvent) event).getTargetMembers().size() > 0) {
+								if(((FilterDeleteCommandEvent) event).getTargetMembers().size() == 1) {
+									targets += "from " + getUserStamp(((FilterDeleteCommandEvent) event).getTargetMembers().get(0)) + " ";
+								} else {
+									targets += "from **" + ((FilterDeleteCommandEvent) event).getTargetMembers().size() + "** members ";
+								}
+							}
+							if(((FilterDeleteCommandEvent) event).getTargetRoles().size() > 0) {
+								if(targets.length() > 0) {
+									targets += "and ";
+								}
+								if(((FilterDeleteCommandEvent) event).getTargetRoles().size() == 1) {
+									targets += "from " + ((FilterDeleteCommandEvent) event).getTargetRoles().get(0).getAsMention() + " ";
+								} else {
+									targets += "from **" + ((FilterDeleteCommandEvent) event).getTargetRoles().size() + "** roles ";
+								}
+							}
+							channel.sendMessage(getUTCTimestamp() + " - A new filtered delete command set to delete **"
+									+ ((FilterDeleteCommandEvent) event).getTargetMessages().size()
+									+ "** messages " + targets + "has been created").queue();
+						} else if (event instanceof GenericCommandErrorEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - Command [args: **"
+									+ ((GenericCommandErrorEvent) event).getInput() + "**, id: **"
+									+ ((GenericCommandErrorEvent) event).getCommand().getCommandId()
+									+ "**, globalid: **"
+									+ ((GenericCommandErrorEvent) event).getCommand().getCommandCategory()
+									+ "**] issued by "
+									+ getUserStamp(((GenericCommandErrorEvent) event).getCommandIssuer())
+									+ " failed due to the following error: **"
+									+ ((GenericCommandErrorEvent) event).getErrorMessage() + "**").queue();
+						} else if (event instanceof GenericCommandEvent) {
+							channel.sendMessage(getUTCTimestamp() + " - "
+									+ getUserStamp(((GenericCommandEvent) event).getCommandIssuer())
+									+ " issued command [args: **" + ((GenericCommandEvent) event).getInput()
+									+ "**, id: **" + ((GenericCommandEvent) event).getCommand().getCommandId()
+									+ "**, globalid: **"
+									+ ((GenericCommandEvent) event).getCommand().getCommandCategory() + "**]").queue();
 						}
 
 					} else {
@@ -325,12 +350,27 @@ public class LoggerService {
 				}
 			}
 		}
+
 	}
 
 	private String getUTCTimestamp() {
 		DateFormat formatter = new SimpleDateFormat("HH:mm:ss MM/dd/yyyy");
 		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 		return "(UTC " + formatter.format(Date.from(Instant.now())) + ")";
+	}
+
+	private String getUserStamp(Member user) {
+		String result = "";
+		result += "**" + user.getUser().getAsTag();
+		NBMLSettingsParser setMgr = new GuildSettingsManager(user.getGuild()).getNBMLParser();
+		setMgr.setScopePath("LoggerSettings");
+		String mentionSetting = setMgr.getFirstInValGroup("LoggerMentions");
+		if (!mentionSetting.equals("false")) {
+			result += "(<@" + user.getId() + ">)**";
+		} else {
+			result += "**";
+		}
+		return result;
 	}
 
 }

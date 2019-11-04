@@ -6,6 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
 import main.IanSloat.noodlebot.BotUtils;
+import main.IanSloat.noodlebot.NoodleBotMain;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandErrorEvent;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandEvent;
 import main.IanSloat.noodlebot.tools.NSFWEngine;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,6 +35,8 @@ public class Rule34Command extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
+		NoodleBotMain.eventListener.onEvent(new GenericCommandEvent(event.getJDA(), event.getResponseNumber(),
+				event.getGuild(), this, event.getMessage().getContentRaw().toLowerCase(), event.getMember()));
 		try {
 			event.getMessage().delete().queue();
 			TextChannel channel = event.getTextChannel();
@@ -86,6 +91,9 @@ public class Rule34Command extends Command {
 					false);
 			message.setColor(Color.red);
 			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
+			NoodleBotMain.eventListener.onEvent(new GenericCommandErrorEvent(event.getJDA(),
+					event.getResponseNumber(), event.getGuild(), this, event.getMessage().getContentRaw(),
+					event.getMember(), "Command execution failed due to missing permission: " + permission));
 		}
 	}
 

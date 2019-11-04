@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +33,7 @@ public class FilterMessageDeletionJob {
 
 	private FilterMessageDeletionJob(TextChannel channel) {
 		this.channel = channel;
-		jobThread = new Thread(new FilterMessageDeletionThread());
+		jobThread = new Thread(new FilterMessageDeletionThread(null));
 		activeJobs.put(channel.getIdLong(), this);
 	}
 
@@ -59,16 +60,16 @@ public class FilterMessageDeletionJob {
 		}
 	}
 
-	public synchronized void startJob() {
+	public synchronized void startJob(Consumer<List<Message>> success) {
 		stopJob();
 		Thread cleanup = new Thread(new Runnable() {
 			public void run() {
 				try {
 					if (jobThread.isAlive()) {
 						jobThread.join();
-						jobThread = new Thread(new FilterMessageDeletionThread());
+						jobThread = new Thread(new FilterMessageDeletionThread(success));
 					} else {
-						jobThread = new Thread(new FilterMessageDeletionThread());
+						jobThread = new Thread(new FilterMessageDeletionThread(success));
 					}
 					jobThread.start();
 				} catch (InterruptedException e) {
@@ -78,6 +79,10 @@ public class FilterMessageDeletionJob {
 			}
 		});
 		cleanup.start();
+	}
+	
+	public synchronized void startJob() {
+		startJob(null);
 	}
 
 	private boolean isMessageWrittenByTargets(Message m) {
@@ -92,6 +97,13 @@ public class FilterMessageDeletionJob {
 	}
 	
 	private class FilterMessageDeletionThread implements Runnable {
+		
+		private Consumer<List<Message>> task;
+		
+		public FilterMessageDeletionThread(Consumer<List<Message>> task) {
+			this.task = task;
+		}
+		
 		public void run() {
 			if ((deleteByUser && users != null) || age != null) {
 				logger.info("Filtered message deletion job was started");
@@ -111,6 +123,9 @@ public class FilterMessageDeletionJob {
 							+ "This may mean that this channel's history is longer than 2000 messages."
 							+ "\nThis command can only handle 2000 messages at a time."
 							+ "\nTo delete more messages, run this command again when it finishes").queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+				}
+				if(task != null) {
+					task.accept(history);
 				}
 				deleteMessages(history);
 				logger.info("Filtered message deletion job finished");

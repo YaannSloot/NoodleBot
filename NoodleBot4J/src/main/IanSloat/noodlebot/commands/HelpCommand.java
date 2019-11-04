@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.IanSloat.noodlebot.BotUtils;
+import main.IanSloat.noodlebot.NoodleBotMain;
+import main.IanSloat.noodlebot.jdaevents.GenericCommandEvent;
 import main.IanSloat.noodlebot.tools.PermissionsManager;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -31,6 +33,8 @@ public class HelpCommand extends Command {
 		if (!(CheckForCommandMatch(event.getMessage()))) {
 			throw new NoMatchException();
 		}
+		NoodleBotMain.eventListener.onEvent(new GenericCommandEvent(event.getJDA(), event.getResponseNumber(),
+				event.getGuild(), this, event.getMessage().getContentRaw().toLowerCase(), event.getMember()));
 		List<String> missingPermissions = new ArrayList<String>();
 		try {
 			event.getMessage().delete().queue();

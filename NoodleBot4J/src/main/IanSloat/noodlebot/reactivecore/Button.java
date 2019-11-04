@@ -4,11 +4,11 @@ import net.dv8tion.jda.api.entities.User;
 
 public class Button implements ButtonListener{
 
-	private ButtonAction action;
+	private Runnable action;
 	private String emojiName;
 	private ButtonClickEvent lastEvent;
 	
-	public Button(String emojiName, ButtonAction action) {
+	public Button(String emojiName, Runnable action) {
 		this.emojiName = emojiName;
 		this.action = action;
 	}
@@ -17,7 +17,7 @@ public class Button implements ButtonListener{
 		this.emojiName = emojiName;
 	}
 	
-	public void setButtonAction(ButtonAction action) {
+	public void setButtonAction(Runnable action) {
 		this.action = action;
 	}
 	
@@ -45,7 +45,7 @@ public class Button implements ButtonListener{
 	public void onButtonClick(ButtonClickEvent event) {
 		if(event.getEmoji().equals(this.emojiName)) {
 			lastEvent = event;
-			action.execute();
+			action.run();
 		}
 	}
 

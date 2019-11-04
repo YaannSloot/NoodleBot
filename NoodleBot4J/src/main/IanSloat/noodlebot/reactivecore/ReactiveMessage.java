@@ -119,7 +119,7 @@ public class ReactiveMessage extends ListenerAdapter {
 	 *               emoji
 	 * @param action The action to perform once clicked
 	 */
-	public void addButton(String emoji, ButtonAction action) {
+	public void addButton(String emoji, Runnable action) {
 		Button button = new Button(emoji, action);
 		for (ButtonListener listener : buttonListeners) {
 			if (listener.getButton().getEmojiName().equals(emoji)) {
