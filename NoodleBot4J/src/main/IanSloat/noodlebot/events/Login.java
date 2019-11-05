@@ -1,7 +1,11 @@
 package main.IanSloat.noodlebot.events;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +14,7 @@ import main.IanSloat.noodlebot.NoodleBotMain;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
 public class Login {
@@ -33,7 +38,21 @@ public class Login {
 			}
 		} else {
 			logger.info("All shards have logged in. Performing guild settings file check...");
-			
+			List<Guild> noSetGuilds = event.getJDA().getShardManager().getGuilds();
+			noSetGuilds = noSetGuilds.stream().filter(g -> !(new File(g.getId()).exists()))
+					.collect(Collectors.toList());
+			try {
+				if (!(new File("GuildSettings").exists())) {
+					FileUtils.forceMkdir(new File("GuildSettings"));
+				}
+				for(Guild d : noSetGuilds) {
+					FileUtils.forceMkdir(new File("GuildSettings/" + d.getId()));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			logger.info("Guild settings file check complete.");
 			for (JDA shard : event.getJDA().getShardManager().getShards()) {
 				synchronized (shard) {
 					shard.notify();
