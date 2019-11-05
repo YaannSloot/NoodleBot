@@ -21,6 +21,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
@@ -29,7 +30,8 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,7 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import main.IanSloat.noodlebot.events.Events;
 import main.IanSloat.noodlebot.gateway.GatewayServer;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -51,6 +54,7 @@ public class NoodleBotMain {
 	public static String versionNumber = "2.0.0";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
 	public static String devMsg = "Working as expected";
+	public static File botSettings = new File("settings/settings.json");
 	public static User botOwner;
 	public static ShardManager shardmgr;
 	public static DiscordBotListAPI dblEndpoint = null;
@@ -66,6 +70,14 @@ public class NoodleBotMain {
 	public static LineReader lineReader;
 
 	public static void main(String[] args) {
+		
+		System.out.println("\n   _  ______  ____  ___  __   _______  ____  ______\n"
+				+ "  / |/ / __ \\/ __ \\/ _ \\/ /  / __/ _ )/ __ \\/_  __/\n"
+				+ " /    / /_/ / /_/ / // / /__/ _// _  / /_/ / / /   \n"
+				+ "/_/|_/\\____/\\____/____/____/___/____/\\____/ /_/ \n\n"
+				+ "    ____  _______________            ___ \n" + "   / __ )/ ____/_  __/   |     _   _|__ \\\n"
+				+ "  / __  / __/   / / / /| |    | | / /_/ /\n" + " / /_/ / /___  / / / ___ |    | |/ / __/ \n"
+				+ "/_____/_____/ /_/ /_/  |_|    |___/____/ \n" + "                                         ");
 
 		try {
 
@@ -113,16 +125,10 @@ public class NoodleBotMain {
 			PrintStream originalStream = System.out;
 
 			System.setOut(new ModifiedPrintStream(originalStream));
-
-			System.out.println("\n   _  ______  ____  ___  __   _______  ____  ______\n"
-					+ "  / |/ / __ \\/ __ \\/ _ \\/ /  / __/ _ )/ __ \\/_  __/\n"
-					+ " /    / /_/ / /_/ / // / /__/ _// _  / /_/ / / /   \n"
-					+ "/_/|_/\\____/\\____/____/____/___/____/\\____/ /_/ \n\n"
-					+ "    ____  _______________            ___ \n" + "   / __ )/ ____/_  __/   |     _   _|__ \\\n"
-					+ "  / __  / __/   / / / /| |    | | / /_/ /\n" + " / /_/ / /___  / / / ___ |    | |/ / __/ \n"
-					+ "/_____/_____/ /_/ /_/  |_|    |___/____/ \n" + "                                         ");
 			
-			System.out.println("Running core file check...");
+			System.out.print("Starting bot");
+
+			System.out.print("Running core file check...");
 
 			File logConfig = new File("logging/log4j.properties");
 			File logDir = new File("logging");
@@ -131,7 +137,7 @@ public class NoodleBotMain {
 					System.out.println("No log4j.properties file found. Creating new log4j.properties file");
 					if (!(logDir.exists())) {
 						logDir.mkdirs();
-						System.out.println("Created " + logDir.getAbsolutePath() + " directory successfully");
+						System.out.print("Created " + logDir.getPath() + " directory successfully");
 					}
 					logConfig.createNewFile();
 					System.out.println("Created log4j.properties file successfully");
@@ -144,29 +150,154 @@ public class NoodleBotMain {
 						fileWriter.write(
 								"log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\r\n");
 						fileWriter.close();
-						System.out.println("Wrote default settings to log4j.properties file successfully");
+						System.out.print("Wrote default settings to log4j.properties file successfully");
 					} catch (IOException e) {
-						System.out.println("ERROR: Could not write to log4j.properties file");
+						System.out.print("ERROR: Could not write to log4j.properties file");
 					}
 				} catch (IOException e) {
-					System.out.println("ERROR: Could not create log4j.properties file");
+					System.out.print("ERROR: Could not create log4j.properties file");
 				}
 			}
 			String log4JPropertyFile = logConfig.getAbsolutePath();
 			Properties p = new Properties();
 
 			try {
-				System.out.println("Loading log4j.properties file");
+				System.out.print("Loading log4j.properties file");
 				p.load(new FileInputStream(log4JPropertyFile));
 				PropertyConfigurator.configure(p);
 				logger.info("Successfully loaded log4j.properties file");
 			} catch (IOException e) {
-				System.out.println("ERROR: Could not set " + logConfig.getAbsolutePath() + " as properties file");
+				System.out.print("ERROR: Could not set " + logConfig.getPath() + " as properties file");
+				System.exit(1);
 			}
 
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("Loading settings file...");
+			if (!new File("settings").exists()) {
+				logger.info("Settings directory does not exist. Creating new settings directory...");
+				try {
+					FileUtils.forceMkdir(new File("settings"));
+				} catch (IOException e) {
+					logger.error("Could not create settings directory");
+					System.exit(1);
+				}
+			}
+			
+			if (!botSettings.exists()) {
+				logger.info("Settings file does not exist. Creating new settings file...");
+				try {
+					botSettings.createNewFile();
+					FileUtils.write(botSettings, new JSONObject().toString(), "UTF-8");
+				} catch (IOException e) {
+					logger.error("Could not create settings file");
+					System.exit(1);
+				}
+			}
+			
+			JSONObject settings = new JSONObject(FileUtils.readFileToString(botSettings, "UTF-8"));
+			
+			if(!settings.has("token")) {
+				System.out.print("Could not find a token in the bot settings file. Please enter bots token:");
+				settings.put("token", lineReader.readLine(">"));
+			}
+			
+			if(!settings.has("waappid")) {
+				System.out.print("Could not find a wolfram alpha api id in the bot settings file. Please enter a valid wolfram api id:");
+				settings.put("waappid", lineReader.readLine(">"));
+			}
+			
+			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
+			
+			if(args.length > 0) {
+				if(Arrays.asList(args).contains("useSSL")) {
+					String sp;
+					String kp;
+					if(!settings.has("sslkeystore")) {
+						System.out.print("Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
+						sp = lineReader.readLine(">", '*');
+						System.out.println("Input the key password");
+						kp = lineReader.readLine(">", '*');
+						JSONObject store = new JSONObject();
+						store.put("storepass", sp);
+						store.put("keypass", kp);
+						settings.put("sslkeystore", store);
+					} else if (!(settings.get("sslkeystore") instanceof JSONObject)){
+						settings.remove("sslkeystore");
+						System.out.print("Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
+						sp = lineReader.readLine(">", '*');
+						System.out.println("Input the key password");
+						kp = lineReader.readLine(">", '*');
+						JSONObject store = new JSONObject();
+						store.put("storepass", sp);
+						store.put("keypass", kp);
+						settings.put("sslkeystore", store);
+					} else if (settings.getJSONObject("sslkeystore").keySet().size() != 2) {
+						settings.remove("sslkeystore");
+						System.out.print("Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
+						sp = lineReader.readLine(">", '*');
+						System.out.println("Input the key password");
+						kp = lineReader.readLine(">", '*');
+						JSONObject store = new JSONObject();
+						store.put("storepass", sp);
+						store.put("keypass", kp);
+						settings.put("sslkeystore", store);
+					} else {
+						sp = settings.getJSONObject("sslkeystore").getString("storepass");
+						kp = settings.getJSONObject("sslkeystore").getString("keypass");
+					}
+					try {
+						KeyStore ks = KeyStore.getInstance("JKS");
+						File kf = new File("keystore.jks");
+						if(!kf.exists()) {
+							logger.error("Keystore file does not exist. Bot is shutting down...");
+							System.exit(0);
+						} else {
+							try {
+								ks.load(new FileInputStream(kf), sp.toCharArray());
+								KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+								kmf.init(ks, kp.toCharArray());
+								TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+								tmf.init(ks);
+								SSLContext sslContext = SSLContext.getInstance("TLS");
+								sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+								server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+							} catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException e) {
+								e.printStackTrace();
+								System.exit(0);
+							}
+						}
+					} catch (KeyStoreException e) {
+						e.printStackTrace();
+						System.exit(0);
+					}
+				}
+				if(Arrays.asList(args).contains("useDBL")) {
+					if(!settings.has("dbltoken")) {
+						System.out.print("Bot is set to connect to a DBL endpoint. Please input a valid DBL api token.");
+						settings.put("dbltoken", lineReader.readLine(">"));
+					}
+				}
+			}
+			
+			logger.info("Core file check complete. Loading bot...");
+			
+			waAppID = settings.getString("waappid");
+			
+			logger.info("Starting shards...");
+			
+			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
+					.setShardsTotal(-1)
+					.addEventListeners(eventListener)
+					.setAudioSendFactory(new NativeAudioSendFactory())
+					.build();
+			
+			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
+			
+			server.start();
+
+			FileUtils.write(botSettings, settings.toString(), "UTF-8");
+			
+		} catch (IOException | LoginException | IllegalArgumentException | JSONException e) {
+			e.printStackTrace();
 		}
 
 	}
