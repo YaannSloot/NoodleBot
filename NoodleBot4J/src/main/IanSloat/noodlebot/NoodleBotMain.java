@@ -37,8 +37,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 
 import main.IanSloat.noodlebot.events.Events;
 import main.IanSloat.noodlebot.gateway.GatewayServer;
-import main.IanSloat.noodlebot.tools.RunScriptGenerator;
-import main.IanSloat.noodlebot.tools.NBMLSettingsParser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -50,92 +48,84 @@ public class NoodleBotMain {
 	public static String waAppID;
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
 	public static WebSocketServer server;
-	public static String versionNumber = "1.2.1";
+	public static String versionNumber = "2.0.0";
 	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
 	public static String devMsg = "Working as expected";
-	public static File configFile = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings"
-			+ BotUtils.PATH_SEPARATOR + "settings.bot");
-	private static File configDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "settings");
 	public static User botOwner;
 	public static ShardManager shardmgr;
 	public static DiscordBotListAPI dblEndpoint = null;
 	public static EventListener eventListener = new Events();
-	
-	//Value Overrides
-	public static final int playerVolumeLimit =  2147483647;
-	
-	//Console
+
+	// Value Overrides
+	public static final int playerVolumeLimit = 2147483647;
+
+	// Console
 	public static Terminal terminal;
-	
-	//Line Reader
+
+	// Line Reader
 	public static LineReader lineReader;
-	
+
 	public static void main(String[] args) {
 
 		try {
-			
+
 			terminal = TerminalBuilder.terminal();
-			
-			lineReader = LineReaderBuilder.builder()
-					.terminal(terminal)
-					.build();
-			
+
+			lineReader = LineReaderBuilder.builder().terminal(terminal).build();
+
 			class ModifiedPrintStream extends PrintStream {
 
 				public ModifiedPrintStream(OutputStream out) {
 					super(out, true);
 					// TODO Auto-generated constructor stub
 				}
-				
+
 				@Override
 				public void write(int b) {
-					lineReader.printAbove("" + (char)b);
+					lineReader.printAbove("" + (char) b);
 				}
-				
+
 				@Override
 				public void write(byte[] b, int off, int len) {
 					if ((off | len | (b.length - (len + off)) | (off + len)) < 0)
-			            throw new IndexOutOfBoundsException();
-					
+						throw new IndexOutOfBoundsException();
+
 					String output = "";
-					
-					for (int i = 0 ; i < len ; i++) {
-						output += (char)b[off + i];
+
+					for (int i = 0; i < len; i++) {
+						output += (char) b[off + i];
 					}
-					
+
 					lineReader.printAbove(output);
 				}
-				
+
 				@Override
 				public void write(byte[] b) throws IOException {
 					String output = "";
-					for(byte bt : b) {
-						output += (char)bt;
+					for (byte bt : b) {
+						output += (char) bt;
 					}
 					lineReader.printAbove(output);
 				}
-				
+
 			}
-			
+
 			PrintStream originalStream = System.out;
-			
+
 			System.setOut(new ModifiedPrintStream(originalStream));
+
+			System.out.println("\n   _  ______  ____  ___  __   _______  ____  ______\n"
+					+ "  / |/ / __ \\/ __ \\/ _ \\/ /  / __/ _ )/ __ \\/_  __/\n"
+					+ " /    / /_/ / /_/ / // / /__/ _// _  / /_/ / / /   \n"
+					+ "/_/|_/\\____/\\____/____/____/___/____/\\____/ /_/ \n\n"
+					+ "    ____  _______________            ___ \n" + "   / __ )/ ____/_  __/   |     _   _|__ \\\n"
+					+ "  / __  / __/   / / / /| |    | | / /_/ /\n" + " / /_/ / /___  / / / ___ |    | |/ / __/ \n"
+					+ "/_____/_____/ /_/ /_/  |_|    |___/____/ \n" + "                                         ");
 			
-			System.out.println("\n   _  ______  ____  ___  __   _______  ____  ______\n" + 
-					"  / |/ / __ \\/ __ \\/ _ \\/ /  / __/ _ )/ __ \\/_  __/\n" + 
-					" /    / /_/ / /_/ / // / /__/ _// _  / /_/ / / /   \n" + 
-					"/_/|_/\\____/\\____/____/____/___/____/\\____/ /_/ \n\n" + 
-					"    ____  _______________                ___   \n" + 
-					"   / __ )/ ____/_  __/   |     _   __   <  /   \n" + 
-					"  / __  / __/   / / / /| |    | | / /   / /    \n" + 
-					" / /_/ / /___  / / / ___ |    | |/ /   / /     \n" + 
-					"/_____/_____/ /_/ /_/  |_|    |___/   /_/      \n" + 
-					"                                               \n" + 
-					"");
-			
-			File logConfig = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging"
-					+ BotUtils.PATH_SEPARATOR + "log4j.properties");
-			File logDir = new File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "logging");
+			System.out.println("Running core file check...");
+
+			File logConfig = new File("logging/log4j.properties");
+			File logDir = new File("logging");
 			if (!(logConfig.exists())) {
 				try {
 					System.out.println("No log4j.properties file found. Creating new log4j.properties file");
@@ -173,121 +163,12 @@ public class NoodleBotMain {
 			} catch (IOException e) {
 				System.out.println("ERROR: Could not set " + logConfig.getAbsolutePath() + " as properties file");
 			}
-			
-			RunScriptGenerator scriptGen = new RunScriptGenerator();
-			scriptGen.generate();
-			
-			NBMLSettingsParser setMgr;
-			
-			if (!(configDir.exists())) {
-				configDir.mkdirs();
-				logger.info("Bot settings directory not found. A new settings directory was created at "
-						+ configDir.getAbsolutePath());
-			}
-			if (!(configFile.exists())) {
-				logger.info("Bot settings file not found. Creating new file...");
-				setMgr = new NBMLSettingsParser(configFile);
-				logger.info("Bot settings file created successfully. Starting bot setup wizard...");
-				System.out.println("\n\n\n\nWelcome to the NoodleBot setup wizard\n"
-						+ "Before you start using your bot, you will have to provide a few details\n\n"
-						+ "Please input your bots token");
-				String token = lineReader.readLine(">");
-				System.out.println("\nPlease input you WolframAlpha API AppID\n"
-						+ "For more information on obtaining an AppID, please visit this link:\n"
-						+ "https://products.wolframalpha.com/api/documentation/#obtaining-an-appid");
-				String appID = lineReader.readLine(">");
-				System.out.println("\nWriting settings to config file...");
-				setMgr.addObj("StartupItems");
-				setMgr.setScope("StartupItems");
-				setMgr.addVal("TOKEN", token);
-				setMgr.addVal("APPID", appID);
-				System.out.println("Done.");
-			}
-			
-			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
-			
-			if(args.length > 0) {
-				if(Arrays.asList(args).contains("useSSL")) {
-					setMgr = new NBMLSettingsParser(configFile);
-					setMgr.setScopePath("StartupItems");
-					String sp = setMgr.getFirstInValGroup("SSLSTOREPASS");
-					String kp = setMgr.getFirstInValGroup("SSLKEYPASS");
-					if(sp.length() == 0 && kp.length() == 0) {
-						System.out.println("\n\nGateway is set to use SSL. Please input required passwords.\nInput the store password:");
-						sp = lineReader.readLine(">", '*');
-						System.out.println("Input the key password");
-						kp = lineReader.readLine(">", '*');
-						setMgr.addVal("SSLSTOREPASS", sp);
-						setMgr.addVal("SSLKEYPASS", kp);
-					}
-					try {
-						KeyStore ks = KeyStore.getInstance("JKS");
-						File kf = new File("keystore.jks");
-						if(!kf.exists()) {
-							logger.error("Keystore file does not exist. Bot is shutting down...");
-							System.exit(0);
-						} else {
-							try {
-								ks.load(new FileInputStream(kf), sp.toCharArray());
-								KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-								kmf.init(ks, kp.toCharArray());
-								TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-								tmf.init(ks);
-								SSLContext sslContext = SSLContext.getInstance("TLS");
-								sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-								server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
-							} catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException e) {
-								e.printStackTrace();
-								setMgr.removeValGroup("SSLSTOREPASS");
-								setMgr.removeValGroup("SSLKEYPASS");
-								System.exit(0);
-							}
-						}
-					} catch (KeyStoreException e) {
-						e.printStackTrace();
-						System.exit(0);
-					}
-				}
-				if(Arrays.asList(args).contains("useDBL")) {
-					setMgr = new NBMLSettingsParser(configFile);
-					setMgr.setScopePath("StartupItems");
-					String dblToken = setMgr.getFirstInValGroup("DBLTOKEN");
-					if(dblToken.length() == 0) {
-						System.out.println("Bot is set to connect to a DBL endpoint. Please input a valid DBL api token.");
-						dblToken = lineReader.readLine(">");
-						setMgr.addVal("DBLTOKEN", dblToken);
-					}
-				}
-			}
-			
-			setMgr = new NBMLSettingsParser(configFile);
-			
-			setMgr.setScope(NBMLSettingsParser.DOCROOT);
-			
-			setMgr.setScope("StartupItems");
-			
-			waAppID = setMgr.getFirstInValGroup("APPID");
 
-			logger.info("Loading shards...");
-			
-			shardmgr = new DefaultShardManagerBuilder(setMgr.getFirstInValGroup("TOKEN"))
-					.setShardsTotal(-1)
-					.addEventListeners(eventListener)
-					.setAudioSendFactory(new NativeAudioSendFactory())
-					.build();
-			
-			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
-			
-			server.start();
-			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (LoginException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		
+
 	}
 
 }
