@@ -145,7 +145,7 @@ public class LoggerService {
 											+ ((GuildVoiceJoinEvent) event).getChannelJoined().getName() + "**")
 									.queue();
 						} else if (event instanceof GuildVoiceLeaveEvent) {
-							channel.sendMessage(getUTCTimestamp() + " - " + (((GuildVoiceLeaveEvent) event).getMember())
+							channel.sendMessage(getUTCTimestamp() + " - " + getUserStamp(((GuildVoiceLeaveEvent) event).getMember())
 									+ " left voice channel **:loud_sound:"
 									+ ((GuildVoiceLeaveEvent) event).getChannelLeft().getName() + "**").queue();
 						} else if (event instanceof GuildVoiceMoveEvent) {
@@ -153,7 +153,7 @@ public class LoggerService {
 									getUTCTimestamp() + " - " + getUserStamp(((GuildVoiceMoveEvent) event).getMember())
 											+ " moved from voice channel **:loud_sound:"
 											+ ((GuildVoiceMoveEvent) event).getChannelLeft().getName()
-											+ " to voice channel **:loud_sound:"
+											+ "** to voice channel **:loud_sound:"
 											+ ((GuildVoiceMoveEvent) event).getChannelJoined().getName() + "**")
 									.queue();
 						} else if (event instanceof GuildVoiceSelfDeafenEvent) {
