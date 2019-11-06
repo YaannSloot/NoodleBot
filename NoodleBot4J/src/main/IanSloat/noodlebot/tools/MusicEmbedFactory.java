@@ -10,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
+// TODO Update documentation and finish for other undocumented methods
 
 /**
  * Standard core ThiccBot class used to create Discord4J embed objects based on

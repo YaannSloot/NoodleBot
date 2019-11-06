@@ -6,6 +6,7 @@ import java.util.List;
 
 import main.IanSloat.noodlebot.errors.MalformedTimecodeException;
 
+// TODO Finish documentation
 public class Timecode {
 	
 	private String rawCode;

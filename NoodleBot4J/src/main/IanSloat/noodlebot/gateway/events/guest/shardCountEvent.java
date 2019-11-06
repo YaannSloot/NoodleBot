@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import main.IanSloat.noodlebot.gateway.events.Event;
 import main.IanSloat.noodlebot.gateway.sessions.Session;
 
+// TODO Document class
 public class shardCountEvent extends Event {
 
 	public shardCountEvent(Session conn, JSONObject message) {

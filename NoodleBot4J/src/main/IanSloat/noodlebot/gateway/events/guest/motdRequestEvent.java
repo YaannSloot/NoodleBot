@@ -6,6 +6,7 @@ import main.IanSloat.noodlebot.NoodleBotMain;
 import main.IanSloat.noodlebot.gateway.events.Event;
 import main.IanSloat.noodlebot.gateway.sessions.Session;
 
+// TODO Document class
 public class motdRequestEvent extends Event {
 
 	public motdRequestEvent(Session conn, JSONObject message) {

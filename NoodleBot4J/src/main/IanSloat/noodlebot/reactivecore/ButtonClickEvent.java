@@ -2,6 +2,7 @@ package main.IanSloat.noodlebot.reactivecore;
 
 import net.dv8tion.jda.api.entities.User;
 
+// TODO Write documentation
 public class ButtonClickEvent {
 
 	private String emoji = "";

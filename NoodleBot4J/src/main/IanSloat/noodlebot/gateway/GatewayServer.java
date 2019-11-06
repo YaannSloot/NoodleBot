@@ -18,6 +18,7 @@ import main.IanSloat.noodlebot.gateway.sessions.GuestSession;
 import main.IanSloat.noodlebot.gateway.sessions.Session;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+// TODO Clean this mess up and document what is happening
 public class GatewayServer extends WebSocketServer {
 
 	private final static Logger logger = LoggerFactory.getLogger(GatewayServer.class);
@@ -26,35 +27,6 @@ public class GatewayServer extends WebSocketServer {
 
 	private final static Map<WebSocket, File> sessionTempdir = new HashMap<>();
 
-	/*
-	private File getTemporaryFileDir(WebSocket session) {
-		File output = null;
-		if (sessionRegister.get(session) != null) {
-			File tempDirectory = new File(
-					System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR + "GuildSettings" + BotUtils.PATH_SEPARATOR
-							+ sessionRegister.get(session).getId() + BotUtils.PATH_SEPARATOR + "temp");
-			if (tempDirectory.exists() == false) {
-				try {
-					FileUtils.forceMkdir(tempDirectory);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			try {
-				if (sessionTempdir.get(session) == null) {
-					File tempFile = Files.createTempDirectory(tempDirectory.toPath(), "session").toFile();
-					FileUtils.forceDeleteOnExit(tempFile);
-					sessionTempdir.put(session, tempFile);
-				}
-				output = sessionTempdir.get(session);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return output;
-	}*/
 
 	private static synchronized Session getGatewaySession(WebSocket connection, String lastMsg) {
 		Session current = sessionRegister.get(connection);
@@ -218,7 +190,6 @@ public class GatewayServer extends WebSocketServer {
 									resJSON.put("content", new JSONObject().put("perm-registry-details", payload.queryObjects()));
 									conn.send(resJSON.toString());
 								} catch (IOException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 							}

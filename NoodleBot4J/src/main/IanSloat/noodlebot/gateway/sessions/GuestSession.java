@@ -14,6 +14,7 @@ import main.IanSloat.noodlebot.gateway.events.guest.totalGuildCountEvent;
 import main.IanSloat.noodlebot.gateway.events.guest.versionEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+// TODO Document this class
 public class GuestSession extends Session {
 
 	private SessionEventListener listener;

@@ -9,10 +9,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+// TODO Document methods in YTCrawler class
 public class YTCrawler {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		YTCrawler crawler = new YTCrawler("https://www.youtube.com/watch?v=6XUOo-2gSu4");
 		List<String> videos = crawler.generatePlaylist(19);
 		

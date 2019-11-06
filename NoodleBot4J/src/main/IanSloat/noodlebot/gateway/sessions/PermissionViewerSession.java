@@ -12,7 +12,7 @@ public class PermissionViewerSession extends Session {
 
 	@Override
 	public void onMessage(String message) {
-		// TODO Auto-generated method stub
+		// TODO Implement permission viewer session in gateway
 		
 	}
 

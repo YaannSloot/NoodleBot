@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+// TODO Finish writing events
 public class Events extends ListenerAdapter {
 	
 	private Login loginEvent = new Login();

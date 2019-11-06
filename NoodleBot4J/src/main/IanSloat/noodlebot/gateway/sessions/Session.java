@@ -4,6 +4,7 @@ import org.java_websocket.WebSocket;
 
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+// TODO Document this class
 public abstract class Session {
 	
 	private WebSocket conn;

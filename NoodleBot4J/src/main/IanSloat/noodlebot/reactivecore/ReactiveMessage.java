@@ -31,8 +31,8 @@ public class ReactiveMessage extends ListenerAdapter {
 
 	private final static Map<Message, ReactiveMessage> registeredMessages = new HashMap<>();
 	private final List<ButtonListener> buttonListeners = new ArrayList<ButtonListener>();
-	private final List<Menu> menus = new ArrayList<Menu>();
-	private int currentMenuIndex = 0;
+	//private final List<Menu> menus = new ArrayList<Menu>(); // TODO Use with menu class if it ever gets created
+	//private int currentMenuIndex = 0; // TODO Use with menu class if it ever gets created
 	private Message registeredMessage;
 	private TextChannel channel;
 	private boolean isActive = false;

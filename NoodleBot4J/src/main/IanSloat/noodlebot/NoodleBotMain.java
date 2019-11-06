@@ -40,7 +40,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import main.IanSloat.noodlebot.events.Events;
 import main.IanSloat.noodlebot.gateway.GatewayServer;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -89,7 +88,6 @@ public class NoodleBotMain {
 
 				public ModifiedPrintStream(OutputStream out) {
 					super(out, true);
-					// TODO Auto-generated constructor stub
 				}
 
 				@Override

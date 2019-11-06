@@ -5,6 +5,7 @@ import java.util.List;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
+// TODO Document class
 public class HierarchyUtils {
 	
 	public static Role getMemberHighestRole(Member member) {

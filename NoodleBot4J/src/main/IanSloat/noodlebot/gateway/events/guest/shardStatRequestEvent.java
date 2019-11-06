@@ -7,6 +7,7 @@ import main.IanSloat.noodlebot.gateway.sessions.Session;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
 
+// TODO Document class
 public class shardStatRequestEvent extends Event {
 
 	private JDA shard;

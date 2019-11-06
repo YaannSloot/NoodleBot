@@ -11,12 +11,10 @@ import org.json.XML;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.simmetrics.metrics.Levenshtein;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+// TODO Write documentation for Wikisearch class
 public class Wikisearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(Wikisearch.class);
 	private String title = "";
 	private int pageId;
 	private String imageUrl = "";
@@ -94,7 +92,6 @@ public class Wikisearch {
 				result = true;
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return result;

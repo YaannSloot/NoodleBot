@@ -1,14 +1,11 @@
 package main.IanSloat.noodlebot.gateway.events.guest;
 
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import main.IanSloat.noodlebot.gateway.events.EventMapper;
 
+// TODO Document class
 public class GuestSessionEventListener extends EventMapper {
-
-	private final static Logger logger = LoggerFactory.getLogger(GuestSessionEventListener.class);
 
 	@Override
 	public void onShardCountEvent(shardCountEvent event) {

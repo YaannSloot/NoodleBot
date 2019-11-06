@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
+// TODO This may need to be documented as well
 public class Login {
 
 	private final Logger logger = LoggerFactory.getLogger(Login.class);
@@ -43,10 +44,13 @@ public class Login {
 					.collect(Collectors.toList());
 			try {
 				if (!(new File("GuildSettings").exists())) {
-					FileUtils.forceMkdir(new File("GuildSettings"));
+					FileUtils.forceMkdir(new File("guilds"));
 				}
-				for(Guild d : noSetGuilds) {
-					FileUtils.forceMkdir(new File("GuildSettings/" + d.getId()));
+				for (Guild d : noSetGuilds) {
+					File newDir = new File("guilds/" + d.getId());
+					FileUtils.forceMkdir(newDir);
+					logger.info("Created new settings directory for guild " + d.getName() + "(" + d.getId()
+							+ ") at path " + newDir.getPath());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
