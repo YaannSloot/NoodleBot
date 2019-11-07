@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Events extends ListenerAdapter {
 	
 	private Login loginEvent = new Login();
+	private CommandController commandController = new CommandController();
 	
 	@Override
 	public void onReady(ReadyEvent event) {
@@ -16,7 +17,7 @@ public class Events extends ListenerAdapter {
 	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
-		System.out.println(event.getMessage().getContentRaw());
+		commandController.CommandEvent(event);
 	}
 	
 }

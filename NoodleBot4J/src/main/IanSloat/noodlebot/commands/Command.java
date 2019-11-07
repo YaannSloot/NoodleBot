@@ -10,7 +10,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
 import main.IanSloat.noodlebot.lavaplayer.GuildMusicManager;
 import main.IanSloat.noodlebot.overrides.DefaultAudioPlayerManager;
-import main.IanSloat.noodlebot.wrappers.GuildPermissionsWrapper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -46,7 +45,7 @@ public abstract class Command {
 		return musicManager;
 	}
 	
-	public abstract boolean CheckUsagePermission(Member user, GuildPermissionsWrapper PermObject);
+	public abstract boolean CheckUsagePermission(Member user);
 	
 	public abstract boolean CheckForCommandMatch(Message command);
 	

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -170,6 +171,18 @@ public class ReactiveMessage extends ListenerAdapter {
 	 * pool
 	 */
 	public void activate() {
+		activate(null);
+	}
+	
+	/**
+	 * If the content of this reactive message is not null and the message contains
+	 * at least one button, this method will send the message to discord, adding
+	 * necessary reactions and registering this reactive to the JDA event listener
+	 * pool
+	 * 
+	 * @param success The callback to execute when the reactive message activation has completed
+	 */
+	public void activate(Consumer<Message> success) {
 		if (messageBody != null && buttonListeners.size() > 0) {
 			channel.sendMessage(messageBody).queue(new Consumer<Message>() {
 
@@ -179,6 +192,8 @@ public class ReactiveMessage extends ListenerAdapter {
 					cleanMessage(msg.getReactions());
 					isActive = true;
 					registerThisReactive();
+					if(success != null)
+						success.accept(msg);
 				}
 
 			});
