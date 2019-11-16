@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
@@ -263,20 +264,17 @@ public class FilterDeleteCommand extends Command {
 
 	@Override
 	public String getHelpSnippet() {
-		return "**nood delete messages**\n" + "Parameters:\n"
-				+ "older than <number> <day(s)/week(s)/month(s)/year(S)>\n" + "from <@user|@role>\n"
-				+ "Ex 1 - nood delete messages older than 1 week 3 days from @everyone\n"
-				+ "Ex 2 - nood delete messages from @someuser";
+		return "**" + BotUtils.BOT_PREFIX + "delete messages** - Deletes messages in bulk _(" + BotUtils.BOT_PREFIX + " help " + getCommandId() + ")_";
 	}
 
 	@Override
 	public String getCommandId() {
-		return "filter";
+		return "delete";
 	}
 
 	@Override
-	public String getCommandCategory() {
-		return Command.CATEGORY_MANAGEMENT;
+	public CommandCategory getCommandCategory() {
+		return CommandCategory.MANAGEMENT;
 	}
 
 	private boolean isMessageWrittenByTargets(Message m, List<Member> targets) {
@@ -288,6 +286,21 @@ public class FilterDeleteCommand extends Command {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public MessageEmbed getCommandHelpPage() {
+		return new EmbedBuilder().setTitle("Bulk message delete command | More Info").setColor(Color.red)
+				.setDescription("**Syntax:**\n_nood delete messages_ (from <@ mentions>) (older than <time unit> <amount>)" + "\n\n**Summary:**"
+						+ "\nThis command deletes up to 2000 messages in bulk. Target messages can be restricted to both specific author and specific message age. The bulk deletion job can be canceled at any time either via the red X reaction or by typing \"nood stop deleting\"\n"
+						+ "\n**Parameters:**"
+						+ "\n@ mentions - Both users and roles allowed. Can be used to restrict the pre-job message scan to certain message authors."
+						+ "\nExample:"
+						+ "\nnood delete messages from @someuser @somerole - will delete messages from both @someuser and anyone with the @somerole role."
+						+ "\n\nAge value - Specified by \"<time unit> <amount>\". Can specify multiple time unit/amount pairs for precise age."
+						+ "\nValid time unit strings - day(s), week(s), month(s), year(s)" + "\nExample:"
+						+ "\nnood delete messages older than 1 week 5 days - will delete messages older than 1 week 5 days")
+				.build();
 	}
 
 }

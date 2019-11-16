@@ -27,6 +27,8 @@ public class GatewayServer extends WebSocketServer {
 	private final static Map<WebSocket, Session> sessionRegister = new HashMap<>();
 
 	private final static Map<WebSocket, File> sessionTempdir = new HashMap<>();
+	
+	private String status = "DOWN";
 
 
 	private static synchronized Session getGatewaySession(WebSocket connection, String lastMsg) {
@@ -55,6 +57,7 @@ public class GatewayServer extends WebSocketServer {
 	
 	public GatewayServer(InetSocketAddress address, ShardManager shardmgr) {
 		super(address);
+		status = "RUNNING";
 	}
 
 	@Override
@@ -73,6 +76,7 @@ public class GatewayServer extends WebSocketServer {
 			sessionRegister.remove(conn);
 			//sessionTempdir.remove(conn);
 			logger.info("Gateway connection with client-ip:" + conn.getRemoteSocketAddress() + " has closed. Reason: " + reason);
+			status = "DOWN";
 		//} catch (IOException e) {
 		//	e.printStackTrace();
 		//}
@@ -229,4 +233,8 @@ public class GatewayServer extends WebSocketServer {
 		logger.info("NoodleBot Gateway server has started on address " + this.getAddress());
 	}
 
+	public String getStatus() {
+		return status;
+	}
+	
 }

@@ -1,6 +1,6 @@
 package com.IanSloat.noodlebot.commands;
 
-public class NoMatchException extends Exception {
+public class NoMatchException extends RuntimeException {
 
 	private static final long serialVersionUID = 2471442433345020561L;
 

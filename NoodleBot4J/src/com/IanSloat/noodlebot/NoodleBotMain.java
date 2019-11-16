@@ -25,7 +25,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
-import org.java_websocket.server.WebSocketServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -39,8 +38,8 @@ import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 
-import main.yaannsloot.jwolfram.WolframClient;
-import main.yaannsloot.jwolfram.exceptions.InvalidAppidException;
+import com.yaannsloot.jwolfram.WolframClient;
+import com.yaannsloot.jwolfram.exceptions.InvalidAppidException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -50,10 +49,10 @@ public class NoodleBotMain {
 
 	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where", "simplify" };
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
-	public static WebSocketServer server;
+	public static GatewayServer server;
 	public static WolframClient waClient;
 	public static String versionNumber = "2.0.0";
-	public static String botVersion = "noodlebot-v" + versionNumber + "_BETA";
+	public static String botVersion = "NoodleBot v" + versionNumber + " Pre-release Beta";
 	public static String devMsg = "Working as expected";
 	public static File botSettings = new File("settings/settings.json");
 	public static User botOwner;
@@ -71,7 +70,7 @@ public class NoodleBotMain {
 	public static LineReader lineReader;
 
 	public static void main(String[] args) {
-		
+
 		System.out.println("\n   _  ______  ____  ___  __   _______  ____  ______\n"
 				+ "  / |/ / __ \\/ __ \\/ _ \\/ /  / __/ _ )/ __ \\/_  __/\n"
 				+ " /    / /_/ / /_/ / // / /__/ _// _  / /_/ / / /   \n"
@@ -125,7 +124,7 @@ public class NoodleBotMain {
 			PrintStream originalStream = System.out;
 
 			System.setOut(new ModifiedPrintStream(originalStream));
-			
+
 			System.out.print("Starting bot");
 
 			System.out.print("Running core file check...");
@@ -181,7 +180,7 @@ public class NoodleBotMain {
 					System.exit(1);
 				}
 			}
-			
+
 			if (!botSettings.exists()) {
 				logger.info("Settings file does not exist. Creating new settings file...");
 				try {
@@ -192,27 +191,29 @@ public class NoodleBotMain {
 					System.exit(1);
 				}
 			}
-			
+
 			JSONObject settings = new JSONObject(FileUtils.readFileToString(botSettings, "UTF-8"));
-			
-			if(!settings.has("token")) {
+
+			if (!settings.has("token")) {
 				System.out.print("Could not find a token in the bot settings file. Please enter bots token:");
 				settings.put("token", lineReader.readLine(">"));
 			}
-			
-			if(!settings.has("waappid")) {
-				System.out.print("Could not find a wolfram alpha api id in the bot settings file. Please enter a valid wolfram api id:");
+
+			if (!settings.has("waappid")) {
+				System.out.print(
+						"Could not find a wolfram alpha api id in the bot settings file. Please enter a valid wolfram api id:");
 				settings.put("waappid", lineReader.readLine(">"));
 			}
-			
+
 			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
-			
-			if(args.length > 0) {
-				if(Arrays.asList(args).contains("useSSL")) {
+
+			if (args.length > 0) {
+				if (Arrays.asList(args).contains("useSSL")) {
 					String sp;
 					String kp;
-					if(!settings.has("sslkeystore")) {
-						System.out.print("Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
+					if (!settings.has("sslkeystore")) {
+						System.out.print(
+								"Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
 						sp = lineReader.readLine(">", '*');
 						System.out.println("Input the key password");
 						kp = lineReader.readLine(">", '*');
@@ -220,9 +221,10 @@ public class NoodleBotMain {
 						store.put("storepass", sp);
 						store.put("keypass", kp);
 						settings.put("sslkeystore", store);
-					} else if (!(settings.get("sslkeystore") instanceof JSONObject)){
+					} else if (!(settings.get("sslkeystore") instanceof JSONObject)) {
 						settings.remove("sslkeystore");
-						System.out.print("Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
+						System.out.print(
+								"Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
 						sp = lineReader.readLine(">", '*');
 						System.out.println("Input the key password");
 						kp = lineReader.readLine(">", '*');
@@ -232,7 +234,8 @@ public class NoodleBotMain {
 						settings.put("sslkeystore", store);
 					} else if (settings.getJSONObject("sslkeystore").keySet().size() != 2) {
 						settings.remove("sslkeystore");
-						System.out.print("Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
+						System.out.print(
+								"Gateway is set to use SSL but no keystore passwords were found. Please input required passwords.\nInput the store password:");
 						sp = lineReader.readLine(">", '*');
 						System.out.println("Input the key password");
 						kp = lineReader.readLine(">", '*');
@@ -247,7 +250,7 @@ public class NoodleBotMain {
 					try {
 						KeyStore ks = KeyStore.getInstance("JKS");
 						File kf = new File("keystore.jks");
-						if(!kf.exists()) {
+						if (!kf.exists()) {
 							logger.error("Keystore file does not exist. Bot is shutting down...");
 							System.exit(0);
 						} else {
@@ -260,7 +263,8 @@ public class NoodleBotMain {
 								SSLContext sslContext = SSLContext.getInstance("TLS");
 								sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 								server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
-							} catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException e) {
+							} catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException
+									| KeyManagementException e) {
 								e.printStackTrace();
 								System.exit(0);
 							}
@@ -270,32 +274,30 @@ public class NoodleBotMain {
 						System.exit(0);
 					}
 				}
-				if(Arrays.asList(args).contains("useDBL")) {
-					if(!settings.has("dbltoken")) {
-						System.out.print("Bot is set to connect to a DBL endpoint. Please input a valid DBL api token.");
+				if (Arrays.asList(args).contains("useDBL")) {
+					if (!settings.has("dbltoken")) {
+						System.out
+								.print("Bot is set to connect to a DBL endpoint. Please input a valid DBL api token.");
 						settings.put("dbltoken", lineReader.readLine(">"));
 					}
 				}
 			}
-			
+
 			logger.info("Core file check complete. Loading bot...");
-			
+
 			waClient = new WolframClient(settings.getString("waappid"));
-			
+
 			logger.info("Starting shards...");
-			
-			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
-					.setShardsTotal(-1)
-					.addEventListeners(eventListener)
-					.setAudioSendFactory(new NativeAudioSendFactory())
-					.build();
-			
+
+			shardmgr = new DefaultShardManagerBuilder(settings.getString("token")).setShardsTotal(-1)
+					.addEventListeners(eventListener).setAudioSendFactory(new NativeAudioSendFactory()).build();
+
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
-			
+
 			server.start();
 
 			FileUtils.write(botSettings, settings.toString(), "UTF-8");
-			
+
 		} catch (IOException | LoginException | IllegalArgumentException | JSONException | InvalidAppidException e) {
 			e.printStackTrace();
 		}

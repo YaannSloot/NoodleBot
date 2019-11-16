@@ -6,7 +6,8 @@ import java.util.List;
 import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.commands.Command;
 import com.IanSloat.noodlebot.commands.FilterDeleteCommand;
-import com.IanSloat.noodlebot.commands.NoMatchException;
+import com.IanSloat.noodlebot.commands.HelpCommand;
+import com.IanSloat.noodlebot.commands.StatusCommand;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -14,7 +15,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class CommandController {
 
 	// Active command instances
-	private List<Command> commandList = Arrays.asList(new FilterDeleteCommand());
+	public static List<Command> commandList = Arrays.asList(new HelpCommand(), new FilterDeleteCommand(), new StatusCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {
 
@@ -22,15 +23,11 @@ public class CommandController {
 		if (event.getMessage().isFromGuild() && event.getMessage().getContentRaw().startsWith(BotUtils.BOT_PREFIX)) {
 
 			boolean didMatch = false;
-
+			
 			for (Command c : commandList) {
 				if (c.CheckForCommandMatch(event.getMessage())) {
 					if (c.CheckUsagePermission(event.getMember()))
-						try {
-							c.execute(event);
-						} catch (NoMatchException e) {
-							e.printStackTrace();
-						}
+						c.execute(event);
 					didMatch = true;
 					break;
 				}

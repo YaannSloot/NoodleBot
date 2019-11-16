@@ -13,6 +13,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -24,10 +25,24 @@ public abstract class Command {
 	static final Logger logger = LoggerFactory.getLogger(Command.class);
 	
 	// Known command categories
-	public final static String CATEGORY_PLAYER = "player";
-	public final static String CATEGORY_MANAGEMENT = "management";
-	public final static String CATEGORY_UTILITY = "utility";
-	public final static String CATEGORY_MISC = "misc";
+	public enum CommandCategory{
+		GENERAL("general"),
+		PLAYER("player"),
+		MANAGEMENT("management"),
+		UTILITY("utility"),
+		MISC("misc");
+		
+		private String id;
+		
+		CommandCategory(String id){
+			this.id = id;
+		}
+		
+		public String toString() {
+			return id;
+		}
+		
+	}
 	
 	public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, TextChannel channel) {
 		long guildId = guild.getIdLong();
@@ -55,6 +70,8 @@ public abstract class Command {
 	
 	public abstract String getCommandId();
 	
-	public abstract String getCommandCategory();
+	public abstract CommandCategory getCommandCategory();
+	
+	public abstract MessageEmbed getCommandHelpPage();
 	
 }

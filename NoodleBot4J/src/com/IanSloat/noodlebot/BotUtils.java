@@ -13,8 +13,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 public class BotUtils {
 
 	// Constants for use throughout the bot
-	public static String BOT_PREFIX = "noodv2 ";
-	public static String PATH_SEPARATOR = System.getProperty("file.separator");
+	public static final String BOT_PREFIX = "noodv2 ";
 	private static final Logger logger = LoggerFactory.getLogger(BotUtils.class);
 
 	// Helpful input processing methods
