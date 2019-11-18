@@ -1,21 +1,19 @@
 package com.IanSloat.noodlebot.events;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.NoodleBotMain;
+import com.IanSloat.noodlebot.controllers.settings.GuildSetting;
+import com.IanSloat.noodlebot.controllers.settings.GuildSettings;
+import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
 // TODO This may need to be documented as well
@@ -40,28 +38,36 @@ public class Login {
 			}
 		} else {
 			logger.info("All shards have logged in. Performing guild settings file check...");
-			if (!(new File("guilds").exists())) {
+			GuildSettingsController.setInitBehavior(settings -> {
+				GuildSettings settingsList = settings.getSettings();
+				if (!settingsList.contains("volume"))
+					settings.setSetting(new GuildSetting("volume", "100", "Default volume", "music", "range!0-200"));
+				if (!settingsList.contains("autoplay"))
+					settings.setSetting(new GuildSetting("autoplay", "on", "AutoPlay", "music", "off", "on"));
+				if (!settingsList.contains("volcap"))
+					settings.setSetting(new GuildSetting("volcap", "on", "Enforce volume cap", "music", "off", "on"));
+				if (!settingsList.contains("logchannel"))
+					settings.setSetting(new GuildSetting("logchannel", "disabled", "Logger channel", "logging",
+							"type!TextChannel"));
+				if (!settingsList.contains("logmentions"))
+					settings.setSetting(new GuildSetting("logmentions", "false", "Use @ mentions on entries", "logging",
+							"false", "true"));
 				try {
-					FileUtils.forceMkdir(new File("guilds"));
+					settings.writeSettings();
 				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			event.getJDA().getShardManager().getGuilds().forEach(g -> {
+				try {
+					GuildSettingsController.initGuildSettingsFiles(g);
+				} catch (IOException e) {
+					logger.error(
+							"Failed to init settings directory for guild " + g.getName() + "(id:" + g.getId() + ")");
 					e.printStackTrace();
 					System.exit(1);
 				}
-			}
-			List<Guild> noSetGuilds = event.getJDA().getShardManager().getGuilds();
-			noSetGuilds = noSetGuilds.stream().filter(g -> !(new File("guilds/" + g.getId()).exists()))
-					.collect(Collectors.toList());
-			try {
-				for (Guild d : noSetGuilds) {
-					File newDir = new File("guilds/" + d.getId());
-					FileUtils.forceMkdir(newDir);
-					logger.info("Created new settings directory for guild " + d.getName() + "(" + d.getId()
-							+ ") at path " + newDir.getPath());
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+			});
 			logger.info("Guild settings file check complete.");
 			for (JDA shard : event.getJDA().getShardManager().getShards()) {
 				synchronized (shard) {

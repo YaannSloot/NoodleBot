@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
+//TODO Document class
 public class HelpCommand extends Command {
 
 	@Override
@@ -64,9 +65,8 @@ public class HelpCommand extends Command {
 			List<Field> fields = new ArrayList<Field>();
 			for (CommandCategory ct : CommandCategory.values()) {
 				if (commandSnippets.containsKey(ct))
-					fields.add(new Field(
-							"**" + (ct.toString().charAt(0) + "").toUpperCase() + ct.toString().substring(1) + "**",
-							commandSnippets.get(ct), false));
+					fields.add(new Field("**" + BotUtils.capitalizeWords(ct.toString()) + "**", commandSnippets.get(ct),
+							false));
 			}
 			EmbedBuilder message = new EmbedBuilder();
 			message.setTitle("Available commands | " + event.getMember().getUser().getName() + " | "
@@ -109,7 +109,8 @@ public class HelpCommand extends Command {
 
 	@Override
 	public String getHelpSnippet() {
-		return "**" + BotUtils.BOT_PREFIX + " help** - Lists available commands _(" + BotUtils.BOT_PREFIX + " help " + getCommandId() + ")_";
+		return "**" + BotUtils.BOT_PREFIX + " help** - Lists available commands _(" + BotUtils.BOT_PREFIX + " help "
+				+ getCommandId() + ")_";
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.NoodleBotMain;
-import com.IanSloat.noodlebot.wrappers.GuildPermissionsWrapper;
+import com.IanSloat.noodlebot.controllers.GuildPermissionsController;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -15,12 +15,14 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
+//TODO Document class
 public class StatusCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return new GuildPermissionsWrapper(user.getGuild()).canMemberUseCommand(user, this);
+		return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
 	}
 
 	@Override
@@ -32,46 +34,59 @@ public class StatusCommand extends Command {
 	public void execute(MessageReceivedEvent event) throws NoMatchException {
 		if (!CheckForCommandMatch(event.getMessage()))
 			throw new NoMatchException();
-		EmbedBuilder message = new EmbedBuilder();
-		message.setColor(Color.cyan);
-		message.setThumbnail(event.getGuild().getIconUrl());
-		message.setTitle("Status | " + event.getGuild().getName());
-		message.addField("**Guild stats:**",
-				"Name: " + event.getGuild().getName() + "\nMembers: " + event.getGuild().getMembers().size()
-						+ "\nChannels: " + event.getGuild().getTextChannels().size() + " text channels, "
-						+ event.getGuild().getVoiceChannels().size() + " voice channels, "
-						+ event.getGuild().getCategories().size() + " channel categories" + "\nAFK Channel: "
-						+ ((event.getGuild().getAfkChannel() != null)
-								? ":loud_sound:" + event.getGuild().getAfkChannel().getName()
-								: "DISABLED")
-						+ "\nSystem message channel: "
-						+ ((event.getGuild().getSystemChannel() != null)
-								? event.getGuild().getSystemChannel().getAsMention()
-								: "DISABLED")
-						+ "\nRoles: " + event.getGuild().getRoles().size() + "\nAdmin roles: "
-						+ event.getGuild().getRoles().stream().filter(
-								r -> r.hasPermission(Permission.ADMINISTRATOR) && event.getGuild().getMembers().stream()
-										.filter(m -> m.getRoles().contains(r)).collect(Collectors.toList()).size() > 0)
-								.collect(Collectors.toList()).size()
-						+ " active, "
-						+ event.getGuild().getRoles().stream().filter(r -> r.hasPermission(Permission.ADMINISTRATOR))
-								.collect(Collectors.toList()).size()
-						+ " total" + "\nMember verification level: " + event.getGuild().getVerificationLevel()
-						+ "\nContent filter settings: " + event.getGuild().getExplicitContentLevel()
-						+ "\nNotification settings: " + event.getGuild().getDefaultNotificationLevel()
-						+ "\nTime created: "
-						+ new SimpleDateFormat("MM/dd/yyyy")
-								.format(Date.from(event.getGuild().getTimeCreated().toInstant()))
-						+ "\nRegion: " + event.getGuild().getRegion(),
-				false);
-		message.addField("**Bot status:**", "Version: " + NoodleBotMain.botVersion + "\nGuilds: "
-				+ event.getJDA().getShardManager().getGuilds().size() + "\nShards: "
-				+ event.getJDA().getShardManager().getShardsTotal() + "\nWeb dashboard gateway: "
-				+ NoodleBotMain.server.getStatus() + "\n JVM thread count: " + Thread.activeCount()
-				+ "\nPowered by [JDA](https://github.com/DV8FromTheWorld/JDA) | Report issues [here](https://github.com/YaannSloot/NoodleBot/issues)",
-				false);
+		try {
+			event.getMessage().delete().queue();
+			EmbedBuilder message = new EmbedBuilder();
+			message.setColor(Color.cyan);
+			message.setThumbnail(event.getGuild().getIconUrl());
+			message.setTitle("Status | " + event.getGuild().getName());
+			message.addField("**Guild stats:**",
+					"Name: " + event.getGuild().getName() + "\nMembers: " + event.getGuild().getMembers().size()
+							+ "\nChannels: " + event.getGuild().getTextChannels().size() + " text channels, "
+							+ event.getGuild().getVoiceChannels().size() + " voice channels, "
+							+ event.getGuild().getCategories().size() + " channel categories" + "\nAFK Channel: "
+							+ ((event.getGuild().getAfkChannel() != null) ? ":loud_sound:"
+									+ event.getGuild().getAfkChannel().getName() : "DISABLED")
+							+ "\nSystem message channel: "
+							+ ((event.getGuild().getSystemChannel() != null) ? event.getGuild().getSystemChannel()
+									.getAsMention() : "DISABLED")
+							+ "\nRoles: " + event.getGuild().getRoles().size() + "\nAdmin roles: "
+							+ event.getGuild().getRoles().stream()
+									.filter(r -> r.hasPermission(Permission.ADMINISTRATOR) && event.getGuild()
+											.getMembers().stream().filter(m -> m.getRoles().contains(r))
+											.collect(Collectors.toList()).size() > 0)
+									.collect(Collectors.toList()).size()
+							+ " active, "
+							+ event.getGuild().getRoles().stream()
+									.filter(r -> r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList())
+									.size()
+							+ " total" + "\nMember verification level: " + event.getGuild().getVerificationLevel()
+							+ "\nContent filter settings: " + event.getGuild().getExplicitContentLevel()
+							+ "\nNotification settings: " + event.getGuild().getDefaultNotificationLevel()
+							+ "\nTime created: "
+							+ new SimpleDateFormat("MM/dd/yyyy")
+									.format(Date.from(event.getGuild().getTimeCreated().toInstant()))
+							+ "\nRegion: " + event.getGuild().getRegion(),
+					false);
+			message.addField("**Bot status:**", "Version: " + NoodleBotMain.botVersion + "\nGuilds: "
+					+ event.getJDA().getShardManager().getGuilds().size() + "\nShards: "
+					+ event.getJDA().getShardManager().getShardsTotal() + "\nWeb dashboard gateway: "
+					+ NoodleBotMain.server.getStatus() + "\n JVM thread count: " + Thread.activeCount()
+					+ "\nPowered by [JDA](https://github.com/DV8FromTheWorld/JDA) | Report issues [here](https://github.com/YaannSloot/NoodleBot/issues)",
+					false);
 
-		event.getChannel().sendMessage(message.build()).queue();
+			event.getChannel().sendMessage(message.build()).queue();
+		} catch (InsufficientPermissionException e) {
+			String permission = e.getPermission().getName();
+			EmbedBuilder message = new EmbedBuilder();
+			message.setTitle("Missing permission error | " + event.getGuild().getName());
+			message.addField("Error message:", "Bot is missing required permission **" + permission
+					+ "**. Please grant this permission to the bot's role or contact a guild administrator to apply this permission to the bot's role.",
+					false);
+			message.setColor(Color.red);
+			event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage(message.build()).queue());
+			// TODO Add event for logger when it is complete
+		}
 	}
 
 	@Override

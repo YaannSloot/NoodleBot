@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.IanSloat.noodlebot.BotUtils;
+import com.IanSloat.noodlebot.controllers.GuildPermissionsController;
 import com.IanSloat.noodlebot.reactivecore.ReactiveMessage;
-import com.IanSloat.noodlebot.wrappers.GuildPermissionsWrapper;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -46,7 +46,7 @@ public class FilterDeleteCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return new GuildPermissionsWrapper(user.getGuild()).canMemberUseCommand(user, this);
+		return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
 	}
 
 	@Override

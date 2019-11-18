@@ -1,5 +1,6 @@
 package com.IanSloat.noodlebot;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -80,6 +81,17 @@ public class BotUtils {
 			}
 		}
 		return output;
+	}
+
+	public static String capitalizeWords(String input) {
+		String result = "";
+		List<String> words = Arrays.asList(normalizeSentence(input).toLowerCase().split(" "));
+		for (int i = 0; i < words.size(); i++) {
+			result += ("" + words.get(i).charAt(0)).toUpperCase()
+					+ ((words.get(i).length() > 1) ? words.get(i).substring(1) : "")
+					+ ((i == words.size() - 1) ? "" : " ");
+		}
+		return result;
 	}
 
 	public static boolean checkForElement(List<?> list, List<?> elements) {

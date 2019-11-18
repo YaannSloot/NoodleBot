@@ -1,11 +1,11 @@
-package com.IanSloat.noodlebot.wrappers;
+package com.IanSloat.noodlebot.controllers;
 
 import com.IanSloat.noodlebot.commands.Command;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
-public class GuildPermissionsWrapper {
+public class GuildPermissionsController {
 
 	private Guild guild;
 
@@ -15,7 +15,7 @@ public class GuildPermissionsWrapper {
 	 * 
 	 * @param guild The guild to check permissions for
 	 */
-	public GuildPermissionsWrapper(Guild guild) {
+	public GuildPermissionsController(Guild guild) {
 		this.guild = guild;
 	}
 
