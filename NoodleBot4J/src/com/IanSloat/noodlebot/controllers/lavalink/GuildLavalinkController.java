@@ -1,0 +1,161 @@
+package com.IanSloat.noodlebot.controllers.lavalink;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.IanSloat.noodlebot.NoodleBotMain;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
+import lavalink.client.LavalinkUtil;
+import lavalink.client.io.jda.JdaLink;
+import lavalink.client.player.IPlayer;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+
+public class GuildLavalinkController {
+
+	private static final Map<Guild, GuildLavalinkController> controllerCache = new HashMap<>();
+
+	private final JdaLink link;
+	private final IPlayer player;
+	private final LavalinkTrackManager manager;
+	private SearchTarget target;
+
+	public enum SearchTarget {
+		YOUTUBE("ytsearch:"), SOUNDCLOUD("scsearch:");
+
+		private String prefix;
+
+		SearchTarget(String prefix) {
+			this.prefix = prefix;
+		}
+
+		@Override
+		public String toString() {
+			return prefix;
+		}
+
+	}
+
+	public static synchronized GuildLavalinkController getController(Guild guild) {
+		if (controllerCache.get(guild) == null) {
+			controllerCache.put(guild, new GuildLavalinkController(guild));
+		}
+		return controllerCache.get(guild);
+	}
+
+	private GuildLavalinkController(Guild guild) {
+		this.link = NoodleBotMain.lavalink.getLink(guild);
+		this.player = this.link.getPlayer();
+		this.manager = new LavalinkTrackManager(player);
+		this.player.addListener(manager);
+		this.target = SearchTarget.YOUTUBE;
+	}
+
+	public void connect(VoiceChannel channel) {
+		if (link.getChannel() != null)
+			if (!link.getChannel().equals(channel.getId()))
+				manager.reset();
+		link.connect(channel);
+	}
+
+	public void disconnect() {
+		manager.reset();
+		link.disconnect();
+	}
+
+	public void setOutputChannel(TextChannel channel) {
+		manager.setChannel(channel);
+	}
+
+	public void resetQueue() {
+		manager.reset();
+	}
+
+	public void setVolume(int volume) {
+		player.setVolume(volume);
+	}
+
+	public void setSearchTarget(SearchTarget target) {
+		this.target = target;
+	}
+
+	public boolean isPlaying() {
+		return player.getPlayingTrack() != null;
+	}
+	
+	public boolean loadAndPlay(String target, boolean autoplay) {
+		if (manager.getChannel() != null) {
+			if (!(target.startsWith("http://") || target.startsWith("https://")))
+				target = this.target.toString() + target;
+			List<AudioTrack> tracks = searchForTracks(target);
+			if (tracks.size() > 0) {
+				manager.reset();
+				if (target.startsWith("ytsearch:") || target.startsWith("scsearch"))
+					if (autoplay)
+						queueTracks(tracks);
+					else
+						manager.queue(tracks.get(0));
+				else
+					queueTracks(tracks);
+			}
+			return (tracks.size() > 0);
+		} else
+			throw new NullPointerException("Target channel must not be null");
+	}
+
+	public boolean addToPlaylist(String target) {
+		if (manager.getChannel() != null) {
+			if (!(target.startsWith("http://") || target.startsWith("https://")))
+				target = this.target.toString() + target;
+			List<AudioTrack> tracks = searchForTracks(target);
+			if (tracks.size() > 0) {
+				if (target.startsWith("ytsearch:") || target.startsWith("scsearch"))
+					manager.queue(tracks.get(0));
+				else
+					queueTracks(tracks);
+				manager.updateStatus();
+			}
+			return (tracks.size() > 0);
+		} else
+			throw new NullPointerException("Target channel must not be null");
+	}
+
+	public void queueTracks(List<AudioTrack> tracks) {
+		if (manager.getChannel() != null)
+			tracks.forEach(t -> manager.queue(t));
+		else
+			throw new NullPointerException("Target channel must not be null");
+	}
+
+	private static List<AudioTrack> searchForTracks(String identifier) {
+		try {
+			kong.unirest.json.JSONArray trackData = Unirest
+					.get("http://" + NoodleBotMain.lavanode + "/loadtracks?identifier="
+							+ URLEncoder.encode(identifier, "UTF-8"))
+					.header("Authorization", NoodleBotMain.nodepass).asJson().getBody().getArray();
+
+			ArrayList<AudioTrack> list = new ArrayList<>();
+			trackData = trackData.getJSONObject(0).getJSONArray("tracks");
+			trackData.forEach(o -> {
+				try {
+					list.add(LavalinkUtil.toAudioTrack(((kong.unirest.json.JSONObject) o).getString("track")));
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			});
+
+			return list;
+		} catch (UnirestException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+}

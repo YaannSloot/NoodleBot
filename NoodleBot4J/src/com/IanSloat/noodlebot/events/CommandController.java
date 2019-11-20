@@ -5,9 +5,10 @@ import java.util.List;
 
 import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.commands.Command;
-import com.IanSloat.noodlebot.commands.FilterDeleteCommand;
+import com.IanSloat.noodlebot.commands.DeleteCommand;
 import com.IanSloat.noodlebot.commands.HelpCommand;
 import com.IanSloat.noodlebot.commands.ListSettingsCommand;
+import com.IanSloat.noodlebot.commands.PlayCommand;
 import com.IanSloat.noodlebot.commands.StatusCommand;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,8 +17,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class CommandController {
 
 	// Active command instances
-	public static List<Command> commandList = Arrays.asList(new HelpCommand(), new FilterDeleteCommand(),
-			new StatusCommand(), new ListSettingsCommand());
+	public static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
+			new StatusCommand(), new ListSettingsCommand(), new PlayCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {
 

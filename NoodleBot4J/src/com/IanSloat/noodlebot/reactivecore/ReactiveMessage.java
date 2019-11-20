@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -33,8 +32,10 @@ public class ReactiveMessage extends ListenerAdapter {
 
 	private final static Map<Message, ReactiveMessage> registeredMessages = new HashMap<>();
 	private final List<ButtonListener> buttonListeners = new ArrayList<ButtonListener>();
-	//private final List<Menu> menus = new ArrayList<Menu>(); // TODO Use with menu class if it ever gets created
-	//private int currentMenuIndex = 0; // TODO Use with menu class if it ever gets created
+	// private final List<Menu> menus = new ArrayList<Menu>(); // TODO Use with menu
+	// class if it ever gets created
+	// private int currentMenuIndex = 0; // TODO Use with menu class if it ever gets
+	// created
 	private Message registeredMessage;
 	private TextChannel channel;
 	private boolean isActive = false;
@@ -47,9 +48,6 @@ public class ReactiveMessage extends ListenerAdapter {
 			if (message == null) {
 				registeredMessages.put(this.getRegisteredMessage(), this);
 				channel.getJDA().addEventListener(this);
-				logger.info("A new reactive message has been registered (id:" + registeredMessage.getId()
-						+ " for channel " + channel.getName() + " of guild " + channel.getGuild().getName() + "(id:"
-						+ channel.getGuild().getId() + ')');
 			} else {
 				logger.warn("A reactive tried to be registered but for some reason already exists");
 			}
@@ -59,15 +57,9 @@ public class ReactiveMessage extends ListenerAdapter {
 	private synchronized void unregisterThisReactive() {
 		isActive = false;
 		ReactiveMessage message = registeredMessages.get(this.getRegisteredMessage());
-
 		if (message != null) {
 			registeredMessages.remove(this.getRegisteredMessage(), this);
-			channel.getJDA().addEventListener(this);
-			logger.info("An existing reactive message (id:" + registeredMessage.getId()
-					+ ") has been unregistered for channel " + channel.getName() + " of guild "
-					+ channel.getGuild().getName() + "(id:" + channel.getGuild().getId() + ')');
-		} else {
-			logger.warn("A reactive tried to be unregistered but for some reason does not exist");
+			channel.getJDA().removeEventListener(this);
 		}
 	}
 
@@ -174,14 +166,15 @@ public class ReactiveMessage extends ListenerAdapter {
 	public void activate() {
 		activate(null);
 	}
-	
+
 	/**
 	 * If the content of this reactive message is not null and the message contains
 	 * at least one button, this method will send the message to discord, adding
 	 * necessary reactions and registering this reactive to the JDA event listener
 	 * pool
 	 * 
-	 * @param success The callback to execute when the reactive message activation has completed
+	 * @param success The callback to execute when the reactive message activation
+	 *                has completed
 	 */
 	public void activate(Consumer<Message> success) {
 		if (messageBody != null && buttonListeners.size() > 0) {
@@ -189,11 +182,12 @@ public class ReactiveMessage extends ListenerAdapter {
 
 				@Override
 				public void accept(Message msg) {
+					dispose();
 					registeredMessage = msg;
 					cleanMessage(msg.getReactions());
 					isActive = true;
 					registerThisReactive();
-					if(success != null)
+					if (success != null)
 						success.accept(msg);
 				}
 
@@ -207,10 +201,11 @@ public class ReactiveMessage extends ListenerAdapter {
 	 * listener pool
 	 */
 	public void dispose() {
-		if (isActive) {
+		unregisterThisReactive();
+		if (registeredMessage != null)
 			BotUtils.messageSafeDelete(registeredMessage);
-			isActive = false;
-		}
+		registeredMessage = null;
+		isActive = false;
 	}
 
 	/**
@@ -275,8 +270,6 @@ public class ReactiveMessage extends ListenerAdapter {
 	public void onGenericMessageReaction(GenericMessageReactionEvent event) {
 		if (event.getChannel().equals(registeredMessage.getChannel())
 				&& event.getMessageId().equals(registeredMessage.getId()) && isActive && !event.getUser().isBot()) {
-			logger.info("Reactive message event for message id " + registeredMessage.getId() + " in guild "
-					+ event.getGuild().getName() + "(id:" + event.getGuild().getId() + ") has occurred");
 			event.getChannel().retrieveMessageById(registeredMessage.getId())
 					.queue((msg) -> cleanMessage(msg.getReactions(), event.getUser()));
 			if (!event.getUser().isBot()) {
@@ -295,8 +288,6 @@ public class ReactiveMessage extends ListenerAdapter {
 	public void onMessageDelete(MessageDeleteEvent event) {
 		if (event.getChannel().equals(registeredMessage.getChannel())
 				&& event.getMessageId().equals(registeredMessage.getId())) {
-			logger.info("A reactive message  in guild " + event.getGuild().getName() + "(id:" + event.getGuild().getId()
-					+ ") has been deleted");
 			unregisterThisReactive();
 		}
 	}

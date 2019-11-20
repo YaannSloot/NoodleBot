@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import net.dv8tion.jda.api.entities.Guild;
 
-// TODO Implement this class
 //TODO Document class
 public class GuildSettingsController {
 
@@ -61,6 +60,16 @@ public class GuildSettingsController {
 		return this;
 	}
 
+	public GuildSettingsController removeSetting(String key) {
+		settingsRaw.remove(key);
+		return this;
+	}
+
+	public GuildSettingsController removeSetting(GuildSetting setting) {
+		settingsRaw.remove(setting.getKey());
+		return this;
+	}
+
 	public GuildSetting getSetting(String key) {
 		GuildSetting result = null;
 		try {
@@ -103,9 +112,11 @@ public class GuildSettingsController {
 
 	private String[] getValuesFromArray(JSONArray a) {
 		List<String> pile = new ArrayList<String>();
-		for (Object o : a) {
-			if (o instanceof String)
-				pile.add((String) o);
+		if (a != null) {
+			for (Object o : a) {
+				if (o instanceof String)
+					pile.add((String) o);
+			}
 		}
 		String[] result = new String[pile.size()];
 		for (int i = 0; i < result.length; i++) {

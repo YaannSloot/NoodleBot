@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 // TODO Document class and fix additional error conditions not being present
-public class FilterDeleteCommand extends Command {
+public class DeleteCommand extends Command {
 
 	private static final Map<Guild, ReactiveMessage> existingReactives = new HashMap<>();
 	private static final Map<Guild, ExecutorService> existingQueues = new HashMap<>();

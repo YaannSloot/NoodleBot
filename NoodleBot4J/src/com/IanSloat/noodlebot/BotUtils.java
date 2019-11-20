@@ -123,6 +123,7 @@ public class BotUtils {
 					+ message.getGuild().getName() + "(id:" + message.getGuild().getId()
 					+ ") but the required permission \"" + e.getPermission().getName()
 					+ "\" is missing from the bot's role");
+		} catch (Exception e) {
 		}
 	}
 
@@ -134,6 +135,7 @@ public class BotUtils {
 					+ message.getGuild().getName() + "(id:" + message.getGuild().getId()
 					+ ") but the required permission \"" + e.getPermission().getName()
 					+ "\" is missing from the bot's role");
+		} catch (Exception e) {
 		}
 	}
 

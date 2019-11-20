@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -34,12 +36,16 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.IanSloat.noodlebot.controllers.settings.GuildSetting;
+import com.IanSloat.noodlebot.controllers.settings.GuildSettings;
+import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
-import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 
 import com.yaannsloot.jwolfram.WolframClient;
 import com.yaannsloot.jwolfram.exceptions.InvalidAppidException;
+
+import lavalink.client.io.jda.JdaLavalink;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -58,6 +64,9 @@ public class NoodleBotMain {
 	public static User botOwner;
 	public static ShardManager shardmgr;
 	public static DiscordBotListAPI dblEndpoint = null;
+	public static JdaLavalink lavalink;
+	public static String lavanode;
+	public static String nodepass;
 	public static EventListener eventListener = new Events();
 
 	// Value Overrides
@@ -199,6 +208,23 @@ public class NoodleBotMain {
 				settings.put("token", lineReader.readLine(">"));
 			}
 
+			if (!settings.has("clientid")) {
+				System.out.print("Could not find a client id in the bot settings file. Please enter bots client id:");
+				settings.put("clientid", lineReader.readLine(">"));
+			}
+
+			if (!settings.has("linknode")) {
+				System.out.print(
+						"Could not find a lavalink node address in the bot settings file. Please enter a lavalink node address:");
+				settings.put("linknode", lineReader.readLine(">"));
+			}
+
+			if (!settings.has("linkpass")) {
+				System.out.print(
+						"Could not find a lavalink node password in the bot settings file. Please enter a lavalink node password:");
+				settings.put("linkpass", lineReader.readLine(">"));
+			}
+
 			if (!settings.has("waappid")) {
 				System.out.print(
 						"Could not find a wolfram alpha api id in the bot settings file. Please enter a valid wolfram api id:");
@@ -206,6 +232,9 @@ public class NoodleBotMain {
 			}
 
 			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
+
+			int minShard = 0;
+			int maxShard = 0;
 
 			if (args.length > 0) {
 				if (Arrays.asList(args).contains("useSSL")) {
@@ -281,6 +310,33 @@ public class NoodleBotMain {
 						settings.put("dbltoken", lineReader.readLine(">"));
 					}
 				}
+				if (Arrays.asList(args).contains("shardIds=")) {
+					String arg = "";
+					for (String a : args) {
+						if (a.startsWith("shardIds=")) {
+							arg = a;
+							break;
+						}
+					}
+					if (!arg.equals("")) {
+						arg = arg.replaceFirst("shardIds=", "");
+						String[] words = arg.split("-");
+						if (words.length == 2) {
+							try {
+								int s1 = Integer.parseInt(words[0]);
+								int s2 = Integer.parseInt(words[1]);
+								if (s1 > s2) {
+									minShard = s2;
+									maxShard = s1;
+								} else {
+									minShard = s1;
+									maxShard = s2;
+								}
+							} catch (NumberFormatException e) {
+							}
+						}
+					}
+				}
 			}
 
 			logger.info("Core file check complete. Loading bot...");
@@ -289,16 +345,48 @@ public class NoodleBotMain {
 
 			logger.info("Starting shards...");
 
-			shardmgr = new DefaultShardManagerBuilder(settings.getString("token")).setShardsTotal(-1)
-					.addEventListeners(eventListener).setAudioSendFactory(new NativeAudioSendFactory()).build();
+			GuildSettingsController.setInitBehavior(s -> {
+				GuildSettings sList = s.getSettings();
+				if (!sList.contains("volume"))
+					s.setSetting(new GuildSetting("volume", "100", "Default volume", "music", "range!0-200"));
+				if (!sList.contains("autoplay"))
+					s.setSetting(new GuildSetting("autoplay", "on", "AutoPlay", "music", "off", "on"));
+				if (!sList.contains("volcap"))
+					s.setSetting(new GuildSetting("volcap", "on", "Enforce volume cap", "music", "off", "on"));
+				if (!sList.contains("logchannel"))
+					s.setSetting(new GuildSetting("logchannel", "disabled", "Logger channel", "logging",
+							"type!TextChannel"));
+				if (!sList.contains("logmentions"))
+					s.setSetting(new GuildSetting("logmentions", "false", "Use @ mentions on entries", "logging",
+							"false", "true"));
+				try {
+					s.writeSettings();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
 
+			lavalink = new JdaLavalink(settings.getString("clientid"), maxShard - minShard + 1,
+					shardId -> shardmgr.getShardById(shardId));
+
+			lavalink.addNode(new URI("ws://" + settings.getString("linknode")), settings.getString("linkpass"));
+
+			lavanode = settings.getString("linknode");
+			
+			nodepass = settings.getString("linkpass");
+			
+			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
+					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
+					.addEventListeners(eventListener, lavalink).setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor())
+					.build();
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 
 			server.start();
 
 			FileUtils.write(botSettings, settings.toString(), "UTF-8");
 
-		} catch (IOException | LoginException | IllegalArgumentException | JSONException | InvalidAppidException e) {
+		} catch (IOException | LoginException | IllegalArgumentException | JSONException | InvalidAppidException
+				| URISyntaxException e) {
 			e.printStackTrace();
 		}
 
