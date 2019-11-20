@@ -212,7 +212,7 @@ public class LoggerService {
 								newNick = ((GuildMemberUpdateNicknameEvent) event).getNewNickname();
 							channel.sendMessage(getUTCTimestamp() + " - "
 									+ getUserStamp(((GuildMemberUpdateNicknameEvent) event).getMember())
-									+ "**\'s** nickname was changed from **" + oldNick + "** to **" + newNick + "**")
+									+ "\'s nickname was changed from **" + oldNick + "** to **" + newNick + "**")
 									.queue();
 						} else if (event instanceof GuildUpdateAfkChannelEvent) {
 							if (((GuildUpdateAfkChannelEvent) event).getNewAfkChannel() != null) {
