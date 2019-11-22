@@ -17,7 +17,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-//TODO Document class
+/**
+ * Command for sending info about the guild the bot is in and info about the bot
+ * to the channel the command was executed in.
+ */
 public class StatusCommand extends Command {
 
 	@Override

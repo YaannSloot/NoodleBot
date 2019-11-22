@@ -16,6 +16,9 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
+/**
+ * Command that operates the music system. Currently supported by lavalink.
+ */
 public class PlayCommand extends Command {
 
 	@Override

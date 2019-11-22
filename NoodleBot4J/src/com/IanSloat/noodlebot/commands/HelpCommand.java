@@ -19,7 +19,9 @@ import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-//TODO Document class
+/**
+ * Basic help command. Usage is always allowed and cannot be restricted.
+ */
 public class HelpCommand extends Command {
 
 	@Override

@@ -29,12 +29,17 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-// TODO Document class and fix additional error conditions not being present
+// TODO Fix additional error conditions not being present as well as negative number bug
+/**
+ * Command for deleting messages in bulk. Causes severe ratelimiting for the
+ * specific guild its operating in until it completes.
+ */
 public class DeleteCommand extends Command {
 
 	private static final Map<Guild, ReactiveMessage> existingReactives = new HashMap<>();
 	private static final Map<Guild, ExecutorService> existingQueues = new HashMap<>();
 
+	// Creates a new executor for a specific guild
 	private static synchronized ExecutorService getQueueForGuild(Guild guild) {
 		ExecutorService result = existingQueues.get(guild);
 		if (result == null) {
@@ -264,7 +269,8 @@ public class DeleteCommand extends Command {
 
 	@Override
 	public String getHelpSnippet() {
-		return "**" + BotUtils.BOT_PREFIX + "delete messages** - Deletes messages in bulk _(" + BotUtils.BOT_PREFIX + " help " + getCommandId() + ")_";
+		return "**" + BotUtils.BOT_PREFIX + "delete messages** - Deletes messages in bulk _(" + BotUtils.BOT_PREFIX
+				+ " help " + getCommandId() + ")_";
 	}
 
 	@Override
@@ -291,15 +297,17 @@ public class DeleteCommand extends Command {
 	@Override
 	public MessageEmbed getCommandHelpPage() {
 		return new EmbedBuilder().setTitle("Bulk message delete command | More Info").setColor(Color.red)
-				.setDescription("**Syntax:**\n_nood delete messages_ (from <@ mentions>) (older than <time unit> <amount>)" + "\n\n**Summary:**"
-						+ "\nThis command deletes up to 2000 messages in bulk. Target messages can be restricted to both specific author and specific message age. The bulk deletion job can be canceled at any time either via the red X reaction or by typing \"nood stop deleting\"\n"
-						+ "\n**Parameters:**"
-						+ "\n@ mentions - Both users and roles allowed. Can be used to restrict the pre-job message scan to certain message authors."
-						+ "\nExample:"
-						+ "\nnood delete messages from @someuser @somerole - will delete messages from both @someuser and anyone with the @somerole role."
-						+ "\n\nAge value - Specified by \"<time unit> <amount>\". Can specify multiple time unit/amount pairs for precise age."
-						+ "\nValid time unit strings - day(s), week(s), month(s), year(s)" + "\nExample:"
-						+ "\nnood delete messages older than 1 week 5 days - will delete messages older than 1 week 5 days")
+				.setDescription(
+						"**Syntax:**\n_nood delete messages_ (from <@ mentions>) (older than <time unit> <amount>)"
+								+ "\n\n**Summary:**"
+								+ "\nThis command deletes up to 2000 messages in bulk. Target messages can be restricted to both specific author and specific message age. The bulk deletion job can be canceled at any time either via the red X reaction or by typing \"nood stop deleting\"\n"
+								+ "\n**Parameters:**"
+								+ "\n@ mentions - Both users and roles allowed. Can be used to restrict the pre-job message scan to certain message authors."
+								+ "\nExample:"
+								+ "\nnood delete messages from @someuser @somerole - will delete messages from both @someuser and anyone with the @somerole role."
+								+ "\n\nAge value - Specified by \"<time unit> <amount>\". Can specify multiple time unit/amount pairs for precise age."
+								+ "\nValid time unit strings - day(s), week(s), month(s), year(s)" + "\nExample:"
+								+ "\nnood delete messages older than 1 week 5 days - will delete messages older than 1 week 5 days")
 				.build();
 	}
 
