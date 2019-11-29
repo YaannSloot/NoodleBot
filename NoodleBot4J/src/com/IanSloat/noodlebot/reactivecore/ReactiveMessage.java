@@ -21,6 +21,12 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+/**
+ * A reactive message is a discord message that has event driven reactions used
+ * as buttons. Similar to an ordinary message, a reactive message can be sent to
+ * any text channel. All reactive messages use embedded content and cannot be
+ * plaintext.
+ */
 public class ReactiveMessage extends ListenerAdapter {
 
 	static final Logger logger = LoggerFactory.getLogger(ReactiveMessage.class);

@@ -5,7 +5,9 @@ import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-// TODO Finish writing events
+/**
+ * A mapping of every JDA event to be processed during runtime
+ */
 public class Events extends ListenerAdapter {
 	
 	private Login loginEvent = new Login();

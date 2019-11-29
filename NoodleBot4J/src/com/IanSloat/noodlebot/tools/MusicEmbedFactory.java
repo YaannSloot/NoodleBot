@@ -10,14 +10,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-// TODO Update documentation and finish for other undocumented methods
-
 /**
- * Standard core ThiccBot class used to create Discord4J embed objects based on
- * a provided lavaplayer audio track
- * 
- * @author Ian Sloat
- *
+ * Used to create JDA embed objects based on a provided lavaplayer audio track
  */
 public class MusicEmbedFactory {
 
@@ -25,7 +19,9 @@ public class MusicEmbedFactory {
 
 	/**
 	 * Creates a new MusicEmbedFactory embedded message generator
-	 * @param track the lavaplayer audio track to reference when creating embedded content
+	 * 
+	 * @param track the lavaplayer audio track to reference when creating embedded
+	 *              content
 	 */
 	public MusicEmbedFactory(AudioTrack track) {
 		this.track = track;
@@ -100,7 +96,7 @@ public class MusicEmbedFactory {
 		response.setColor(new Color(97, 146, 156));
 		return response;
 	}
-	
+
 	private EmbedBuilder getGenericEmbed(int volume) {
 		EmbedBuilder response = new EmbedBuilder();
 		response.addField("Now playing: ", '[' + track.getInfo().title + "](" + track.getInfo().uri + ")\n", true);
@@ -114,6 +110,7 @@ public class MusicEmbedFactory {
 
 	/**
 	 * Generates embedded content based on the EmbedFactory's AudioTrack object
+	 * 
 	 * @return the EmbedObject message created off of the AudioTrack
 	 */
 	public MessageEmbed getPlaying(boolean AttachPlaylist, List<AudioTrack> tracks, int volume) {
@@ -131,8 +128,8 @@ public class MusicEmbedFactory {
 		} else {
 			result = getGenericEmbed(volume);
 		}
-		
-		if(AttachPlaylist && tracks.size() > 0) {
+
+		if (AttachPlaylist && tracks.size() > 0) {
 			String songList = "";
 			if (tracks.size() > 10) {
 				for (int i = 0; i < 10; i++) {
@@ -149,7 +146,7 @@ public class MusicEmbedFactory {
 				result.addField("Up next:", songList, false);
 			}
 		}
-		
+
 		return result.build();
 	}
 

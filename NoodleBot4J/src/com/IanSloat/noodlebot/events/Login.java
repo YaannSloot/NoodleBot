@@ -14,7 +14,11 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
-// TODO This may need to be documented as well
+/**
+ * Handles {@linkplain ReadyEvent}s fired when a shard logs in. Makes sure all
+ * shards have a synchronous start once the bot has completely logged in. All
+ * guild setting directories will be initialized as well during synchronization.
+ */
 public class Login {
 
 	private final Logger logger = LoggerFactory.getLogger(Login.class);
@@ -23,7 +27,7 @@ public class Login {
 		logger.info("Shard " + event.getJDA().getShardInfo().getShardId() + " has started.");
 		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE,
 				Activity.playing(BotUtils.BOT_PREFIX + "help | Beta v" + NoodleBotMain.versionNumber));
-		
+
 		if (event.getJDA().getShardInfo().getShardId() < event.getJDA().getShardManager().getShardsTotal() - 1) {
 			try {
 				synchronized (event.getJDA()) {

@@ -9,11 +9,22 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-// TODO Document class
+/**
+ * A modified {@linkplain ArrayList} that contains additional methods useful for
+ * gathering information about the {@linkplain GuildSetting} objects contained
+ * within the list.
+ */
 public class GuildSettings implements List<GuildSetting> {
 
 	private ArrayList<GuildSetting> storage = new ArrayList<GuildSetting>();
-	
+
+	/**
+	 * Checks whether this list contains a {@linkplain GuildSetting} with a specific
+	 * key
+	 * 
+	 * @param key The key to check for
+	 * @return True if the key was found in this list
+	 */
 	public boolean contains(String key) {
 		boolean result = false;
 		for (GuildSetting s : this) {
@@ -25,6 +36,12 @@ public class GuildSettings implements List<GuildSetting> {
 		return result;
 	}
 
+	/**
+	 * Retrieves every key found within this list
+	 * 
+	 * @return A {@linkplain list} of strings representing each key found within
+	 *         this list
+	 */
 	public List<String> getKeys() {
 		List<String> result = new ArrayList<String>();
 		for (GuildSetting s : this) {
@@ -34,6 +51,12 @@ public class GuildSettings implements List<GuildSetting> {
 		return result;
 	}
 
+	/**
+	 * Retrieves every setting category found within this list
+	 * 
+	 * @return A {@linkplain list} of strings representing each setting category
+	 *         found within this list
+	 */
 	public List<String> getCategories() {
 		List<String> result = new ArrayList<String>();
 		for (GuildSetting s : this) {
@@ -43,6 +66,9 @@ public class GuildSettings implements List<GuildSetting> {
 		return result;
 	}
 
+	/**
+	 * Sorts all the entries in this list alphabetically
+	 */
 	public void sortAlphabetically() {
 		Map<String, GuildSettings> bucket = new HashMap<>();
 		List<String> categories = this.getCategories();

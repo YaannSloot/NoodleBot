@@ -2,46 +2,97 @@ package com.IanSloat.noodlebot.gateway.events;
 
 import javax.annotation.Nonnull;
 
-import com.IanSloat.noodlebot.gateway.events.guest.motdRequestEvent;
-import com.IanSloat.noodlebot.gateway.events.guest.shardCountEvent;
-import com.IanSloat.noodlebot.gateway.events.guest.shardStatRequestEvent;
-import com.IanSloat.noodlebot.gateway.events.guest.threadCountEvent;
-import com.IanSloat.noodlebot.gateway.events.guest.totalGuildCountEvent;
-import com.IanSloat.noodlebot.gateway.events.guest.versionEvent;
+import com.IanSloat.noodlebot.gateway.events.guest.MotdRequestEvent;
+import com.IanSloat.noodlebot.gateway.events.guest.ShardCountEvent;
+import com.IanSloat.noodlebot.gateway.events.guest.ShardStatRequestEvent;
+import com.IanSloat.noodlebot.gateway.events.guest.ThreadCountEvent;
+import com.IanSloat.noodlebot.gateway.events.guest.TotalGuildCountEvent;
+import com.IanSloat.noodlebot.gateway.events.guest.VersionEvent;
 
+/**
+ * An abstract class that contains a mapping of every server event to be
+ * implemented by specific session event listeners.
+ */
 public abstract class EventMapper implements SessionEventListener {
 
 	public void broadcastEvent(@Nonnull Event e) {
-		
+
 		// Guest event mappings
-		if(e instanceof shardCountEvent)
-			onShardCountEvent((shardCountEvent) e);
-		else if(e instanceof threadCountEvent)
-			onThreadCountEvent((threadCountEvent) e);
-		else if(e instanceof totalGuildCountEvent)
-			onTotalGuildCountEvent((totalGuildCountEvent) e);
-		else if(e instanceof versionEvent)
-			onVersionEvent((versionEvent) e);
-		else if(e instanceof motdRequestEvent)
-			onMotdRequestEvent((motdRequestEvent) e);
-		else if(e instanceof shardStatRequestEvent)
-			onShardStatRequestEvent((shardStatRequestEvent) e);
-		
+		if (e instanceof ShardCountEvent)
+			onShardCountEvent((ShardCountEvent) e);
+		else if (e instanceof ThreadCountEvent)
+			onThreadCountEvent((ThreadCountEvent) e);
+		else if (e instanceof TotalGuildCountEvent)
+			onTotalGuildCountEvent((TotalGuildCountEvent) e);
+		else if (e instanceof VersionEvent)
+			onVersionEvent((VersionEvent) e);
+		else if (e instanceof MotdRequestEvent)
+			onMotdRequestEvent((MotdRequestEvent) e);
+		else if (e instanceof ShardStatRequestEvent)
+			onShardStatRequestEvent((ShardStatRequestEvent) e);
+
 		// Fire generic event if no matches for other events
 		else
 			onEvent(e);
-			
+
 	}
-	
+
 	// Generic event
-	public void onEvent(Event event) {}
-	
+	/**
+	 * Called when the event broadcasted is a generic event
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onEvent(Event event) {
+	}
+
 	// Guest session events
-	public void onShardCountEvent(shardCountEvent event) {}
-	public void onThreadCountEvent(threadCountEvent event) {}
-	public void onTotalGuildCountEvent(totalGuildCountEvent event) {}
-	public void onVersionEvent(versionEvent event) {}
-	public void onMotdRequestEvent(motdRequestEvent event) {}
-	public void onShardStatRequestEvent(shardStatRequestEvent event) {}
-	
+	/**
+	 * Called when the event broadcasted is a {@linkplain ShardCountEvent}
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onShardCountEvent(ShardCountEvent event) {
+	}
+
+	/**
+	 * Called when the event broadcasted is a {@linkplain ThreadCountEvent}
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onThreadCountEvent(ThreadCountEvent event) {
+	}
+
+	/**
+	 * Called when the event broadcasted is a {@linkplain TotalGuildCountEvent}
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onTotalGuildCountEvent(TotalGuildCountEvent event) {
+	}
+
+	/**
+	 * Called when the event broadcasted is a {@linkplain VersionEvent}
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onVersionEvent(VersionEvent event) {
+	}
+
+	/**
+	 * Called when the event broadcasted is a {@linkplain MotdRequestEvent}
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onMotdRequestEvent(MotdRequestEvent event) {
+	}
+
+	/**
+	 * Called when the event broadcasted is a {@linkplain ShardStatRequestEvent}
+	 * 
+	 * @param event The event that was broadcasted
+	 */
+	public void onShardStatRequestEvent(ShardStatRequestEvent event) {
+	}
+
 }

@@ -6,12 +6,19 @@ import java.util.List;
 
 import com.IanSloat.noodlebot.errors.MalformedTimecodeException;
 
-// TODO Finish documentation
+/**
+ * Used to decode timecode strings such as 1:00:00
+ */
 public class Timecode {
-	
+
 	private String rawCode;
 	private long millis;
 
+	/**
+	 * Constructs a new {@linkplain Timecode}
+	 * 
+	 * @param timecode The timecode string to decode
+	 */
 	public Timecode(String timecode) {
 		this.rawCode = timecode;
 		this.millis = 0;
@@ -26,9 +33,11 @@ public class Timecode {
 	 * Decodes the raw timecode string and stores the time value in the timecode
 	 * object
 	 * 
-	 * @throws MalformedTimecodeException if the formatting of the timecode is incorrect
-	 * @throws NullPointerException if something really bad happens
-	 * @throws NumberFormatException if the numbers in the timecode aren't actual numbers
+	 * @throws MalformedTimecodeException if the formatting of the timecode is
+	 *                                    incorrect
+	 * @throws NullPointerException       if something really bad happens
+	 * @throws NumberFormatException      if the numbers in the timecode aren't
+	 *                                    actual numbers
 	 */
 	public void decode() throws MalformedTimecodeException, NullPointerException, NumberFormatException {
 		List<String> numbers = Arrays.asList(rawCode.split(":"));
@@ -97,7 +106,7 @@ public class Timecode {
 	public double getSeconds() {
 		return millis / 1000L;
 	}
-	
+
 	public double getMinutes() {
 		return millis / 60000L;
 	}

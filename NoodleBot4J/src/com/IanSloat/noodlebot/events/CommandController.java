@@ -13,11 +13,15 @@ import com.IanSloat.noodlebot.commands.StatusCommand;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-// TODO Implement and document
+/**
+ * Handles command execution
+ */
 public class CommandController {
 
-	// Active command instances
-	public static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
+	/**
+	 * A list of each {@linkplain Command} to be used during runtime
+	 */
+	public final static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
 			new StatusCommand(), new ListSettingsCommand(), new PlayCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {

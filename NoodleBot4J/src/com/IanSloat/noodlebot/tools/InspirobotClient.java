@@ -8,11 +8,18 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO Document class
+/**
+ * Used for general communication with the InspiroBot api
+ */
 public class InspirobotClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(InspirobotClient.class);
 
+	/**
+	 * Retrieves a url for a new inspirational image
+	 * 
+	 * @return An image url or an empty string if a communication error occurred
+	 */
 	public String getNewImageUrl() {
 		String response = "";
 		try {
