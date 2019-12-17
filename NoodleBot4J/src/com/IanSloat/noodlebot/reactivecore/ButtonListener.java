@@ -1,7 +1,7 @@
 package com.IanSloat.noodlebot.reactivecore;
 
 /**
- * A {@linkplain ButtonEvent} listener that handles broadcasted events
+ * A {@linkplain ButtonClickEvent} listener that handles broadcasted events
  */
 public interface ButtonListener {
 

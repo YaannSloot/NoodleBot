@@ -39,7 +39,7 @@ public class GuildSettings implements List<GuildSetting> {
 	/**
 	 * Retrieves every key found within this list
 	 * 
-	 * @return A {@linkplain list} of strings representing each key found within
+	 * @return A {@linkplain List} of strings representing each key found within
 	 *         this list
 	 */
 	public List<String> getKeys() {
@@ -54,7 +54,7 @@ public class GuildSettings implements List<GuildSetting> {
 	/**
 	 * Retrieves every setting category found within this list
 	 * 
-	 * @return A {@linkplain list} of strings representing each setting category
+	 * @return A {@linkplain List} of strings representing each setting category
 	 *         found within this list
 	 */
 	public List<String> getCategories() {

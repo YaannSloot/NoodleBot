@@ -111,6 +111,9 @@ public class MusicEmbedFactory {
 	/**
 	 * Generates embedded content based on the EmbedFactory's AudioTrack object
 	 * 
+	 * @param AttachPlaylist Whether to add a playlist list to the message
+	 * @param tracks         The tracks to display in the playlist list
+	 * @param volume         The volume value to display
 	 * @return the EmbedObject message created off of the AudioTrack
 	 */
 	public MessageEmbed getPlaying(boolean AttachPlaylist, List<AudioTrack> tracks, int volume) {

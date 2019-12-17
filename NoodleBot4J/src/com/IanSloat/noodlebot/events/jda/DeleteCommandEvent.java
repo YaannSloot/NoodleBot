@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 
 /**
- * Signifies that a {@linkplain DeleteCommand} has been fired. Used for logging
- * purposes
+ * Signifies that a {@linkplain com.IanSloat.noodlebot.commands.DeleteCommand
+ * DeleteCommand} has been fired. Used for logging purposes
  */
 public class DeleteCommandEvent extends GenericCommandEvent {
 
@@ -43,6 +43,7 @@ public class DeleteCommandEvent extends GenericCommandEvent {
 
 	/**
 	 * Retrieves a list of the target members for this job
+	 * 
 	 * @return A list containing the target members for this job
 	 */
 	public List<Member> getTargetMembers() {
@@ -51,6 +52,7 @@ public class DeleteCommandEvent extends GenericCommandEvent {
 
 	/**
 	 * Retrieves a list of the target roles for this job
+	 * 
 	 * @return A list containing the target roles for this job
 	 */
 	public List<Role> getTargetRoles() {
@@ -59,6 +61,7 @@ public class DeleteCommandEvent extends GenericCommandEvent {
 
 	/**
 	 * Retrieves a list of the target messages for this job
+	 * 
 	 * @return Retrieves a list of the target messages for this job
 	 */
 	public List<Message> getTargetMessages() {

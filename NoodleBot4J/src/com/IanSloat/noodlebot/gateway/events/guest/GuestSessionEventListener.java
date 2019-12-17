@@ -5,7 +5,9 @@ import org.json.JSONObject;
 import com.IanSloat.noodlebot.gateway.events.EventMapper;
 
 /**
- * The event listener that handles events for a {@linkplain GuestSession}
+ * The event listener that handles events for a
+ * {@linkplain com.IanSloat.noodlebot.gateway.sessions.GuestSession
+ * GuestSession}
  */
 public class GuestSessionEventListener extends EventMapper {
 
