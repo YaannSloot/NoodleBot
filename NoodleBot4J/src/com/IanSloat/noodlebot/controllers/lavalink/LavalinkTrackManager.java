@@ -176,7 +176,7 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 
 			@Override
 			public void accept(List<Message> t) {
-				if(message != null)
+				if (message != null)
 					if (t.get(0).equals(message.getRegisteredMessage())) {
 						MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
 						message.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
@@ -196,7 +196,11 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 	}
 
 	public void nextTrack() {
-		player.playTrack(queue.poll());
+		try {
+			player.playTrack(queue.poll());
+		} catch (NullPointerException e) {
+			reset();
+		}
 	}
 
 	/**

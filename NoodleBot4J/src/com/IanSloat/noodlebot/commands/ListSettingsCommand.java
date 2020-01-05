@@ -17,6 +17,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
+// TODO add additional functionality for settings help
+
 /**
  * Command for sending a list of the current settings applied for a specific
  * guild to the channel it was executed in.

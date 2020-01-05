@@ -7,7 +7,10 @@ import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.commands.Command;
 import com.IanSloat.noodlebot.commands.DeleteCommand;
 import com.IanSloat.noodlebot.commands.HelpCommand;
+import com.IanSloat.noodlebot.commands.JumpCommand;
+import com.IanSloat.noodlebot.commands.LeaveCommand;
 import com.IanSloat.noodlebot.commands.ListSettingsCommand;
+import com.IanSloat.noodlebot.commands.PauseCommand;
 import com.IanSloat.noodlebot.commands.PlayCommand;
 import com.IanSloat.noodlebot.commands.StatusCommand;
 
@@ -22,7 +25,8 @@ public class CommandController {
 	 * A list of each {@linkplain Command} to be used during runtime
 	 */
 	public final static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
-			new StatusCommand(), new ListSettingsCommand(), new PlayCommand());
+			new StatusCommand(), new ListSettingsCommand(), new PlayCommand(), new JumpCommand(), new LeaveCommand(),
+			new PauseCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {
 

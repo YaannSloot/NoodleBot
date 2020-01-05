@@ -109,6 +109,24 @@ public class GuildLavalinkController {
 	}
 
 	/**
+	 * Toggles whether the current track is paused or not if applicable
+	 * 
+	 * @return True if the player was paused as a result of using this method
+	 */
+	public boolean playPauseToggle() {
+		boolean result = false;
+		if (isPlaying()) {
+			if (player.isPaused())
+				player.setPaused(false);
+			else {
+				player.setPaused(true);
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Resets the track manager
 	 */
 	public void resetQueue() {
@@ -123,6 +141,16 @@ public class GuildLavalinkController {
 	 */
 	public void setVolume(int volume) {
 		player.setVolume(volume);
+	}
+
+	/**
+	 * Sets the position of the current track if applicable
+	 * 
+	 * @param position The position to seek to
+	 */
+	public void jumpToPosition(long position) {
+		if (isPlaying())
+			player.seekTo(position);
 	}
 
 	/**

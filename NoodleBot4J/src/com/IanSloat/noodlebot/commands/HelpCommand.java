@@ -61,7 +61,8 @@ public class HelpCommand extends Command {
 			Map<CommandCategory, String> commandSnippets = new HashMap<>();
 			for (Command c : CommandController.commandList) {
 				if (c.CheckUsagePermission(event.getMember()))
-					if (commandSnippets.replace(c.getCommandCategory(), '\n' + c.getHelpSnippet()) == null)
+					if (commandSnippets.replace(c.getCommandCategory(),
+							commandSnippets.get(c.getCommandCategory()) + '\n' + c.getHelpSnippet()) == null)
 						commandSnippets.put(c.getCommandCategory(), c.getHelpSnippet());
 			}
 			List<Field> fields = new ArrayList<Field>();
