@@ -12,6 +12,7 @@ import com.IanSloat.noodlebot.commands.LeaveCommand;
 import com.IanSloat.noodlebot.commands.ListSettingsCommand;
 import com.IanSloat.noodlebot.commands.PauseCommand;
 import com.IanSloat.noodlebot.commands.PlayCommand;
+import com.IanSloat.noodlebot.commands.SetCommand;
 import com.IanSloat.noodlebot.commands.StatusCommand;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,7 +27,7 @@ public class CommandController {
 	 */
 	public final static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
 			new StatusCommand(), new ListSettingsCommand(), new PlayCommand(), new JumpCommand(), new LeaveCommand(),
-			new PauseCommand());
+			new PauseCommand(), new SetCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {
 

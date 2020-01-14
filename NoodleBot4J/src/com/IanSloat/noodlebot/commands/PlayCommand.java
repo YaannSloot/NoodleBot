@@ -44,15 +44,17 @@ public class PlayCommand extends Command {
 				controller.setOutputChannel(event.getTextChannel());
 				try {
 					GuildSettingsController settings = new GuildSettingsController(event.getGuild());
-					if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play "))
+					if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "play ")) {
+						controller.setVolume(Integer.parseInt(settings.getSetting("volume").getValue()));
 						controller.loadAndPlay(
 								event.getMessage().getContentRaw().substring((BotUtils.BOT_PREFIX + "play ").length()),
 								settings.getSetting("autoplay").getValue().equals("on"));
-					else if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add ")
-							&& controller.isPlaying())
+					} else if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add ")
+							&& controller.isPlaying()) {
+						controller.setVolume(Integer.parseInt(settings.getSetting("volume").getValue()));
 						controller.addToPlaylist(
 								event.getMessage().getContentRaw().substring((BotUtils.BOT_PREFIX + "add ").length()));
-					else
+					} else
 						event.getChannel().sendMessage("Bot isn't playing anything right now!")
 								.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 				} catch (IOException e) {

@@ -1,5 +1,7 @@
 package com.IanSloat.noodlebot.controllers.settings;
 
+import java.util.Arrays;
+
 import org.json.JSONObject;
 
 /**
@@ -129,6 +131,11 @@ public class GuildSetting {
 	public JSONObject getObjectEntry() {
 		return new JSONObject().put("title", title).put("value", value).put("category", category).accumulate("accepted",
 				acceptedValues);
+	}
+
+	@Override
+	public String toString() {
+		return key + "\n" + value + "\n" + title + "\n" + category + "\n" + Arrays.toString(acceptedValues);
 	}
 
 }

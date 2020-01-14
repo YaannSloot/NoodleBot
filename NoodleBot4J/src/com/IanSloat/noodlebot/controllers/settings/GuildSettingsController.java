@@ -3,6 +3,7 @@ package com.IanSloat.noodlebot.controllers.settings;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -162,7 +163,7 @@ public class GuildSettingsController {
 					result = new GuildSetting(key, settings.getJSONObject(key).getString("value"),
 							settings.getJSONObject(key).getString("title"),
 							settings.getJSONObject(key).getString("category"),
-							getValuesFromArray(settings.optJSONArray("accepted")));
+							getValuesFromArray(settings.getJSONObject(key).optJSONArray("accepted")));
 		} catch (JSONException | IOException e) {
 			e.printStackTrace();
 		}
@@ -216,10 +217,7 @@ public class GuildSettingsController {
 					pile.add((String) o);
 			}
 		}
-		String[] result = new String[pile.size()];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = pile.get(i);
-		}
+		String[] result = pile.toArray(new String[pile.size()]);
 		return result;
 	}
 
