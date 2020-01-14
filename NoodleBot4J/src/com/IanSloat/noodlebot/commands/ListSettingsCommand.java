@@ -2,6 +2,7 @@ package com.IanSloat.noodlebot.commands;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,10 +52,12 @@ public class ListSettingsCommand extends Command {
 				Map<String, String> fieldMap = new HashMap<>();
 				settings.getCategories().forEach(ct -> fieldMap.put(ct, ""));
 				settings.forEach(s -> fieldMap.replace(s.getCategory(),
-						fieldMap.get(s.getCategory()) + s.getTitle() + " = " + s.getValue() + '\n'));
+						fieldMap.get(s.getCategory()) + s.getTitle() + " = " + s.getValue() + " `" + "<" + s.getKey()
+								+ ">" + Arrays.toString(s.getAcceptedValues()) + "`\n"));
 				fieldMap.forEach(
 						(title, contents) -> message.addField(BotUtils.capitalizeWords(title), contents, false));
-				message.setColor(Color.orange);
+				message.setColor(new Color(62, 180, 137));
+				message.setFooter("Guide: <setting id>[possible values]");
 				event.getChannel().sendMessage(message.build()).queue();
 			} catch (IOException e) {
 				e.printStackTrace();
