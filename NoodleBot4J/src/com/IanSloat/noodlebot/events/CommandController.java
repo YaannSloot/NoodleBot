@@ -2,6 +2,7 @@ package com.IanSloat.noodlebot.events;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.commands.Command;
@@ -15,6 +16,7 @@ import com.IanSloat.noodlebot.commands.PlayCommand;
 import com.IanSloat.noodlebot.commands.SetCommand;
 import com.IanSloat.noodlebot.commands.StatusCommand;
 import com.IanSloat.noodlebot.commands.StopCommand;
+import com.IanSloat.noodlebot.commands.VolumeCommand;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -28,12 +30,12 @@ public class CommandController {
 	 */
 	public final static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
 			new StatusCommand(), new ListSettingsCommand(), new PlayCommand(), new JumpCommand(), new LeaveCommand(),
-			new PauseCommand(), new SetCommand(), new StopCommand());
+			new PauseCommand(), new SetCommand(), new StopCommand(), new VolumeCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {
 
 		// Message handling block for guild messages
-		if (event.getMessage().isFromGuild() && event.getMessage().getContentRaw().startsWith(BotUtils.BOT_PREFIX)) {
+		if (event.getMessage().isFromGuild() && event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
 
 			boolean didMatch = false;
 
@@ -47,7 +49,7 @@ public class CommandController {
 			}
 
 			if (!didMatch)
-				event.getChannel().sendMessage("That's not a valid command").queue();
+				event.getChannel().sendMessage("That's not a valid command").queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 
 		}
 	}

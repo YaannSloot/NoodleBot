@@ -351,8 +351,6 @@ public class NoodleBotMain {
 					s.setSetting(new GuildSetting("volume", "100", "Default volume", "music", "range!0-200"));
 				if (!sList.contains("autoplay"))
 					s.setSetting(new GuildSetting("autoplay", "on", "AutoPlay", "music", "off", "on"));
-				if (!sList.contains("volcap"))
-					s.setSetting(new GuildSetting("volcap", "on", "Enforce volume cap", "music", "off", "on"));
 				if (!sList.contains("logchannel"))
 					s.setSetting(new GuildSetting("logchannel", "disabled", "Logger channel", "logging",
 							"type!TextChannel"));

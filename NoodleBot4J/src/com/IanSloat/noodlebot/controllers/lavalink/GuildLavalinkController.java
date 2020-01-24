@@ -142,6 +142,13 @@ public class GuildLavalinkController {
 	public void setVolume(int volume) {
 		player.setVolume(volume);
 	}
+	
+	/**
+	 * Updates the status message of the player
+	 */
+	public void updateStatus() {
+		manager.updateStatus();
+	}
 
 	/**
 	 * Sets the position of the current track if applicable
