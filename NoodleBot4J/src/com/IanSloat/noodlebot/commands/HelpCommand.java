@@ -1,6 +1,7 @@
 package com.IanSloat.noodlebot.commands;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.IanSloat.noodlebot.BotUtils;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.events.CommandController;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,7 +28,12 @@ public class HelpCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return true;
+		try {
+			return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return true;
+		}
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.IanSloat.noodlebot.commands;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.IanSloat.noodlebot.BotUtils;
-import com.IanSloat.noodlebot.controllers.GuildPermissionsController;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.reactivecore.ReactiveMessage;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -51,7 +52,12 @@ public class DeleteCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		try {
+			return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return true;
+		}
 	}
 
 	@Override

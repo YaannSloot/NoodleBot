@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.IanSloat.noodlebot.BotUtils;
-import com.IanSloat.noodlebot.controllers.GuildPermissionsController;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettings;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 
@@ -28,7 +28,12 @@ public class ListSettingsCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		try {
+			return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return true;
+		}
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.NoodleBotMain;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 
 import net.dv8tion.jda.api.JDA;
@@ -43,6 +44,7 @@ public class Login {
 			event.getJDA().getShardManager().getGuilds().forEach(g -> {
 				try {
 					GuildSettingsController.initGuildSettingsFiles(g);
+					GuildPermissionsController.initGuildPermissionsFiles(g);
 				} catch (IOException e) {
 					logger.error(
 							"Failed to init settings directory for guild " + g.getName() + "(id:" + g.getId() + ")");

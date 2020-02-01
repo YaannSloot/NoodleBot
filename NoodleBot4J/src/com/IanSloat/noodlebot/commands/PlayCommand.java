@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import com.IanSloat.noodlebot.BotUtils;
-import com.IanSloat.noodlebot.controllers.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.lavalink.GuildLavalinkController;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,7 +23,12 @@ public class PlayCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		try {
+			return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return true;
+		}
 	}
 
 	@Override

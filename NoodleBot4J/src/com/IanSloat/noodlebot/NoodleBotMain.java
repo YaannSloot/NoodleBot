@@ -16,7 +16,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -36,9 +39,16 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.IanSloat.noodlebot.commands.Command;
+import com.IanSloat.noodlebot.commands.Command.CommandCategory;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermission;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermission.PermissionValue;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissions;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.settings.GuildSetting;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettings;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
+import com.IanSloat.noodlebot.events.CommandController;
 import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
 
@@ -46,6 +56,8 @@ import com.yaannsloot.jwolfram.WolframClient;
 import com.yaannsloot.jwolfram.exceptions.InvalidAppidException;
 
 import lavalink.client.io.jda.JdaLavalink;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -364,6 +376,38 @@ public class NoodleBotMain {
 				}
 			});
 
+			GuildPermissionsController.setInitBehavior(per -> {
+				GuildPermissions pList = per.getPermissions();
+				List<String> pKeys = pList.getKeys();
+				for(Command c : CommandController.commandList) {
+					pKeys.remove(c.getCommandId());
+				}
+				for(CommandCategory ct : CommandCategory.values()) {
+					pKeys.remove(ct.toString());
+				}
+				for(String extras : pKeys) {
+					per.removePermission(extras);
+				}
+				if(!pList.contains(CommandCategory.MANAGEMENT.toString())) {
+					GuildPermission perm = new GuildPermission(CommandCategory.MANAGEMENT.toString(), new HashMap<>(), new HashMap<>());
+					perm.setRoleEntry(per.getGuild().getPublicRole(), PermissionValue.DENY);
+					List<Role> admins = per.getGuild().getRoles().stream().filter(r -> r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList());
+					for(Role admin : admins) {
+						perm.setRoleEntry(admin, PermissionValue.ALLOW);
+					}
+					List<Role> nonAdmins = per.getGuild().getRoles().stream().filter(r -> !r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList());
+					for(Role nonAdmin : nonAdmins) {
+						perm.setRoleEntry(nonAdmin, PermissionValue.DENY);
+					}
+					per.setPermission(perm);
+				}
+				try {
+					per.writePermissions();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			
 			lavalink = new JdaLavalink(settings.getString("clientid"), maxShard - minShard + 1,
 					shardId -> shardmgr.getShardById(shardId));
 

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.IanSloat.noodlebot.BotUtils;
-import com.IanSloat.noodlebot.controllers.GuildPermissionsController;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.settings.GuildSetting;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 
@@ -23,7 +23,12 @@ public class SetCommand extends Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
-		return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		try {
+			return new GuildPermissionsController(user.getGuild()).canMemberUseCommand(user, this);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return true;
+		}
 	}
 
 	@Override
