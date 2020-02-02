@@ -35,7 +35,8 @@ public class CommandController {
 	public void CommandEvent(MessageReceivedEvent event) {
 
 		// Message handling block for guild messages
-		if (event.getMessage().isFromGuild() && event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
+		if (event.getMessage().isFromGuild()
+				&& event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX)) {
 
 			boolean didMatch = false;
 
@@ -43,13 +44,17 @@ public class CommandController {
 				if (c.CheckForCommandMatch(event.getMessage())) {
 					if (c.CheckUsagePermission(event.getMember()))
 						c.execute(event);
+					else
+						event.getChannel().sendMessage("You don't have permission to use that command")
+								.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 					didMatch = true;
 					break;
 				}
 			}
 
 			if (!didMatch)
-				event.getChannel().sendMessage("That's not a valid command").queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
+				event.getChannel().sendMessage("That's not a valid command")
+						.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 
 		}
 	}

@@ -70,7 +70,7 @@ public class GuildLavalinkController {
 	private GuildLavalinkController(Guild guild) {
 		this.link = NoodleBotMain.lavalink.getLink(guild);
 		this.player = this.link.getPlayer();
-		this.manager = new LavalinkTrackManager(player);
+		this.manager = new LavalinkTrackManager(player, guild);
 		this.player.addListener(manager);
 		this.target = SearchTarget.YOUTUBE;
 	}

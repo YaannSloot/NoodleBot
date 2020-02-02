@@ -1,11 +1,17 @@
 package com.IanSloat.noodlebot.controllers.lavalink;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
+import com.IanSloat.noodlebot.commands.JumpCommand;
+import com.IanSloat.noodlebot.commands.PauseCommand;
+import com.IanSloat.noodlebot.commands.PlayCommand;
+import com.IanSloat.noodlebot.commands.StopCommand;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.reactivecore.Button;
 import com.IanSloat.noodlebot.reactivecore.ReactiveMessage;
 import com.IanSloat.noodlebot.tools.MusicEmbedFactory;
@@ -14,6 +20,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
 import lavalink.client.player.IPlayer;
 import lavalink.client.player.event.PlayerEventListenerAdapter;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -24,10 +31,12 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 	private final BlockingQueue<AudioTrack> queue;
 	private final IPlayer player;
 	private boolean displayQueue = false;
+	private Guild guild;
 
-	public LavalinkTrackManager(IPlayer player) {
+	public LavalinkTrackManager(IPlayer player, Guild guild) {
 		this.queue = new LinkedBlockingQueue<>();
 		this.player = player;
+		this.guild = guild;
 	}
 
 	public void setChannel(TextChannel channel) {
@@ -64,111 +73,124 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 
 	private void initNewSession() {
 		MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-		if (message != null)
-			message.dispose();
-		message = new ReactiveMessage(channel);
-		message.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
-		Button stopButton = new Button("U+23f9");
-		stopButton.setButtonAction(() -> {
-			if (stopButton.getUser() != null) {
-				if (true) {
-					reset();
-				} else {
-					stopButton.getUser().openPrivateChannel().queue(
-							(c) -> c.sendMessage("You do not have permission to use the stop button in the guild "
-									+ channel.getGuild().getName()).queue());
-				}
-			}
-		});
-		message.addButton(stopButton);
-		Button playPause = new Button("U+23ef");
-		playPause.setButtonAction(() -> {
-			if (playPause.getUser() != null) {
-				if (true) {
-					if (player.isPaused()) {
-						player.setPaused(false);
+		GuildPermissionsController permController;
+		try {
+			permController = new GuildPermissionsController(guild);
+			if (message != null)
+				message.dispose();
+			message = new ReactiveMessage(channel);
+			message.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
+			Button stopButton = new Button("U+23f9");
+			stopButton.setButtonAction(() -> {
+				if (stopButton.getUser() != null) {
+					if (permController.canMemberUseCommand(guild.getMember(stopButton.getUser()), new StopCommand())) {
+						reset();
 					} else {
-						player.setPaused(true);
+						stopButton.getUser().openPrivateChannel().queue(
+								(c) -> c.sendMessage("You do not have permission to use the stop button in the guild "
+										+ channel.getGuild().getName()).queue());
 					}
-				} else {
-					playPause.getUser().openPrivateChannel().queue(
-							(c) -> c.sendMessage("You do not have permission to use the play/pause button in the guild "
-									+ channel.getGuild().getName()).queue());
 				}
-			}
-		});
-		message.addButton(playPause);
-		Button nextTrack = new Button("U+23ed");
-		nextTrack.setButtonAction(() -> {
-			if (nextTrack.getUser() != null) {
-				if (true) {
-					nextTrack();
-				} else {
-					nextTrack.getUser().openPrivateChannel().queue(
-							(c) -> c.sendMessage("You do not have permission to use the skip button in the guild "
-									+ channel.getGuild().getName()).queue());
-				}
-			}
-		});
-		message.addButton(nextTrack);
-		Button rewind = new Button("U+23ea");
-		rewind.setButtonAction(() -> {
-			if (rewind.getUser() != null) {
-				if (true) {
-					long jumpSize = player.getPlayingTrack().getDuration() / 20;
-					long currentPosition = player.getTrackPosition();
-					if (currentPosition - jumpSize < 0) {
-						player.seekTo(0);
+			});
+			message.addButton(stopButton);
+			Button playPause = new Button("U+23ef");
+			playPause.setButtonAction(() -> {
+				if (playPause.getUser() != null) {
+					if (permController.canMemberUseCommand(guild.getMember(playPause.getUser()), new PauseCommand())) {
+						if (player.isPaused()) {
+							player.setPaused(false);
+						} else {
+							player.setPaused(true);
+						}
 					} else {
-						player.seekTo(currentPosition - jumpSize);
+						playPause.getUser().openPrivateChannel()
+								.queue((c) -> c.sendMessage(
+										"You do not have permission to use the play/pause button in the guild "
+												+ channel.getGuild().getName())
+										.queue());
 					}
-				} else {
-					rewind.getUser().openPrivateChannel().queue(
-							(c) -> c.sendMessage("You do not have permission to use the time skip button in the guild "
-									+ channel.getGuild().getName()).queue());
 				}
-			}
-		});
-		message.addButton(rewind);
-		Button fastForward = new Button("U+23e9");
-		fastForward.setButtonAction(() -> {
-			if (fastForward.getUser() != null) {
-				if (true) {
-					long jumpSize = player.getPlayingTrack().getDuration() / 20;
-					long currentPosition = player.getTrackPosition();
-					if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
+			});
+			message.addButton(playPause);
+			Button nextTrack = new Button("U+23ed");
+			nextTrack.setButtonAction(() -> {
+				if (nextTrack.getUser() != null) {
+					if (permController.canMemberUseCommand(guild.getMember(nextTrack.getUser()), new PlayCommand())) {
 						nextTrack();
 					} else {
-						player.seekTo(currentPosition + jumpSize);
+						nextTrack.getUser().openPrivateChannel().queue(
+								(c) -> c.sendMessage("You do not have permission to use the skip button in the guild "
+										+ channel.getGuild().getName()).queue());
 					}
-				} else {
-					fastForward.getUser().openPrivateChannel().queue(
-							(c) -> c.sendMessage("You do not have permission to use the time skip button in the guild "
-									+ channel.getGuild().getName()).queue());
 				}
-			}
-		});
-		message.addButton(fastForward);
-		Button playlistDisplay = new Button("U+2139");
-		playlistDisplay.setButtonAction(() -> {
-			if (playlistDisplay.getUser() != null) {
-				if (true) {
-					if (displayQueue) {
-						setPlaylistDisplay(false);
+			});
+			message.addButton(nextTrack);
+			Button rewind = new Button("U+23ea");
+			rewind.setButtonAction(() -> {
+				if (rewind.getUser() != null) {
+					if (permController.canMemberUseCommand(guild.getMember(rewind.getUser()), new JumpCommand())) {
+						long jumpSize = player.getPlayingTrack().getDuration() / 20;
+						long currentPosition = player.getTrackPosition();
+						if (currentPosition - jumpSize < 0) {
+							player.seekTo(0);
+						} else {
+							player.seekTo(currentPosition - jumpSize);
+						}
 					} else {
-						setPlaylistDisplay(true);
+						rewind.getUser().openPrivateChannel()
+								.queue((c) -> c.sendMessage(
+										"You do not have permission to use the time skip button in the guild "
+												+ channel.getGuild().getName())
+										.queue());
 					}
-				} else {
-					playlistDisplay.getUser().openPrivateChannel()
-							.queue((c) -> c.sendMessage(
-									"You do not have permission to use the playlist display button in the guild "
-											+ channel.getGuild().getName())
-									.queue());
 				}
-			}
-		});
-		message.addButton(playlistDisplay);
-		message.activate();
+			});
+			message.addButton(rewind);
+			Button fastForward = new Button("U+23e9");
+			fastForward.setButtonAction(() -> {
+				if (fastForward.getUser() != null) {
+					if (permController.canMemberUseCommand(guild.getMember(fastForward.getUser()), new JumpCommand())) {
+						long jumpSize = player.getPlayingTrack().getDuration() / 20;
+						long currentPosition = player.getTrackPosition();
+						if (currentPosition + jumpSize > player.getPlayingTrack().getDuration()) {
+							nextTrack();
+						} else {
+							player.seekTo(currentPosition + jumpSize);
+						}
+					} else {
+						fastForward.getUser().openPrivateChannel()
+								.queue((c) -> c.sendMessage(
+										"You do not have permission to use the time skip button in the guild "
+												+ channel.getGuild().getName())
+										.queue());
+					}
+				}
+			});
+			message.addButton(fastForward);
+			Button playlistDisplay = new Button("U+2139");
+			playlistDisplay.setButtonAction(() -> {
+				if (playlistDisplay.getUser() != null) {
+					if (permController.canMemberUseCommand(guild.getMember(playlistDisplay.getUser()),
+							new PlayCommand())) {
+						if (displayQueue) {
+							setPlaylistDisplay(false);
+						} else {
+							setPlaylistDisplay(true);
+						}
+					} else {
+						playlistDisplay.getUser().openPrivateChannel()
+								.queue((c) -> c.sendMessage(
+										"You do not have permission to use the playlist display button in the guild "
+												+ channel.getGuild().getName())
+										.queue());
+					}
+				}
+			});
+			message.addButton(playlistDisplay);
+			message.activate();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void updateStatus() {

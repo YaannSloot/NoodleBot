@@ -1,6 +1,5 @@
 package com.IanSloat.noodlebot.gateway;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class GatewayServer extends WebSocketServer {
 
 	private final static Map<WebSocket, Session> sessionRegister = new HashMap<>();
 
-	private final static Map<WebSocket, File> sessionTempdir = new HashMap<>();
+	//private final static Map<WebSocket, File> sessionTempdir = new HashMap<>();
 
 	private String status = "DOWN";
 
