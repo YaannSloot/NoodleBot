@@ -3,6 +3,8 @@ package com.IanSloat.noodlebot;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 public class BotUtils {
 
 	// Constants for use throughout the bot
-	public static final String BOT_PREFIX = "noodv2 ";
+	public static final String BOT_PREFIX = "noodt ";
 	private static final Logger logger = LoggerFactory.getLogger(BotUtils.class);
 
 	/**
@@ -223,4 +225,17 @@ public class BotUtils {
 		}
 	}
 
+	public static int lastIndexOfRegex(String input, String regex) {
+		int result = -1;
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(input);
+		String lastMatch = null;
+		while(matcher.find()) {
+			lastMatch = matcher.group();
+		}
+		if(lastMatch != null)
+			result = input.lastIndexOf(lastMatch);
+		return result;
+	}
+	
 }

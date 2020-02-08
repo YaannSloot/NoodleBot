@@ -1,5 +1,6 @@
 package com.IanSloat.noodlebot;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -16,9 +17,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -48,6 +52,7 @@ import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController
 import com.IanSloat.noodlebot.controllers.settings.GuildSetting;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettings;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
+import com.IanSloat.noodlebot.controllers.wikipedia.WikiEndpoint;
 import com.IanSloat.noodlebot.events.CommandController;
 import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
@@ -67,6 +72,8 @@ public class NoodleBotMain {
 
 	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where", "simplify" };
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
+	public static final Set<String> badWords = new HashSet<>();
+	public static final WikiEndpoint wikipediaEndpoint = new WikiEndpoint("https://en.wikipedia.org/w/api.php", Color.gray);
 	public static GatewayServer server;
 	public static WolframClient waClient;
 	public static String versionNumber = "2.0.0";
@@ -149,6 +156,20 @@ public class NoodleBotMain {
 			System.out.print("Starting bot");
 
 			System.out.print("Running core file check...");
+			
+			File badWordDir = new File("filters/words");
+			FileUtils.forceMkdir(badWordDir);
+			Collection<File> badWordFiles = FileUtils.listFiles(badWordDir, null, false);
+			badWordFiles.forEach(f -> {
+				try {
+					FileUtils.readLines(f, "UTF-8").forEach(l -> {
+						if(!l.equals(""))
+							badWords.add(l.trim().toLowerCase());
+					});
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			});
 
 			File logConfig = new File("logging/log4j.properties");
 			File logDir = new File("logging");

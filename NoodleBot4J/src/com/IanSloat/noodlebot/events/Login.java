@@ -1,6 +1,9 @@
 package com.IanSloat.noodlebot.events;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,8 @@ import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
 /**
@@ -26,14 +31,14 @@ public class Login {
 
 	public void BotLoginEvent(ReadyEvent event) {
 		logger.info("Shard " + event.getJDA().getShardInfo().getShardId() + " has started.");
-		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE,
-				Activity.playing(BotUtils.BOT_PREFIX + "help | Beta v" + NoodleBotMain.versionNumber));
 
 		if (event.getJDA().getShardInfo().getShardId() < event.getJDA().getShardManager().getShardsTotal() - 1) {
 			try {
 				synchronized (event.getJDA()) {
 					logger.info("Shard " + event.getJDA().getShardInfo().getShardId()
 							+ " is waiting for other shards to start...");
+					event.getJDA().getPresence().setPresence(OnlineStatus.DO_NOT_DISTURB,
+							Activity.playing("Bot is starting..."));
 					event.getJDA().wait();
 				}
 			} catch (InterruptedException e) {
@@ -53,13 +58,70 @@ public class Login {
 				}
 			});
 			logger.info("Guild settings file check complete.");
+			ForkJoinPool.commonPool().execute(() -> {
+				String command = "";
+				while (!(command.equals("shutdown"))) {
+					try {
+						command = NoodleBotMain.lineReader.readLine(">");
+						List<String> words = Arrays.asList(command.trim().split(" "));
+						switch (words.get(0)) {
+						case "status":
+							System.out.print("Current version: " + NoodleBotMain.botVersion + "\n"
+									+ "\nBot Stats\n---------------\nShards: "
+									+ event.getJDA().getShardManager().getShardsTotal() + "\n" + "Guilds: "
+									+ event.getJDA().getShardManager().getGuilds().size() + "\n"
+									+ "\nResource usage\n---------------\n" + "Threads: " + Thread.activeCount() + "\n"
+									+ "Memory Usage: "
+									+ (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000
+									+ "/" + Runtime.getRuntime().maxMemory() / 1000000 + " MB\n");
+							break;
+
+						case "message": {
+							if (words.get(1).equals("help")) {
+								System.out.print("message <guildid> <message>");
+							} else {
+								TextChannel channel = event.getJDA().getTextChannelById(Long.parseLong(words.get(1)));
+								String message = command.replace("message " + words.get(1), "");
+								channel.sendMessage(message).queue();
+							}
+							break;
+						}
+						case "shutdown":
+							System.out.print("Shutdown requested. Halting threads...");
+							break;
+						case "whois":
+							Guild guild = event.getJDA().getGuildById(words.get(1));
+							if (guild != null) {
+								System.out.print("The specified guild goes by the name \"" + guild.getName() + "\"");
+							} else {
+								System.out.print("The bot is not connected to that guild");
+							}
+							break;
+						default:
+							System.out.print("ERROR: Command not recognized");
+							break;
+						}
+					} catch (Exception e) {
+						System.out.print("ERROR: Command parse error");
+					}
+				}
+				NoodleBotMain.shardmgr.shutdown();
+				try {
+					NoodleBotMain.server.stop();
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+				}
+				System.out.print("Bot is shutting down...");
+				System.exit(0);
+			});
 			for (JDA shard : event.getJDA().getShardManager().getShards()) {
 				synchronized (shard) {
 					shard.notify();
 				}
 			}
 		}
-
+		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE,
+				Activity.playing(BotUtils.BOT_PREFIX + "help | Beta v" + NoodleBotMain.versionNumber));
 		logger.info("Shard " + event.getJDA().getShardInfo().getShardId() + " is ready.");
 
 	}

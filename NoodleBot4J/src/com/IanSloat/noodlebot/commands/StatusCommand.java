@@ -79,7 +79,8 @@ public class StatusCommand extends Command {
 					false);
 			message.addField("**Bot status:**", "Version: " + NoodleBotMain.botVersion + "\nGuilds: "
 					+ event.getJDA().getShardManager().getGuilds().size() + "\nShards: "
-					+ event.getJDA().getShardManager().getShardsTotal() + "\nWeb dashboard gateway: "
+					+ event.getJDA().getShardManager().getShardsTotal() + "\nCurrent shard: "
+					+ event.getJDA().getShardInfo().getShardId() + "\nWeb dashboard gateway: "
 					+ NoodleBotMain.server.getStatus() + "\n JVM thread count: " + Thread.activeCount()
 					+ "\nPowered by [JDA](https://github.com/DV8FromTheWorld/JDA) | Report issues [here](https://github.com/YaannSloot/NoodleBot/issues)",
 					false);

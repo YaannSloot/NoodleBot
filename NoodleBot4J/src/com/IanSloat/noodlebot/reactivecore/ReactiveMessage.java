@@ -19,7 +19,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 /**
  * A reactive message is a discord message that has event driven reactions used
@@ -251,8 +253,9 @@ public class ReactiveMessage extends ListenerAdapter {
 				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
 			}
 		} catch (Exception e) {
-			logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
-					+ ") but the message either does not exist or a reaction failed to be added");
+			if (registeredMessage != null)
+				logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
+						+ ") but the message either does not exist or a reaction failed to be added");
 		}
 	}
 
@@ -267,8 +270,9 @@ public class ReactiveMessage extends ListenerAdapter {
 				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
 			}
 		} catch (Exception e) {
-			logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
-					+ ") but the message either does not exist or a reaction failed to be added");
+			if (registeredMessage != null)
+				logger.warn("A clean attempt was made for reactive message (id:" + registeredMessage.getId()
+						+ ") but the message either does not exist or a reaction failed to be added");
 		}
 	}
 
@@ -276,8 +280,9 @@ public class ReactiveMessage extends ListenerAdapter {
 	public void onGenericMessageReaction(GenericMessageReactionEvent event) {
 		if (event.getChannel().equals(registeredMessage.getChannel())
 				&& event.getMessageId().equals(registeredMessage.getId()) && isActive && !event.getUser().isBot()) {
-			event.getChannel().retrieveMessageById(registeredMessage.getId())
-					.queue((msg) -> cleanMessage(msg.getReactions(), event.getUser()));
+			event.getChannel().retrieveMessageById(registeredMessage.getId()).queue(
+					(msg) -> cleanMessage(msg.getReactions(), event.getUser()),
+					new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 			if (!event.getUser().isBot()) {
 				String emoji = "";
 				try {

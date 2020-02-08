@@ -38,7 +38,7 @@ public class PauseCommand extends Command {
 			throw new NoMatchException();
 		try {
 			event.getMessage().delete().queue();
-			if (event.getMember().getVoiceState().getChannel() != null) {
+			if (event.getMember().getVoiceState().inVoiceChannel()) {
 				GuildLavalinkController controller = GuildLavalinkController.getController(event.getGuild());
 				if (controller.isPlaying())
 					if (controller.playPauseToggle())

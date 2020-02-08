@@ -76,6 +76,22 @@ public class GuildLavalinkController {
 	}
 
 	/**
+	 * Skips to the next track in the queue
+	 */
+	public void nextTrack() {
+		manager.nextTrack();
+	}
+
+	/**
+	 * Used to activate/deactivate the playlist display on the music player
+	 * 
+	 * @param value True to turn on the playlist display, False to turn it off
+	 */
+	public void setPlaylistDisplay(boolean value) {
+		manager.setPlaylistDisplay(value);
+	}
+
+	/**
 	 * Connects the bot to the specified {@linkplain VoiceChannel}
 	 * 
 	 * @param channel The channel to connect the bot to
@@ -142,7 +158,7 @@ public class GuildLavalinkController {
 	public void setVolume(int volume) {
 		player.setVolume(volume);
 	}
-	
+
 	/**
 	 * Updates the status message of the player
 	 */
