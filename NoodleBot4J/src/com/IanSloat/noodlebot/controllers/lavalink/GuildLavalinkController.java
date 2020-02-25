@@ -150,6 +150,27 @@ public class GuildLavalinkController {
 	}
 
 	/**
+	 * Removes the specified track from the track queue
+	 * 
+	 * @param id The id of the track to remove
+	 * @return True if removal is successful
+	 */
+	public boolean removeFromQueue(int id) {
+		return manager.removeFromPlaylist(id);
+	}
+
+	/**
+	 * Removes the specified tracks from the track queue
+	 * 
+	 * @param firstId The first track id in the range of tracks to remove
+	 * @param lastId  The last track id in the range of tracks to remove
+	 * @return True if removal is successful
+	 */
+	public boolean removeFromQueue(int firstId, int lastId) {
+		return manager.removeFromPlaylist(firstId, lastId);
+	}
+
+	/**
 	 * Sets the volume that the session should play {@linkplain AudioTrack}s at
 	 * 
 	 * @param volume An integer representing the volume percentage that the session
@@ -164,6 +185,16 @@ public class GuildLavalinkController {
 	 */
 	public void updateStatus() {
 		manager.updateStatus();
+	}
+
+	/**
+	 * Retrieves a copy of the current list of tracks in the audio track queue
+	 * 
+	 * @return A List object that contains a copy of the current tracks in the audio
+	 *         track queue
+	 */
+	public List<AudioTrack> getPlaylist() {
+		return manager.getPlaylist();
 	}
 
 	/**

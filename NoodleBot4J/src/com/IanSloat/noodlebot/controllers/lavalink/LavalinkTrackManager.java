@@ -52,6 +52,32 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 		return channel;
 	}
 
+	public boolean removeFromPlaylist(int id) {
+		boolean result = false;
+		if (queue.size() >= id && id > 0) {
+			List<AudioTrack> queueReference = getPlaylist();
+			AudioTrack target = queueReference.get(id - 1);
+			queue.remove(target);
+			result = true;
+		}
+		return result;
+	}
+
+	public boolean removeFromPlaylist(int firstId, int lastId) {
+		boolean result = false;
+		if (lastId < firstId) {
+			int temp = lastId;
+			lastId = firstId;
+			firstId = temp;
+		}
+		if (queue.size() >= lastId && firstId > 0) {
+			List<AudioTrack> targets = getPlaylist().subList(firstId - 1, lastId);
+			queue.removeAll(targets);
+			result = true;
+		}
+		return result;
+	}
+
 	public void queue(AudioTrack track) {
 		if (player.getPlayingTrack() != null)
 			queue.offer(track);

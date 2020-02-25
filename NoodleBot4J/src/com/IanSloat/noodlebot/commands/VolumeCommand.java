@@ -54,8 +54,7 @@ public class VolumeCommand extends Command {
 						if (controller.isPlaying()) {
 							controller.setVolume(volume);
 							controller.updateStatus();
-						}
-						else
+						} else
 							event.getChannel().sendMessage("Bot isn't playing anything right now!")
 									.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 					} catch (NumberFormatException e) {

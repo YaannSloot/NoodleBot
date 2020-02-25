@@ -13,6 +13,7 @@ import com.IanSloat.noodlebot.commands.LeaveCommand;
 import com.IanSloat.noodlebot.commands.ListSettingsCommand;
 import com.IanSloat.noodlebot.commands.PauseCommand;
 import com.IanSloat.noodlebot.commands.PlayCommand;
+import com.IanSloat.noodlebot.commands.RemoveTrackCommand;
 import com.IanSloat.noodlebot.commands.SetCommand;
 import com.IanSloat.noodlebot.commands.ShowQueueCommand;
 import com.IanSloat.noodlebot.commands.SkipCommand;
@@ -35,7 +36,7 @@ public class CommandController {
 	public final static List<Command> commandList = Arrays.asList(new HelpCommand(), new DeleteCommand(),
 			new StatusCommand(), new ListSettingsCommand(), new PlayCommand(), new JumpCommand(), new LeaveCommand(),
 			new PauseCommand(), new SetCommand(), new StopCommand(), new VolumeCommand(), new VoiceChatKickCommand(),
-			new SkipCommand(), new ShowQueueCommand(), new WikiCommand());
+			new SkipCommand(), new ShowQueueCommand(), new WikiCommand(), new RemoveTrackCommand());
 
 	public void CommandEvent(MessageReceivedEvent event) {
 
