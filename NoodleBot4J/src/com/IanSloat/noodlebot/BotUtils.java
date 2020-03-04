@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 public class BotUtils {
 
 	// Constants for use throughout the bot
-	public static final String BOT_PREFIX = "noodv2 ";
+	public static final String BOT_PREFIX = "noodt ";
 	private static final Logger logger = LoggerFactory.getLogger(BotUtils.class);
 
 	/**

@@ -136,7 +136,7 @@ public class HelpCommand extends Command {
 	@Override
 	public MessageEmbed getCommandHelpPage() {
 		return new EmbedBuilder().setTitle("Help command | More Info").setColor(Color.red).setDescription(
-				"**Syntax:**\n_nood help_ (command id)\n\n**Summary:**\nShows every command available to the user. Entries for commands the user does not have access to will be left out. Additionally, more detailed help entries for each command can be viewed by typing a particular command id after \"nood help\". If you don't know what to type, it is listed after each help entry.\n\n**Parameters:**\n(Optional) command id - Displays more details for a particular command as well as how to use it.\nExample:\nnood help help - will show more details about the help command.")
+				"**Syntax:**\n_nood help_ (command id)\n\n**Summary:**\nShows every command available to the user. Entries for commands the user does not have access to will be left out. Additionally, more detailed help entries for each command can be viewed by typing a particular command id after \"nood help\". If you don't know what to type, it is listed after each help entry.\n\n**Parameters:**\n(Optional) command id - Displays more detailed information for a particular command as well as how to use it.\nExample:\nnood help help - will show more details about the help command.")
 				.build();
 	}
 
