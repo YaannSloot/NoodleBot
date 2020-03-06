@@ -39,6 +39,8 @@
 					<mainClass>com.IanSloat.noodlebot.NoodleBotMain</mainClass>
 					<buildArgs>
 						--no-fallback
+						-H:ResourceConfigurationFiles=${basedir}/resource-config.json
+						-H:EnableURLProtocols=http
 					</buildArgs>
 				</configuration>
 			</plugin>
@@ -145,11 +147,6 @@
 			<groupId>org.discordbots</groupId>
 			<artifactId>DBL-Java-Library</artifactId>
 			<version>2.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.YaannSloot</groupId>
-			<artifactId>JWolframAPI</artifactId>
-			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.konghq</groupId>

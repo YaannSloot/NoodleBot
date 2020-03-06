@@ -54,9 +54,6 @@ import com.IanSloat.noodlebot.events.CommandController;
 import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
 
-import com.yaannsloot.jwolfram.WolframClient;
-import com.yaannsloot.jwolfram.exceptions.InvalidAppidException;
-
 import lavalink.client.io.jda.JdaLavalink;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
@@ -70,9 +67,9 @@ public class NoodleBotMain {
 	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where", "simplify" };
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
 	public static final Set<String> badWords = new HashSet<>();
-	public static final WikiEndpoint wikipediaEndpoint = new WikiEndpoint("https://en.wikipedia.org/w/api.php", Color.gray);
+	public static final WikiEndpoint wikipediaEndpoint = new WikiEndpoint("https://en.wikipedia.org/w/api.php",
+			Color.gray);
 	public static GatewayServer server;
-	public static WolframClient waClient;
 	public static String versionNumber = "2.0.0";
 	public static String botVersion = "NoodleBot v" + versionNumber + " Pre-release Beta";
 	public static String devMsg = "Working as expected";
@@ -153,14 +150,14 @@ public class NoodleBotMain {
 			System.out.print("Starting bot");
 
 			System.out.print("Running core file check...");
-			
+
 			File badWordDir = new File("filters/words");
 			FileUtils.forceMkdir(badWordDir);
 			Collection<File> badWordFiles = FileUtils.listFiles(badWordDir, null, false);
 			badWordFiles.forEach(f -> {
 				try {
 					FileUtils.readLines(f, "UTF-8").forEach(l -> {
-						if(!l.equals(""))
+						if (!l.equals(""))
 							badWords.add(l.trim().toLowerCase());
 					});
 				} catch (IOException e1) {
@@ -212,12 +209,6 @@ public class NoodleBotMain {
 				System.out.print(
 						"Could not find a lavalink node password in the bot settings file. Please enter a lavalink node password:");
 				settings.put("linkpass", lineReader.readLine(">"));
-			}
-
-			if (!settings.has("waappid")) {
-				System.out.print(
-						"Could not find a wolfram alpha api id in the bot settings file. Please enter a valid wolfram api id:");
-				settings.put("waappid", lineReader.readLine(">"));
 			}
 
 			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
@@ -330,8 +321,6 @@ public class NoodleBotMain {
 
 			logger.info("Core file check complete. Loading bot...");
 
-			waClient = new WolframClient(settings.getString("waappid"));
-
 			logger.info("Starting shards...");
 
 			GuildSettingsController.setInitBehavior(s -> {
@@ -356,24 +345,27 @@ public class NoodleBotMain {
 			GuildPermissionsController.setInitBehavior(per -> {
 				GuildPermissions pList = per.getPermissions();
 				List<String> pKeys = pList.getKeys();
-				for(Command c : CommandController.commandList) {
+				for (Command c : CommandController.commandList) {
 					pKeys.remove(c.getCommandId());
 				}
-				for(CommandCategory ct : CommandCategory.values()) {
+				for (CommandCategory ct : CommandCategory.values()) {
 					pKeys.remove(ct.toString());
 				}
-				for(String extras : pKeys) {
+				for (String extras : pKeys) {
 					per.removePermission(extras);
 				}
-				if(!pList.contains(CommandCategory.MANAGEMENT.toString())) {
-					GuildPermission perm = new GuildPermission(CommandCategory.MANAGEMENT.toString(), new HashMap<>(), new HashMap<>());
+				if (!pList.contains(CommandCategory.MANAGEMENT.toString())) {
+					GuildPermission perm = new GuildPermission(CommandCategory.MANAGEMENT.toString(), new HashMap<>(),
+							new HashMap<>());
 					perm.setRoleEntry(per.getGuild().getPublicRole(), PermissionValue.DENY);
-					List<Role> admins = per.getGuild().getRoles().stream().filter(r -> r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList());
-					for(Role admin : admins) {
+					List<Role> admins = per.getGuild().getRoles().stream()
+							.filter(r -> r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList());
+					for (Role admin : admins) {
 						perm.setRoleEntry(admin, PermissionValue.ALLOW);
 					}
-					List<Role> nonAdmins = per.getGuild().getRoles().stream().filter(r -> !r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList());
-					for(Role nonAdmin : nonAdmins) {
+					List<Role> nonAdmins = per.getGuild().getRoles().stream()
+							.filter(r -> !r.hasPermission(Permission.ADMINISTRATOR)).collect(Collectors.toList());
+					for (Role nonAdmin : nonAdmins) {
 						perm.setRoleEntry(nonAdmin, PermissionValue.DENY);
 					}
 					per.setPermission(perm);
@@ -384,28 +376,27 @@ public class NoodleBotMain {
 					e.printStackTrace();
 				}
 			});
-			
+
 			lavalink = new JdaLavalink(settings.getString("clientid"), maxShard - minShard + 1,
 					shardId -> shardmgr.getShardById(shardId));
 
 			lavalink.addNode(new URI("ws://" + settings.getString("linknode")), settings.getString("linkpass"));
 
 			lavanode = settings.getString("linknode");
-			
+
 			nodepass = settings.getString("linkpass");
-			
+
 			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
 					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
-					.addEventListeners(eventListener, lavalink).setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor())
-					.build();
+					.addEventListeners(eventListener, lavalink)
+					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 
 			server.start();
 
 			FileUtils.write(botSettings, settings.toString(), "UTF-8");
 
-		} catch (IOException | LoginException | IllegalArgumentException | JSONException | InvalidAppidException
-				| URISyntaxException e) {
+		} catch (IOException | LoginException | IllegalArgumentException | JSONException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 
