@@ -3,7 +3,6 @@ package com.IanSloat.noodlebot;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -21,7 +20,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +29,6 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.PropertyConfigurator;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 import org.jline.reader.LineReader;
@@ -170,47 +167,6 @@ public class NoodleBotMain {
 					e1.printStackTrace();
 				}
 			});
-
-			File logConfig = new File("logging/log4j.properties");
-			File logDir = new File("logging");
-			if (!(logConfig.exists())) {
-				try {
-					System.out.println("No log4j.properties file found. Creating new log4j.properties file");
-					if (!(logDir.exists())) {
-						logDir.mkdirs();
-						System.out.print("Created " + logDir.getPath() + " directory successfully");
-					}
-					logConfig.createNewFile();
-					System.out.println("Created log4j.properties file successfully");
-					try {
-						FileWriter fileWriter = new FileWriter(logConfig);
-						fileWriter.write("log4j.rootLogger=INFO, STDOUT\r\n");
-						fileWriter.write("log4j.logger.deng=ERROR\r\n");
-						fileWriter.write("log4j.appender.STDOUT=org.apache.log4j.ConsoleAppender\r\n");
-						fileWriter.write("log4j.appender.STDOUT.layout=org.apache.log4j.PatternLayout\r\n");
-						fileWriter.write(
-								"log4j.appender.STDOUT.layout.ConversionPattern=%d{HH:mm:ss.SSS} [%p][%t][%c:%M] - %m%n\r\n");
-						fileWriter.close();
-						System.out.print("Wrote default settings to log4j.properties file successfully");
-					} catch (IOException e) {
-						System.out.print("ERROR: Could not write to log4j.properties file");
-					}
-				} catch (IOException e) {
-					System.out.print("ERROR: Could not create log4j.properties file");
-				}
-			}
-			String log4JPropertyFile = logConfig.getAbsolutePath();
-			Properties p = new Properties();
-
-			try {
-				System.out.print("Loading log4j.properties file");
-				p.load(new FileInputStream(log4JPropertyFile));
-				PropertyConfigurator.configure(p);
-				logger.info("Successfully loaded log4j.properties file");
-			} catch (IOException e) {
-				System.out.print("ERROR: Could not set " + logConfig.getPath() + " as properties file");
-				System.exit(1);
-			}
 
 			logger.info("Loading settings file...");
 			if (!new File("settings").exists()) {

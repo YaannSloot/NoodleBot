@@ -2,6 +2,8 @@ package com.IanSloat.noodlebot.commands;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.NoodleBotMain;
 import com.IanSloat.noodlebot.controllers.permissions.GuildPermission;
 import com.IanSloat.noodlebot.controllers.permissions.GuildPermission.PermissionValue;
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissions;
 import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.events.CommandController;
 import com.IanSloat.noodlebot.tools.RoleUtils;
@@ -179,7 +182,7 @@ public class PermissionManagerCommand extends Command {
 									.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 					} catch (IOException e) {
 						event.getChannel().sendMessage(
-								"An error occurred when accessing the bot's guild permissions database. Please contact the bot owner to report this issue.")
+								"An error occurred while accessing the bot's guild permissions database. Please contact the bot owner to report this issue.")
 								.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
 					}
 					break;
@@ -192,7 +195,99 @@ public class PermissionManagerCommand extends Command {
 					targetRoles2.addAll(event.getMessage().getMentionedRoles());
 					if (event.getMessage().mentionsEveryone())
 						targetRoles2.add(event.getGuild().getPublicRole());
-					
+					String command2 = event.getMessage().getContentRaw();
+					for (Member m : targetUsers2) {
+						command2 = command2.replace(m.getAsMention(), "");
+					}
+					for (Role r : targetRoles2) {
+						command2 = command2.replace(r.getAsMention(), "");
+					}
+					words = new ArrayList<String>();
+					words.addAll(Arrays.asList(BotUtils.normalizeSentence(command2.toLowerCase()).split(" ")));
+					try {
+						GuildPermissionsController controller = new GuildPermissionsController(event.getGuild());
+						if (words.size() == 4) {
+							if (words.get(3).equals("all")) {
+								String fileExport = "";
+								fileExport += "Permission Settings Report | " + event.getGuild().getName()
+										+ "\nRequested "
+										+ new SimpleDateFormat("MM/dd/yyyy 'at' hh:mm a")
+												.format(Date.from(event.getMessage().getTimeCreated().toInstant()))
+										+ "\n\nCurrent Settings:\n";
+								GuildPermissions perms = controller.getPermissions();
+								String[] Categories = new String[CommandCategory.values().length - 1];
+								for (int i = 0; i < Categories.length; i++) {
+									Categories[i] = CommandCategory.values()[i + 1].toString();
+								}
+								for (String ct : Categories) {
+									fileExport += "    Category \"" + ct + "\":\n";
+									if (perms.contains(ct)) {
+										GuildPermission ctPerm = perms.retrieveByKey(ct);
+										if (ctPerm.getUserEntries().size() > 0 || ctPerm.getRoleEntries().size() > 0) {
+											fileExport += "        Global Permissions:\n";
+											if (ctPerm.getUserEntries().size() > 0) {
+												fileExport += "            Users:\n";
+												for (String user : ctPerm.getUserEntries().keySet()) {
+													fileExport += "                ("
+															+ ctPerm.getUserEntry(event.getGuild().getMemberById(user))
+																	.toString().toUpperCase()
+															+ ") "
+															+ event.getGuild().getMemberById(user).getUser().getName()
+															+ "(id:" + user + ")";
+													if (event.getGuild().getMemberById(user).getNickname() != null)
+														fileExport += " aka \""
+																+ event.getGuild().getMemberById(user).getNickname()
+																+ "\"\n";
+													else
+														fileExport += "\n";
+												}
+											}
+											if (ctPerm.getRoleEntries().size() > 0) {
+												fileExport += "            Roles:\n";
+												for (String role : ctPerm.getRoleEntries().keySet()) {
+													fileExport += "                ("
+															+ ctPerm.getRoleEntry(event.getGuild().getRoleById(role))
+																	.toString().toUpperCase()
+															+ ") " + event.getGuild().getRoleById(role).getName()
+															+ "(id:" + role + ")\n";
+												}
+											}
+										} else
+											fileExport += "        Global permissions list found but contains no entries\n";
+									} else
+										fileExport += "        No global permissions found for this category\n";
+									boolean noneFound = true;
+									for (GuildPermission perm : perms) {
+										for (Command cmd : CommandController.commandList) {
+											if (perm.getKey().equals(cmd.getCommandId())
+													&& cmd.getCommandCategory().toString().equals(ct)) {
+												noneFound = false;
+												
+												break;
+											}
+										}
+									}
+									if (noneFound)
+										fileExport += "        No command-specific permissions found for this category\n";
+								}
+								fileExport += "\nRaw JSON data:\n";
+								fileExport += controller.getRawCopy().toString(1);
+								byte[] payload = new byte[fileExport.length()];
+								for(int b = 0; b < fileExport.length(); b++) {
+									payload[b] = (byte) fileExport.toCharArray()[b];
+								}
+								event.getAuthor().openPrivateChannel()
+										.queue(c -> c.sendFile(payload, "Permission_Settings_Report.txt").queue());
+							} else
+								event.getChannel().sendMessage(
+										"Invalid syntax. Please reference help page for info on how to use this command.")
+										.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
+						}
+					} catch (IOException e) {
+						event.getChannel().sendMessage(
+								"An error occurred while accessing the bot's guild permissions database. Please contact the bot owner to report this issue.")
+								.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
+					}
 					break;
 				case 3:
 

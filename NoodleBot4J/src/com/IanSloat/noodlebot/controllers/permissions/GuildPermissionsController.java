@@ -256,6 +256,10 @@ public class GuildPermissionsController {
 		FileUtils.write(permissionsFile, permissionsRaw.toString(), "UTF-8");
 	}
 
+	public JSONObject getRawCopy() {
+		return permissionsRaw;
+	}
+	
 	/**
 	 * Checks if the specified guild member has permission to use a certain command
 	 * 

@@ -21,7 +21,7 @@ public abstract class Command {
 	 * The set of categories that each command will have assigned to it
 	 */
 	public enum CommandCategory {
-		GENERAL("general"), PLAYER("player"), MANAGEMENT("management"), UTILITY("utility"), MISC("misc");
+		GENERAL("general"), PLAYER("player"), MANAGEMENT("management"), UTILITY("utility");
 
 		private String id;
 
