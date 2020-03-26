@@ -57,6 +57,7 @@ import com.IanSloat.noodlebot.gateway.GatewayServer;
 
 import lavalink.client.io.jda.JdaLavalink;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -71,7 +72,7 @@ public class NoodleBotMain {
 	public static final WikiEndpoint wikipediaEndpoint = new WikiEndpoint("https://en.wikipedia.org/w/api.php",
 			Color.gray);
 	public static GatewayServer server;
-	public static String versionNumber = "2.0.0";
+	public static String versionNumber = "2";
 	public static String botVersion = "NoodleBot v" + versionNumber + " Pre-release Beta";
 	public static String devMsg = "Working as expected";
 	public static File botSettings = new File("settings/settings.json");
@@ -81,6 +82,7 @@ public class NoodleBotMain {
 	public static JdaLavalink lavalink;
 	public static EventListener eventListener = new Events();
 	public static JSONObject settings;
+	public static MessageEmbed announcementEmbed = null;
 
 	// Value Overrides
 	public static final int playerVolumeLimit = 2147483647;
@@ -290,6 +292,8 @@ public class NoodleBotMain {
 						System.out
 								.print("Bot is set to connect to a DBL endpoint. Please input a valid DBL api token.");
 						settings.put("dbltoken", lineReader.readLine(">"));
+						NoodleBotMain.dblEndpoint = new DiscordBotListAPI.Builder()
+								.botId(settings.getString("clientid")).token(settings.getString("dbltoken")).build();
 					}
 				}
 				if (Arrays.asList(args).contains("shardIds=")) {
@@ -394,6 +398,10 @@ public class NoodleBotMain {
 					.addEventListeners(eventListener, lavalink)
 					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
+
+			File announcementsDir = new File("announcements");
+
+			FileUtils.forceMkdir(announcementsDir);
 
 			server.start();
 

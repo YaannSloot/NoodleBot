@@ -1,12 +1,21 @@
 package com.IanSloat.noodlebot.events;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -18,11 +27,14 @@ import com.IanSloat.noodlebot.BotUtils;
 import com.IanSloat.noodlebot.NoodleBotMain;
 import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
+import com.IanSloat.noodlebot.tools.EmbedImporter;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 
@@ -64,6 +76,25 @@ public class Login {
 				}
 			});
 			logger.info("Guild settings file check complete.");
+			File announcement = new File("announcements/announcement.json");
+
+			if (announcement.exists())
+				NoodleBotMain.botOwner.openPrivateChannel()
+						.queue(pm -> pm.sendMessage(new EmbedImporter(announcement).getEmbed()).queue());
+
+			if (NoodleBotMain.dblEndpoint != null) {
+				ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+				final Runnable UpdateTask = new Runnable() {
+
+					@Override
+					public void run() {
+						NoodleBotMain.dblEndpoint.setStats(NoodleBotMain.shardmgr.getGuilds().size());
+					}
+
+				};
+				scheduler.scheduleAtFixedRate(UpdateTask, 5, 5, TimeUnit.MINUTES);
+			}
+
 			ForkJoinPool.commonPool().execute(() -> {
 				String command = "";
 				while (!(command.equals("shutdown"))) {
@@ -124,11 +155,33 @@ public class Login {
 								NoodleBotMain.lavalink.addNode(new URI("ws://" + nodeAddr), nodePass);
 							}
 							break;
+						case "broadcast":
+							if (announcement.exists()) {
+								MessageEmbed payload = new EmbedImporter(announcement).getEmbed();
+								File backupDir = new File("announcements/previous");
+								FileUtils.forceMkdir(backupDir);
+								FileUtils.moveFile(announcement, new File("announcements/previous/"
+										+ new SimpleDateFormat("MM-dd-yyyy_HH-mm-ss").format(Date.from(Instant.now()))
+										+ ".json"));
+								List<Guild> guilds = NoodleBotMain.shardmgr.getGuilds();
+								Set<User> targetUsers = new HashSet<User>();
+								for (Guild targetGuild : guilds) {
+									targetUsers.add(targetGuild.getOwner().getUser());
+								}
+								for (User targetUser : targetUsers) {
+									targetUser.openPrivateChannel().queue(pm -> pm.sendMessage(payload).queue(null,
+											error -> error.printStackTrace()));
+								}
+								System.out.print("Broadcast sent successfully");
+							} else
+								System.out.print("ERROR: Announcement file not found");
+							break;
 						default:
 							System.out.print("ERROR: Command not recognized");
 							break;
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						System.out.print("ERROR: Command parse error");
 					}
 				}
@@ -148,7 +201,7 @@ public class Login {
 			}
 		}
 		event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE,
-				Activity.playing(BotUtils.BOT_PREFIX + "help | Beta v" + NoodleBotMain.versionNumber));
+				Activity.playing(BotUtils.BOT_PREFIX + "help | v" + NoodleBotMain.versionNumber + " snapshot"));
 		logger.info("Shard " + event.getJDA().getShardInfo().getShardId() + " is ready.");
 
 	}

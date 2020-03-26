@@ -1,6 +1,12 @@
 package com.IanSloat.noodlebot.events;
 
+import java.io.IOException;
+
+import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
+import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
+
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,4 +35,13 @@ public class Events extends ListenerAdapter {
 		voiceActivityListener.VoiceHeartbeatEvent(event);
 	}
 	
+	@Override
+	public void onGuildJoin(GuildJoinEvent event) {
+		try {
+			GuildSettingsController.initGuildSettingsFiles(event.getGuild());
+			GuildPermissionsController.initGuildPermissionsFiles(event.getGuild());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
