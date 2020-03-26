@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.IanSloat.noodlebot.NoodleBotMain;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import lavalink.client.LavalinkUtil;
+import lavalink.client.io.LavalinkSocket;
 import lavalink.client.io.jda.JdaLink;
 import lavalink.client.player.IPlayer;
 import net.dv8tion.jda.api.entities.Guild;
@@ -234,11 +238,11 @@ public class GuildLavalinkController {
 	 *                 urls.
 	 * @return True if the load was successful
 	 */
-	public boolean loadAndPlay(String target, boolean autoplay) {
+	public boolean loadAndPlay(String target, boolean autoplay, Guild parentGuild) {
 		if (manager.getChannel() != null) {
 			if (!(target.startsWith("http://") || target.startsWith("https://")))
 				target = this.target.toString() + target;
-			List<AudioTrack> tracks = searchForTracks(target);
+			List<AudioTrack> tracks = searchForTracks(target, parentGuild);
 			if (tracks.size() > 0) {
 				manager.reset();
 				if (target.startsWith("ytsearch:") || target.startsWith("scsearch"))
@@ -262,11 +266,11 @@ public class GuildLavalinkController {
 	 * @param target The search term or url to retrieve tracks from
 	 * @return True if the load was successful
 	 */
-	public boolean addToPlaylist(String target) {
+	public boolean addToPlaylist(String target, Guild parentGuild) {
 		if (manager.getChannel() != null) {
 			if (!(target.startsWith("http://") || target.startsWith("https://")))
 				target = this.target.toString() + target;
-			List<AudioTrack> tracks = searchForTracks(target);
+			List<AudioTrack> tracks = searchForTracks(target, parentGuild);
 			if (tracks.size() > 0) {
 				if (target.startsWith("ytsearch:") || target.startsWith("scsearch"))
 					manager.queue(tracks.get(0));
@@ -291,12 +295,23 @@ public class GuildLavalinkController {
 			throw new NullPointerException("Target channel must not be null");
 	}
 
-	private static List<AudioTrack> searchForTracks(String identifier) {
+	private static List<AudioTrack> searchForTracks(String identifier, Guild parentGuild) {
 		try {
+			LavalinkSocket targetNode = NoodleBotMain.lavalink.getLink(parentGuild).getNode(true);
+			JSONArray nodes = NoodleBotMain.settings.getJSONArray("linknodes");
+			Map<String, String> nodeMap = new HashMap<>();
+			nodes.forEach(node -> nodeMap.put(((JSONObject) node).getString("nodeaddr"),
+					((JSONObject) node).getString("nodepass")));
+			String targetAddr = targetNode.getRemoteSocketAddress().getHostString() + ":"
+					+ targetNode.getRemoteSocketAddress().getPort();
+			String targetPass = "";
+			if (nodeMap.containsKey(targetAddr)) {
+				targetPass = nodeMap.get(targetAddr);
+			} else
+				throw new NullPointerException("Target lavalink node is not present in startup settings");
 			kong.unirest.json.JSONArray trackData = Unirest
-					.get("http://" + NoodleBotMain.lavanode + "/loadtracks?identifier="
-							+ URLEncoder.encode(identifier, "UTF-8"))
-					.header("Authorization", NoodleBotMain.nodepass).asJson().getBody().getArray();
+					.get("http://" + targetAddr + "/loadtracks?identifier=" + URLEncoder.encode(identifier, "UTF-8"))
+					.header("Authorization", targetPass).asJson().getBody().getArray();
 
 			ArrayList<AudioTrack> list = new ArrayList<>();
 			trackData = trackData.getJSONObject(0).getJSONArray("tracks");

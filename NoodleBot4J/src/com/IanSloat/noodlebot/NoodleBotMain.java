@@ -35,6 +35,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -78,9 +79,8 @@ public class NoodleBotMain {
 	public static ShardManager shardmgr;
 	public static DiscordBotListAPI dblEndpoint = null;
 	public static JdaLavalink lavalink;
-	public static String lavanode;
-	public static String nodepass;
 	public static EventListener eventListener = new Events();
+	public static JSONObject settings;
 
 	// Value Overrides
 	public static final int playerVolumeLimit = 2147483647;
@@ -187,7 +187,7 @@ public class NoodleBotMain {
 				}
 			}
 
-			JSONObject settings = new JSONObject(FileUtils.readFileToString(botSettings, "UTF-8"));
+			settings = new JSONObject(FileUtils.readFileToString(botSettings, "UTF-8"));
 
 			if (!settings.has("token")) {
 				System.out.print("Could not find a token in the bot settings file. Please enter bots token:");
@@ -199,16 +199,18 @@ public class NoodleBotMain {
 				settings.put("clientid", lineReader.readLine(">"));
 			}
 
-			if (!settings.has("linknode")) {
+			if (!settings.has("linknodes")) {
+				JSONArray nodeArray = new JSONArray();
+				JSONObject nodeObj = new JSONObject();
 				System.out.print(
 						"Could not find a lavalink node address in the bot settings file. Please enter a lavalink node address:");
-				settings.put("linknode", lineReader.readLine(">"));
-			}
-
-			if (!settings.has("linkpass")) {
-				System.out.print(
-						"Could not find a lavalink node password in the bot settings file. Please enter a lavalink node password:");
-				settings.put("linkpass", lineReader.readLine(">"));
+				String nodeAddr = lineReader.readLine(">");
+				System.out.print("Please enter the lavalink node password:");
+				String nodePass = lineReader.readLine(">");
+				nodeObj.put("nodeaddr", nodeAddr);
+				nodeObj.put("nodepass", nodePass);
+				nodeArray.put(nodeObj);
+				settings.put("linknodes", nodeArray);
 			}
 
 			server = new GatewayServer(new InetSocketAddress("0.0.0.0", 8000), shardmgr);
@@ -380,11 +382,12 @@ public class NoodleBotMain {
 			lavalink = new JdaLavalink(settings.getString("clientid"), maxShard - minShard + 1,
 					shardId -> shardmgr.getShardById(shardId));
 
-			lavalink.addNode(new URI("ws://" + settings.getString("linknode")), settings.getString("linkpass"));
+			JSONArray nodeArray = settings.getJSONArray("linknodes");
 
-			lavanode = settings.getString("linknode");
-
-			nodepass = settings.getString("linkpass");
+			for (Object node : nodeArray) {
+				lavalink.addNode(new URI("ws://" + ((JSONObject) node).getString("nodeaddr")),
+						((JSONObject) node).getString("nodepass"));
+			}
 
 			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
 					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)

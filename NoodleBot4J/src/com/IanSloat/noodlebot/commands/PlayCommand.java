@@ -53,11 +53,12 @@ public class PlayCommand extends Command {
 						controller.setVolume(Integer.parseInt(settings.getSetting("volume").getValue()));
 						controller.loadAndPlay(
 								event.getMessage().getContentRaw().substring((BotUtils.BOT_PREFIX + "play ").length()),
-								settings.getSetting("autoplay").getValue().equals("on"));
+								settings.getSetting("autoplay").getValue().equals("on"), event.getGuild());
 					} else if (event.getMessage().getContentRaw().toLowerCase().startsWith(BotUtils.BOT_PREFIX + "add ")
 							&& controller.isPlaying()) {
 						controller.addToPlaylist(
-								event.getMessage().getContentRaw().substring((BotUtils.BOT_PREFIX + "add ").length()));
+								event.getMessage().getContentRaw().substring((BotUtils.BOT_PREFIX + "add ").length()),
+								event.getGuild());
 					} else
 						event.getChannel().sendMessage("Bot isn't playing anything right now!")
 								.queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));

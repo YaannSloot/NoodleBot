@@ -1,10 +1,16 @@
 package com.IanSloat.noodlebot.events;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
+import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +101,27 @@ public class Login {
 								System.out.print("The specified guild goes by the name \"" + guild.getName() + "\"");
 							} else {
 								System.out.print("The bot is not connected to that guild");
+							}
+							break;
+						case "addnode":
+							JSONArray currentNodeArray = NoodleBotMain.settings.getJSONArray("linknodes");
+							System.out.print("Please input the new node's address");
+							String nodeAddr = NoodleBotMain.lineReader.readLine(">");
+							System.out.print("Please input the new node's password");
+							String nodePass = NoodleBotMain.lineReader.readLine(">");
+							Map<String, String> nodeMap = new HashMap<>();
+							currentNodeArray.forEach(node -> nodeMap.put(((JSONObject) node).getString("nodeaddr"),
+									((JSONObject) node).getString("nodepass")));
+							if (nodeMap.containsKey(nodeAddr))
+								System.out.print("ERROR: Node already present in settings");
+							else {
+								JSONObject newNode = new JSONObject();
+								newNode.put("nodeaddr", nodeAddr);
+								newNode.put("nodepass", nodePass);
+								currentNodeArray.put(newNode);
+								NoodleBotMain.settings.put("linknodes", currentNodeArray);
+								FileUtils.write(NoodleBotMain.botSettings, NoodleBotMain.settings.toString(), "UTF-8");
+								NoodleBotMain.lavalink.addNode(new URI("ws://" + nodeAddr), nodePass);
 							}
 							break;
 						default:
