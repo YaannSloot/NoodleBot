@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-public class ShowQueueCommand extends Command {
+public class ShowQueueCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

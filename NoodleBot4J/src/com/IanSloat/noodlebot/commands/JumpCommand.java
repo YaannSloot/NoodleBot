@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-public class JumpCommand extends Command {
+public class JumpCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {
@@ -99,8 +99,16 @@ public class JumpCommand extends Command {
 
 	@Override
 	public MessageEmbed getCommandHelpPage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new EmbedBuilder().setTitle("Track position jump command | More Info").setColor(Color.red).setDescription(
+				"**Syntax:**\n"
+				+ "_" + BotUtils.BOT_PREFIX + "jump_ <timestamp>\n\n"
+				+ "**Summary:**\n"
+				+ "This command sets the time position of the current track to whatever is specified in the command arguments. "
+				+ "Since you can't actually use a scrub bar during playback, this command is used instead. This command also has two reaction button "
+				+ "equivalents found on the player dialog box. These buttons skip the current time forward or backward 5% of the track length.\n\n"
+				+ "**Parameters:**\n"
+				+ "timestamp - The desired position to jump to. Must be in HH:MM:SS format. Shorter timecodes in MM:SS or Seconds format are also accepted."
+				).build();
 	}
 
 }

@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-public class VoiceChatKickCommand extends Command {
+public class VoiceChatKickCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

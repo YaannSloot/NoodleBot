@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 // TODO Figure out what to do with this. Otherwise it will stay deprecated
 @Deprecated
-public class GetGuiPasswordCommand extends Command {
+public class GetGuiPasswordCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

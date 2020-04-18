@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * command object contains a {@link Command#execute(MessageReceivedEvent)
  * execute()} method used once the command is ready to fire
  */
-public abstract class Command {
+public interface Command {
 
 	static final Logger logger = LoggerFactory.getLogger(Command.class);
 
@@ -41,7 +41,7 @@ public abstract class Command {
 	 * @param user The member to check for
 	 * @return true if the member can use this command
 	 */
-	public abstract boolean CheckUsagePermission(Member user);
+	public boolean CheckUsagePermission(Member user);
 
 	/**
 	 * Checks whether the provided message matches the identifiers for this command
@@ -49,7 +49,7 @@ public abstract class Command {
 	 * @param command The message to check
 	 * @return true if the message matches this command's trigger identifier
 	 */
-	public abstract boolean CheckForCommandMatch(Message command);
+	public boolean CheckForCommandMatch(Message command);
 
 	/**
 	 * Executes this command with the given event
@@ -58,28 +58,28 @@ public abstract class Command {
 	 * @throws NoMatchException If the message in the specified event does not match
 	 *                          this command's trigger identifier
 	 */
-	public abstract void execute(MessageReceivedEvent event) throws NoMatchException;
+	public void execute(MessageReceivedEvent event) throws NoMatchException;
 
 	/**
 	 * Retrieves this command's help entry
 	 * 
 	 * @return A string representing this command's help entry
 	 */
-	public abstract String getHelpSnippet();
+	public String getHelpSnippet();
 
 	/**
 	 * Retrieves this command's special id
 	 * 
 	 * @return A string representing this command's special id
 	 */
-	public abstract String getCommandId();
+	public String getCommandId();
 
 	/**
 	 * Retrieves the {@linkplain CommandCategory} associated with this command
 	 * 
 	 * @return The {@linkplain CommandCategory} associated with this command
 	 */
-	public abstract CommandCategory getCommandCategory();
+	public CommandCategory getCommandCategory();
 
 	/**
 	 * Retrieves the in-depth explanation of this command's functionality
@@ -87,6 +87,6 @@ public abstract class Command {
 	 * @return A {@linkplain MessageEmbed} representing the in-depth explanation of
 	 *         this command's functionality
 	 */
-	public abstract MessageEmbed getCommandHelpPage();
+	public MessageEmbed getCommandHelpPage();
 
 }

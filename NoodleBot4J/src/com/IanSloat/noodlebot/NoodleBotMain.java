@@ -1,6 +1,5 @@
 package com.IanSloat.noodlebot;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,7 +49,6 @@ import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController
 import com.IanSloat.noodlebot.controllers.settings.GuildSetting;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettings;
 import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
-import com.IanSloat.noodlebot.controllers.wikipedia.WikiEndpoint;
 import com.IanSloat.noodlebot.events.CommandController;
 import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
@@ -69,8 +67,6 @@ public class NoodleBotMain {
 	public static String questionIDs[] = { "what", "how", "why", "when", "who", "where", "simplify" };
 	private static final Logger logger = LoggerFactory.getLogger(NoodleBotMain.class);
 	public static final Set<String> badWords = new HashSet<>();
-	public static final WikiEndpoint wikipediaEndpoint = new WikiEndpoint("https://en.wikipedia.org/w/api.php",
-			Color.gray);
 	public static GatewayServer server;
 	public static String versionNumber = "2";
 	public static String botVersion = "NoodleBot v" + versionNumber + " Pre-release Beta";
@@ -393,12 +389,6 @@ public class NoodleBotMain {
 						((JSONObject) node).getString("nodepass"));
 			}
 
-			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
-					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
-					.addEventListeners(eventListener, lavalink)
-					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
-			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
-
 			File announcementsDir = new File("announcements");
 
 			FileUtils.forceMkdir(announcementsDir);
@@ -406,6 +396,12 @@ public class NoodleBotMain {
 			server.start();
 
 			FileUtils.write(botSettings, settings.toString(), "UTF-8");
+			
+			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
+					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
+					.addEventListeners(eventListener, lavalink)
+					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
+			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 
 		} catch (IOException | LoginException | IllegalArgumentException | JSONException | URISyntaxException e) {
 			e.printStackTrace();

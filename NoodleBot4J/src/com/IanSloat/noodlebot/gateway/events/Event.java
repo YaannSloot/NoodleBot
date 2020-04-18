@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 /**
  * A generic gateway event
  */
-public abstract class Event {
+public class Event {
 
 	private ShardManager shardmgr;
 	private JSONObject message;

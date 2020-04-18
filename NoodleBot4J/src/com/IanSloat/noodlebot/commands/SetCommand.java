@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
-public class SetCommand extends Command {
+public class SetCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

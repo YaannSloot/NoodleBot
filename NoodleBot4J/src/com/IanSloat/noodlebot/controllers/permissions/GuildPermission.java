@@ -83,8 +83,9 @@ public class GuildPermission {
 	 */
 	public PermissionValue getUserEntry(Member user) {
 		PermissionValue result = null;
-		if (users.containsKey(user.getId()))
-			result = users.get(user.getId());
+		if (user != null)
+			if (users.containsKey(user.getId()))
+				result = users.get(user.getId());
 		return result;
 	}
 
@@ -96,8 +97,9 @@ public class GuildPermission {
 	 */
 	public PermissionValue getRoleEntry(Role role) {
 		PermissionValue result = null;
-		if (roles.containsKey(role.getId()))
-			result = roles.get(role.getId());
+		if (role != null)
+			if (roles.containsKey(role.getId()))
+				result = roles.get(role.getId());
 		return result;
 	}
 
@@ -110,7 +112,8 @@ public class GuildPermission {
 	 * @return This {@linkplain GuildPermission} entry. Useful for chaining
 	 */
 	public GuildPermission setUserEntry(Member user, PermissionValue value) {
-		users.put(user.getId(), value);
+		if (user != null)
+			users.put(user.getId(), value);
 		return this;
 	}
 
@@ -123,7 +126,8 @@ public class GuildPermission {
 	 * @return This {@linkplain GuildPermission} entry. Useful for chaining
 	 */
 	public GuildPermission setRoleEntry(Role role, PermissionValue value) {
-		roles.put(role.getId(), value);
+		if (role != null)
+			roles.put(role.getId(), value);
 		return this;
 	}
 

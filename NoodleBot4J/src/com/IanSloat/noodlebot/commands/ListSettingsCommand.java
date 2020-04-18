@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
  * Command for sending a list of the current settings applied for a specific
  * guild to the channel it was executed in.
  */
-public class ListSettingsCommand extends Command {
+public class ListSettingsCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

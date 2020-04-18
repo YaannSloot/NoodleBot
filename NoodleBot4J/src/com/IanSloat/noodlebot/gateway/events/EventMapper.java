@@ -13,7 +13,7 @@ import com.IanSloat.noodlebot.gateway.events.guest.VersionEvent;
  * An abstract class that contains a mapping of every server event to be
  * implemented by specific session event listeners.
  */
-public abstract class EventMapper implements SessionEventListener {
+public class EventMapper implements SessionEventListener {
 
 	public void broadcastEvent(@Nonnull Event e) {
 

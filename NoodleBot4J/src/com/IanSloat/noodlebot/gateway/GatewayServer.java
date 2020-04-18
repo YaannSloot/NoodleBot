@@ -30,8 +30,6 @@ public class GatewayServer extends WebSocketServer {
 
 	private final static Map<WebSocket, Session> sessionRegister = new HashMap<>();
 
-	//private final static Map<WebSocket, File> sessionTempdir = new HashMap<>();
-
 	private String status = "DOWN";
 
 	private static synchronized Session getGatewaySession(WebSocket connection, String lastMsg) {
@@ -78,20 +76,14 @@ public class GatewayServer extends WebSocketServer {
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		// try {
-		// FileUtils.deleteDirectory(sessionTempdir.get(conn));
 		if (sessionRegister.get(conn) instanceof GuestSession) {
 			logger.info("Guest session with client-ip:" + conn.getRemoteSocketAddress()
 					+ " has been removed from the session registery");
 		}
 		sessionRegister.remove(conn);
-		// sessionTempdir.remove(conn);
 		logger.info("Gateway connection with client-ip:" + conn.getRemoteSocketAddress() + " has closed. Reason: "
 				+ reason);
 		status = "DOWN";
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
 
 	}
 
@@ -128,65 +120,6 @@ public class GatewayServer extends WebSocketServer {
 				conn.close(1007, "Invalid request caused server to close communication with the client");
 			}
 		}
-		/*
-		 * JSONObject msgJSON = null; try { msgJSON = new JSONObject(message); } catch
-		 * (JSONException e) {
-		 * 
-		 * } if (msgJSON != null) { if (message.contains("guildid=") &&
-		 * message.contains("passwd=")) { message = BotUtils.normalizeSentence(message);
-		 * String[] words = message.split(" "); long guildID = 0; String passwd = "";
-		 * for (String element : words) { if (element.contains("guildid=")) { guildID =
-		 * Long.parseLong(element.replace("guildid=", "")); } else if
-		 * (element.contains("passwd=")) { passwd = element.replace("passwd=", ""); } }
-		 * if (guildID != 0) { Guild guild = shardmgr.getGuildById(guildID); if (guild
-		 * != null) { GuildSettingsManager setMgr = new GuildSettingsManager(guild);
-		 * NBMLSettingsParser setParser = setMgr.getTBMLParser();
-		 * setParser.setScope(NBMLSettingsParser.DOCROOT);
-		 * setParser.addObj("GuiSettings"); setParser.setScope("GuiSettings"); if
-		 * (setParser.getFirstInValGroup("guipasswd").equals(passwd)) {
-		 * conn.send("Success!"); } else { conn.send("No!"); } } else {
-		 * conn.send("No!"); } } else { conn.send("No!"); }
-		 * 
-		 * } else if (message.equals("requestnewstatstream")) {
-		 * conn.send("requestapproved"); } else if (message.equals("updaterq")) {
-		 * conn.send("srdcnt:" + shardmgr.getShardsTotal()); conn.send("vsninf:" +
-		 * NoodleBotMain.botVersion); conn.send("trdcnt:" + Thread.activeCount());
-		 * conn.send("dvmsg:" + NoodleBotMain.devMsg); } else if (msgJSON.opt("request")
-		 * != null) { String request = msgJSON.optString("request"); JSONObject resJSON
-		 * = new JSONObject();
-		 * 
-		 * if (request.equals("registernewsession")) { if (msgJSON.opt("guildid") !=
-		 * null) { Guild guild = shardmgr.getGuildById(msgJSON.optLong("guildid")); if
-		 * (guild != null) { if (sessionRegister.get(conn) == null) {
-		 * sessionRegister.put(conn, guild); } resJSON.put("response",
-		 * "session-event=registered"); conn.send(resJSON.toString()); } else {
-		 * resJSON.put("response", "session-error=invalid-guild");
-		 * conn.send(resJSON.toString()); } } } else { if (sessionRegister.get(conn) !=
-		 * null) { if (request.equals("permmgr-init")) { File tempDir =
-		 * getTemporaryFileDir(conn); File settingsFile = new
-		 * File(System.getProperty("user.dir") + BotUtils.PATH_SEPARATOR +
-		 * "GuildSettings" + BotUtils.PATH_SEPARATOR + sessionRegister.get(conn).getId()
-		 * + BotUtils.PATH_SEPARATOR + "settings.guild"); if(settingsFile.exists()) {
-		 * try { FileUtils.copyFileToDirectory(settingsFile, tempDir); File tempSettings
-		 * = new File(tempDir.getAbsolutePath() + BotUtils.PATH_SEPARATOR +
-		 * "settings.guild"); PermissionPayloadLoader payload = new
-		 * PermissionPayloadLoader(sessionRegister.get(conn), tempSettings);
-		 * resJSON.put("payload-id", "permmgr-pre-init"); resJSON.put("content", new
-		 * JSONObject().put("perm-registry-details", payload.queryObjects()));
-		 * conn.send(resJSON.toString()); } catch (IOException e) { e.printStackTrace();
-		 * } } } else if (request.equals("getpermids")) { File tempDir =
-		 * getTemporaryFileDir(conn); File settingsFile = new
-		 * File(tempDir.getAbsolutePath() + BotUtils.PATH_SEPARATOR + "settings.guild");
-		 * if(settingsFile.exists()) { PermissionPayloadLoader payload = new
-		 * PermissionPayloadLoader(sessionRegister.get(conn), settingsFile);
-		 * resJSON.put("payload-id", "permmgr-id-list"); resJSON.put("content", new
-		 * JSONObject().put("registry-ids", payload.getIDs()));
-		 * conn.send(resJSON.toString()); } else { resJSON.put("response",
-		 * "session-error=session_not_initialized"); conn.send(resJSON.toString()); } }
-		 * } else { resJSON.put("response", "session-error=noguild");
-		 * conn.send(resJSON.toString()); } } } } else { conn.close(1,
-		 * "ERROR: Invalid arguement. Session has closed"); }
-		 */
 	}
 
 	@Override

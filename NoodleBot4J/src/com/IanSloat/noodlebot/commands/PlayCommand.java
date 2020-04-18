@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 /**
  * Command that operates the music system. Currently supported by lavalink.
  */
-public class PlayCommand extends Command {
+public class PlayCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

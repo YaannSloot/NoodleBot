@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
  * Command for sending info about the guild the bot is in and info about the bot
  * to the channel the command was executed in.
  */
-public class StatusCommand extends Command {
+public class StatusCommand implements Command {
 
 	@Override
 	public boolean CheckUsagePermission(Member user) {

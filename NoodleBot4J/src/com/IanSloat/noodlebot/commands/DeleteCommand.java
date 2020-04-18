@@ -35,7 +35,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
  * Command for deleting messages in bulk. Causes severe ratelimiting for the
  * specific guild its operating in until it completes.
  */
-public class DeleteCommand extends Command {
+public class DeleteCommand implements Command {
 
 	private static final Map<Guild, ReactiveMessage> existingReactives = new HashMap<>();
 	private static final Map<Guild, ExecutorService> existingQueues = new HashMap<>();
@@ -304,7 +304,7 @@ public class DeleteCommand extends Command {
 	public MessageEmbed getCommandHelpPage() {
 		return new EmbedBuilder().setTitle("Bulk message delete command | More Info").setColor(Color.red)
 				.setDescription(
-						"**Syntax:**\n_nood delete messages_ (from <@ mentions>) (older than <time unit> <amount>)"
+						"**Syntax:**\n_" + BotUtils.BOT_PREFIX + "delete messages_ (from <@ mentions>) (older than <time unit> <amount>)"
 								+ "\n\n**Summary:**"
 								+ "\nThis command deletes up to 2000 messages in bulk. Target messages can be restricted to both specific author and specific message age. The bulk deletion job can be canceled at any time either via the red X reaction or by typing \"nood stop deleting\"\n"
 								+ "\n**Parameters:**"
