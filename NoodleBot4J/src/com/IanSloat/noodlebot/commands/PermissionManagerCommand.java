@@ -1,6 +1,6 @@
 package com.IanSloat.noodlebot.commands;
 
-import java.awt.Color; 
+import java.awt.Color;
 import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -245,11 +245,12 @@ public class PermissionManagerCommand implements Command {
 											if (ctPerm.getRoleEntries().size() > 0) {
 												fileExport += "            Roles:\n";
 												for (String role : ctPerm.getRoleEntries().keySet()) {
-													fileExport += "                ("
-															+ ctPerm.getRoleEntry(event.getGuild().getRoleById(role))
-																	.toString().toUpperCase()
-															+ ") " + event.getGuild().getRoleById(role).getName()
-															+ "(id:" + role + ")\n";
+													if (ctPerm.getRoleEntry(event.getGuild().getRoleById(role)) != null)
+														fileExport += "                (" + ctPerm
+																.getRoleEntry(event.getGuild().getRoleById(role))
+																.toString().toUpperCase() + ") "
+																+ event.getGuild().getRoleById(role).getName() + "(id:"
+																+ role + ")\n";
 												}
 											}
 										} else
@@ -262,7 +263,7 @@ public class PermissionManagerCommand implements Command {
 											if (perm.getKey().equals(cmd.getCommandId())
 													&& cmd.getCommandCategory().toString().equals(ct)) {
 												noneFound = false;
-												
+
 												break;
 											}
 										}
@@ -273,7 +274,7 @@ public class PermissionManagerCommand implements Command {
 								fileExport += "\nRaw JSON data:\n";
 								fileExport += controller.getRawCopy().toString(1);
 								byte[] payload = new byte[fileExport.length()];
-								for(int b = 0; b < fileExport.length(); b++) {
+								for (int b = 0; b < fileExport.length(); b++) {
 									payload[b] = (byte) fileExport.toCharArray()[b];
 								}
 								event.getAuthor().openPrivateChannel()
