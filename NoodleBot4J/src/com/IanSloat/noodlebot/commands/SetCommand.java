@@ -156,8 +156,14 @@ public class SetCommand implements Command {
 
 	@Override
 	public MessageEmbed getCommandHelpPage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new EmbedBuilder().setTitle("Settings modifier command | More Info").setColor(Color.red)
+				.setDescription("**Syntax:**\n" + "_" + BotUtils.BOT_PREFIX + "set_ <setting id> <value>\n\n"
+						+ "**Summary:**\n"
+						+ "This command modifies guild specific settings that change how the bot functions. All ids and possible values can be viewed using the list settings command.\n\n"
+						+ "**Parameters:**\n"
+						+ "setting id - The special identifier for the setting you are trying to modify\n"
+						+ "setting value - The new desired value to change the setting to")
+				.build();
 	}
 
 }

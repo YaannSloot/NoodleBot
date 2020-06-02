@@ -138,8 +138,13 @@ public class RemoveTrackCommand implements Command {
 
 	@Override
 	public MessageEmbed getCommandHelpPage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new EmbedBuilder().setTitle("Remove track command | More Info").setColor(Color.red)
+				.setDescription("**Syntax:**\n" + "_" + BotUtils.BOT_PREFIX
+						+ "remove track(s)_ (track #|track # range)\n\n" + "**Summary:**\n"
+						+ "This command removes tracks from the track queue if the specified tracks exist.\n\n"
+						+ "**Parameters:**\n"
+						+ "track #| track # range - If a single number is specified, the matching track will be removed from the queue. To specify a range of tracks, please input the range in a #-# format.")
+				.build();
 	}
 
 }

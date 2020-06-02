@@ -84,8 +84,10 @@ public class ShowQueueCommand implements Command {
 
 	@Override
 	public MessageEmbed getCommandHelpPage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new EmbedBuilder().setTitle("Show queue command | More Info").setColor(Color.red)
+				.setDescription("**Syntax:**\n" + "_" + BotUtils.BOT_PREFIX + "show queue_\n\n" + "**Summary:**\n"
+						+ "Displays the names and track numbers of any and all tracks currently in the queue.")
+				.build();
 	}
 
 }

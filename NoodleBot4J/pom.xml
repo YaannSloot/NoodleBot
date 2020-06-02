@@ -21,29 +21,6 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.graalvm.nativeimage</groupId>
-				<artifactId>native-image-maven-plugin</artifactId>
-				<version>20.0.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>native-image</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-				</executions>
-				<configuration>
-					<skip>false</skip>
-					<imageName>noodlebot-native</imageName>
-					<mainClass>com.IanSloat.noodlebot.NoodleBotMain</mainClass>
-					<buildArgs>
-						--no-fallback
-						-H:ResourceConfigurationFiles=${basedir}/resource-config.json
-						-H:EnableURLProtocols=http
-					</buildArgs>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 	<repositories>
@@ -51,11 +28,6 @@
 			<id>jcenter</id>
 			<name>jcenter-bintray</name>
 			<url>https://jcenter.bintray.com</url>
-		</repository>
-		<repository>
-			<id>central</id>
-			<name>bintray</name>
-			<url>http://jcenter.bintray.com</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
@@ -69,29 +41,29 @@
 			<version>4.1.1_107</version>
 		</dependency>
 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.FredBoat</groupId>
 			<artifactId>Lavalink-Client</artifactId>
 			<version>4.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>5.1.3.RELEASE</version>
-		</dependency>
-		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>2.0.0-alpha1</version>
+			<version>1.7.30</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.3.0-alpha5</version>
+			<version>1.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.3.0-alpha5</version>
+			<version>1.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -114,11 +86,6 @@
 			<version>2.5.10</version>
 		</dependency>
 		<dependency>
-			<groupId>org.quartz-scheduler</groupId>
-			<artifactId>quartz</artifactId>
-			<version>2.3.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
 			<version>1.3.9</version>
@@ -126,17 +93,17 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20180813</version>
+			<version>20200518</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jline</groupId>
 			<artifactId>jline</artifactId>
-			<version>3.10.0</version>
+			<version>3.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.0</version>
+			<version>3.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.mpkorstanje</groupId>
@@ -152,12 +119,6 @@
 			<groupId>com.konghq</groupId>
 			<artifactId>unirest-java</artifactId>
 			<version>3.1.02</version>
-		</dependency>
-		<dependency>
-			<groupId>org.graalvm.sdk</groupId>
-			<artifactId>graal-sdk</artifactId>
-			<version>20.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

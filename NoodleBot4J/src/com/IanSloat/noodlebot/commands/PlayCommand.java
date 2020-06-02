@@ -101,7 +101,14 @@ public class PlayCommand implements Command {
 
 	@Override
 	public MessageEmbed getCommandHelpPage() {
-		return null;
+		return new EmbedBuilder().setTitle("Play command | More Info").setColor(Color.red)
+				.setDescription("**Syntax:**\n" + "_" + BotUtils.BOT_PREFIX + "play_ <search term|video/audio url>\n\n"
+						+ "**Summary:**\n"
+						+ "This command attempts to retrieve audio from the source provided and play it in whatever voice chat the command user is currently in.\n\n"
+						+ "**Parameters:**\n"
+						+ "When using a search term: The bot will attempt to search on YouTube by default. To search on SoundCloud you must put \"scsearch:\" before your search term.\n"
+						+ "\nWhen using URLs: Will accept YouTube, SoundCloud, Bandcamp, Vimeo, and Twitch links. Direct links to MP3, FLAC, WAV, Matroska/WebM, MP4/M4A, OGG, AAC, M3U, and PLS files are also accepted. Can also play files uploaded to discord.")
+				.build();
 	}
 
 }

@@ -75,8 +75,10 @@ public class LeaveCommand implements Command {
 
 	@Override
 	public MessageEmbed getCommandHelpPage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new EmbedBuilder().setTitle("Leave command | More Info").setColor(Color.red)
+				.setDescription("**Syntax:**\n" + "_" + BotUtils.BOT_PREFIX + "leave_\n\n" + "**Summary:**\n"
+						+ "This command tells the bot to disconnect from any voice channel it is currently connected to in the current guild.")
+				.build();
 	}
 
 }

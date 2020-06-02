@@ -267,7 +267,8 @@ public class ReactiveMessage extends ListenerAdapter {
 			buttonListeners.forEach((listener) -> knownEmojis.add(listener.getButton().getEmojiName()));
 			if (processedList.size() < knownEmojis.size()) {
 				registeredMessage.clearReactions().queue();
-				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
+				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue(null,
+						(error) -> logger.warn("An error occurred when attempting to add a reaction to a registered reactive message")));
 			}
 		} catch (Exception e) {
 			if (registeredMessage != null)

@@ -85,7 +85,9 @@ public class PauseCommand implements Command {
 	@Override
 	public MessageEmbed getCommandHelpPage() {
 		// TODO Auto-generated method stub
-		return null;
+		return new EmbedBuilder().setTitle("Pause command | More Info").setColor(Color.red).setDescription(
+				"**Syntax:**\n_" + BotUtils.BOT_PREFIX + "pause_\n\n**Summary:**\nPauses/resumes the current track if a track is playing. The command works as a toggle.")
+				.build();
 	}
 
 }
