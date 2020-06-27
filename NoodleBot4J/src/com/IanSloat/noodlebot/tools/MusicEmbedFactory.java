@@ -116,7 +116,8 @@ public class MusicEmbedFactory {
 	 * @param volume         The volume value to display
 	 * @return the EmbedObject message created off of the AudioTrack
 	 */
-	public MessageEmbed getPlaying(boolean AttachPlaylist, List<AudioTrack> tracks, int volume) {
+	public MessageEmbed getPlaying(boolean AttachPlaylist, List<AudioTrack> tracks, int volume,
+			boolean displayAutoplayNotice) {
 		EmbedBuilder result = new EmbedBuilder();
 		if (track.getSourceManager().getSourceName().equals("youtube")) {
 			result = getYouTubeEmbed(volume);
@@ -149,6 +150,9 @@ public class MusicEmbedFactory {
 				result.addField("Up next:", songList, false);
 			}
 		}
+
+		if (displayAutoplayNotice)
+			result.setFooter("**AutoPlay is enabled**");
 
 		return result.build();
 	}

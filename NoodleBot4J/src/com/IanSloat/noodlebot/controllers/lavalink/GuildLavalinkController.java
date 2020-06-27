@@ -246,7 +246,7 @@ public class GuildLavalinkController {
 			if (tracks.size() > 0) {
 				manager.reset();
 				if (target.startsWith("ytsearch:") || target.startsWith("scsearch"))
-					if (autoplay)
+					if (autoplay && target.startsWith("scsearch"))
 						queueTracks(tracks);
 					else
 						manager.queue(tracks.get(0));

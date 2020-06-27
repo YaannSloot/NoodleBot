@@ -15,16 +15,6 @@ import org.jsoup.select.Elements;
  */
 public class YTCrawler {
 
-	public static void main(String[] args) {
-		YTCrawler crawler = new YTCrawler("https://www.youtube.com/watch?v=6XUOo-2gSu4");
-		List<String> videos = crawler.generatePlaylist(19);
-
-		for (String url : videos) {
-			System.out.println(url);
-		}
-
-	}
-
 	private String startUrl;
 	private final String baseUrl = "https://www.youtube.com/watch?v=";
 
@@ -35,12 +25,10 @@ public class YTCrawler {
 	public List<String> generatePlaylist(int amount) {
 		List<String> result = new ArrayList<String>();
 		result.add(getNextAutoplayUrl(startUrl));
-		System.out.println("Retrieved URL 1...");
 		String currentUrl = result.get(0);
 		for (int i = 1; i < amount; i++) {
 			currentUrl = getNextAutoplayUrl(currentUrl);
 			result.add(currentUrl);
-			System.out.println("Retrieved URL " + (1 + i) + "...");
 		}
 		return result;
 	}

@@ -12,9 +12,11 @@ import com.IanSloat.noodlebot.commands.PauseCommand;
 import com.IanSloat.noodlebot.commands.PlayCommand;
 import com.IanSloat.noodlebot.commands.StopCommand;
 import com.IanSloat.noodlebot.controllers.permissions.GuildPermissionsController;
+import com.IanSloat.noodlebot.controllers.settings.GuildSettingsController;
 import com.IanSloat.noodlebot.reactivecore.Button;
 import com.IanSloat.noodlebot.reactivecore.ReactiveMessage;
 import com.IanSloat.noodlebot.tools.MusicEmbedFactory;
+import com.IanSloat.noodlebot.tools.YTCrawler;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
@@ -101,11 +103,19 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 		MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
 		GuildPermissionsController permController;
 		try {
+			boolean showAutoPlay = false;
+			try {
+				GuildSettingsController settings = new GuildSettingsController(guild);
+				showAutoPlay = settings.getSetting("autoplay").getValue().equals("on");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			permController = new GuildPermissionsController(guild);
 			if (message != null)
 				message.dispose();
 			message = new ReactiveMessage(channel);
-			message.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
+			message.setMessageContent(
+					musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume(), showAutoPlay));
 			Button stopButton = new Button("U+23f9");
 			stopButton.setButtonAction(() -> {
 				if (stopButton.getUser() != null) {
@@ -226,8 +236,16 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 			public void accept(List<Message> t) {
 				if (message != null)
 					if (t.get(0).equals(message.getRegisteredMessage())) {
+						boolean showAutoPlay = false;
+						try {
+							GuildSettingsController settings = new GuildSettingsController(guild);
+							showAutoPlay = settings.getSetting("autoplay").getValue().equals("on");
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						MusicEmbedFactory musEmbed = new MusicEmbedFactory(player.getPlayingTrack());
-						message.setMessageContent(musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume()));
+						message.setMessageContent(
+								musEmbed.getPlaying(displayQueue, getPlaylist(), player.getVolume(), showAutoPlay));
 						message.update();
 					} else {
 						initNewSession();
@@ -270,6 +288,19 @@ class LavalinkTrackManager extends PlayerEventListenerAdapter {
 	 * @param track  Audio track that started
 	 */
 	public void onTrackStart(IPlayer player, AudioTrack track) {
+		updateStatus();
+		try {
+			GuildSettingsController settings = new GuildSettingsController(guild);
+			if (settings.getSetting("autoplay").getValue().equals("on") && queue.size() == 0) {
+				if (track.getSourceManager().getSourceName().equals("youtube")) {
+					YTCrawler autoplayMgr = new YTCrawler(track.getInfo().uri);
+					GuildLavalinkController controller = GuildLavalinkController.getController(guild);
+					controller.addToPlaylist(autoplayMgr.getNextAutoplayUrl(track.getInfo().uri), guild);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		updateStatus();
 	}
 
