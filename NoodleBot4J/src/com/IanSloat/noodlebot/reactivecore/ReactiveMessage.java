@@ -2,8 +2,17 @@ package com.IanSloat.noodlebot.reactivecore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -17,11 +26,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 
 /**
  * A reactive message is a discord message that has event driven reactions used
@@ -48,6 +56,10 @@ public class ReactiveMessage extends ListenerAdapter {
 	private TextChannel channel;
 	private boolean isActive = false;
 	private MessageEmbed messageBody;
+	private Queue<Future<?>> priorityTasks = new LinkedList<>();
+	private Future<?> monitorTask;
+	private final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<>();
+	private final Lock monitorLock = new ReentrantLock();
 
 	private synchronized void registerThisReactive() {
 		if (isActive) {
@@ -186,20 +198,34 @@ public class ReactiveMessage extends ListenerAdapter {
 	 */
 	public void activate(Consumer<Message> success) {
 		if (messageBody != null && buttonListeners.size() > 0) {
-			channel.sendMessage(messageBody).queue(new Consumer<Message>() {
-
-				@Override
-				public void accept(Message msg) {
-					dispose();
-					registeredMessage = msg;
-					cleanMessage(msg.getReactions());
-					isActive = true;
-					registerThisReactive();
-					if (success != null)
-						success.accept(msg);
-				}
-
-			});
+			priorityTasks.add(ForkJoinPool.commonPool().submit(() -> {
+				Message msg = channel.sendMessage(messageBody).complete();
+				dispose();
+				registeredMessage = msg;
+				cleanMessage(msg.getReactions());
+				isActive = true;
+				registerThisReactive();
+				if (success != null)
+					success.accept(msg);
+				monitorTask = ForkJoinPool.commonPool().submit(() -> {
+					System.out.println("hoah");
+					while (isActive) {
+						while (priorityTasks.size() > 0) {
+							try {
+								priorityTasks.poll().get();
+							} catch (InterruptedException | ExecutionException e) {
+								e.printStackTrace();
+							}
+						}
+						try {
+							relayEvent(eventQueue.take());
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+						monitorLock.lock();
+					}
+				});
+			}));
 		}
 	}
 
@@ -214,6 +240,9 @@ public class ReactiveMessage extends ListenerAdapter {
 			BotUtils.messageSafeDelete(registeredMessage);
 		registeredMessage = null;
 		isActive = false;
+		if (monitorTask != null)
+			monitorTask.cancel(true);
+		eventQueue.clear();
 	}
 
 	/**
@@ -244,13 +273,13 @@ public class ReactiveMessage extends ListenerAdapter {
 					emoji = reaction.getReactionEmote().getName();
 				}
 				if (!knownEmojis.contains(emoji)) {
-					reaction.removeReaction(user).queue();
+					reaction.removeReaction(user).complete();
 					processedList.remove(reaction);
 				}
 			});
 			if (processedList.size() < knownEmojis.size()) {
-				registeredMessage.clearReactions().queue();
-				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue());
+				registeredMessage.clearReactions().complete();
+				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).complete());
 			}
 		} catch (Exception e) {
 			if (registeredMessage != null)
@@ -266,9 +295,8 @@ public class ReactiveMessage extends ListenerAdapter {
 			processedList.addAll(referenceList);
 			buttonListeners.forEach((listener) -> knownEmojis.add(listener.getButton().getEmojiName()));
 			if (processedList.size() < knownEmojis.size()) {
-				registeredMessage.clearReactions().queue();
-				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).queue(null,
-						(error) -> logger.warn("An error occurred when attempting to add a reaction to a registered reactive message")));
+				registeredMessage.clearReactions().complete();
+				knownEmojis.forEach((emoji) -> registeredMessage.addReaction(emoji).complete());
 			}
 		} catch (Exception e) {
 			if (registeredMessage != null)
@@ -281,18 +309,7 @@ public class ReactiveMessage extends ListenerAdapter {
 	public void onGenericMessageReaction(GenericMessageReactionEvent event) {
 		if (event.getChannel().equals(registeredMessage.getChannel())
 				&& event.getMessageId().equals(registeredMessage.getId()) && isActive && !event.getUser().isBot()) {
-			event.getChannel().retrieveMessageById(registeredMessage.getId()).queue(
-					(msg) -> cleanMessage(msg.getReactions(), event.getUser()),
-					new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-			if (!event.getUser().isBot()) {
-				String emoji = "";
-				try {
-					emoji = event.getReaction().getReactionEmote().getAsCodepoints();
-				} catch (IllegalStateException e) {
-					emoji = event.getReaction().getReactionEmote().getName();
-				}
-				alertButton(emoji, event.getUser());
-			}
+			eventQueue.add(event);
 		}
 	}
 
@@ -300,8 +317,32 @@ public class ReactiveMessage extends ListenerAdapter {
 	public void onMessageDelete(MessageDeleteEvent event) {
 		if (event.getChannel().equals(registeredMessage.getChannel())
 				&& event.getMessageId().equals(registeredMessage.getId())) {
-			unregisterThisReactive();
+			eventQueue.add(event);
 		}
+	}
+
+	// Make sure all event actions are blocking here
+	private void relayEvent(Event event) {
+		ForkJoinPool.commonPool().submit(() -> {
+			if (event instanceof GenericMessageReactionEvent) {
+				Message msg = ((GenericMessageReactionEvent) event).getChannel()
+						.retrieveMessageById(registeredMessage.getId()).complete();
+				cleanMessage(msg.getReactions(), ((GenericMessageReactionEvent) event).getUser());
+				if (!((GenericMessageReactionEvent) event).getUser().isBot()) {
+					String emoji = "";
+					try {
+						emoji = ((GenericMessageReactionEvent) event).getReaction().getReactionEmote()
+								.getAsCodepoints();
+					} catch (IllegalStateException e) {
+						emoji = ((GenericMessageReactionEvent) event).getReaction().getReactionEmote().getName();
+					}
+					alertButton(emoji, ((GenericMessageReactionEvent) event).getUser());
+				}
+			} else if (event instanceof MessageDeleteEvent) {
+				unregisterThisReactive();
+			}
+			monitorLock.unlock();
+		});
 	}
 
 }

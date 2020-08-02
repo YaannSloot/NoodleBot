@@ -152,7 +152,7 @@ public class MusicEmbedFactory {
 		}
 
 		if (displayAutoplayNotice)
-			result.setFooter("**AutoPlay is enabled**");
+			result.setFooter("AutoPlay is enabled");
 
 		return result.build();
 	}
