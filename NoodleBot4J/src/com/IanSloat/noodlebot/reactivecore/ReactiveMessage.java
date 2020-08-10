@@ -208,20 +208,22 @@ public class ReactiveMessage extends ListenerAdapter {
 				if (success != null)
 					success.accept(msg);
 				monitorTask = ForkJoinPool.commonPool().submit(() -> {
-					while (isActive) {
-						while (priorityTasks.size() > 0) {
-							try {
-								priorityTasks.poll().get();
-							} catch (InterruptedException | ExecutionException e) {
-								e.printStackTrace();
+					try {
+						while (isActive) {
+							while (priorityTasks.size() > 0) {
+								try {
+									priorityTasks.poll().get();
+								} catch (ExecutionException e) {
+									e.printStackTrace();
+								}
 							}
-						}
-						try {
 							relayEvent(eventQueue.take());
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
+							monitorLock.lockInterruptibly();
 						}
-						monitorLock.lock();
+					} catch (InterruptedException e) {
+						eventQueue.clear();
+						if (monitorLock.tryLock())
+							monitorLock.unlock();
 					}
 				});
 			}));
@@ -242,6 +244,8 @@ public class ReactiveMessage extends ListenerAdapter {
 		if (monitorTask != null)
 			monitorTask.cancel(true);
 		eventQueue.clear();
+		if (monitorLock.tryLock())
+			monitorLock.unlock();
 	}
 
 	/**
