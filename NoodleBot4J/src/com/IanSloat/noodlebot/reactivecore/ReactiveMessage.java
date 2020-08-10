@@ -59,7 +59,6 @@ public class ReactiveMessage extends ListenerAdapter {
 	private Queue<Future<?>> priorityTasks = new LinkedList<>();
 	private Future<?> monitorTask;
 	private final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<>();
-	private final Lock monitorLock = new ReentrantLock();
 
 	private synchronized void registerThisReactive() {
 		if (isActive) {
@@ -218,12 +217,9 @@ public class ReactiveMessage extends ListenerAdapter {
 								}
 							}
 							relayEvent(eventQueue.take());
-							monitorLock.lockInterruptibly();
 						}
 					} catch (InterruptedException e) {
 						eventQueue.clear();
-						if (monitorLock.tryLock())
-							monitorLock.unlock();
 					}
 				});
 			}));
@@ -244,8 +240,6 @@ public class ReactiveMessage extends ListenerAdapter {
 		if (monitorTask != null)
 			monitorTask.cancel(true);
 		eventQueue.clear();
-		if (monitorLock.tryLock())
-			monitorLock.unlock();
 	}
 
 	/**
@@ -344,7 +338,6 @@ public class ReactiveMessage extends ListenerAdapter {
 			} else if (event instanceof MessageDeleteEvent) {
 				unregisterThisReactive();
 			}
-			monitorLock.unlock();
 		});
 	}
 
