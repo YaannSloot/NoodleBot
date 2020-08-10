@@ -208,7 +208,6 @@ public class ReactiveMessage extends ListenerAdapter {
 				if (success != null)
 					success.accept(msg);
 				monitorTask = ForkJoinPool.commonPool().submit(() -> {
-					System.out.println("hoah");
 					while (isActive) {
 						while (priorityTasks.size() > 0) {
 							try {
