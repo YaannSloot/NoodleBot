@@ -1,4 +1,8 @@
-/target
-/lib
-/bin
-/testenv
+target
+lib
+bin
+testenv
+.settings
+.classpath
+.factorypath
+.project
