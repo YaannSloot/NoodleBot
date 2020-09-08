@@ -1,9 +1,4 @@
-/target/
-/resources
-/GuildSettings
-/logging
-/settings
-/startbot.bat
-/startbot.sh
-/guilds
-/announcements
+/target
+/lib
+/bin
+/testenv
