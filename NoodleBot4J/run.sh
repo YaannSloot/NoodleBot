@@ -22,6 +22,7 @@ if [ -f testenv/NoodleBot4J*.jar ]; then
 	rm testenv/NoodleBot4J*.jar
 fi
 cp target/NoodleBot4J*.jar testenv
+cp logback.xml testenv
 echo "done."
 
 echo "Running project..."

@@ -3,6 +3,7 @@ package com.IanSloat.noodlebot;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
@@ -53,6 +54,10 @@ import com.IanSloat.noodlebot.events.CommandController;
 import com.IanSloat.noodlebot.events.Events;
 import com.IanSloat.noodlebot.gateway.GatewayServer;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import lavalink.client.io.jda.JdaLavalink;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -145,10 +150,23 @@ public class NoodleBotMain {
 
 			System.setOut(new ModifiedPrintStream(originalStream));
 
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			lc.reset();
+			JoranConfigurator configurator = new JoranConfigurator();
+			InputStream configStream = FileUtils.openInputStream(new File("logback.xml"));
+			configurator.setContext(lc);
+			try {
+				configurator.doConfigure(configStream);
+			} catch (JoranException e2) {
+				logger.error(e2.getMessage());
+			}
+			configStream.close();
+			StatusPrinter.print(lc);
+			
 			System.out.print("Starting bot");
-
+			
 			System.out.print("Running core file check...");
-
+			logger.warn("Poopoopeepee");
 			File badWordDir = new File("filters/words");
 			FileUtils.forceMkdir(badWordDir);
 			Collection<File> badWordFiles = FileUtils.listFiles(badWordDir, null, false);
