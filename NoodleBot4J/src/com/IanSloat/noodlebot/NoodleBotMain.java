@@ -397,7 +397,7 @@ public class NoodleBotMain {
 
 			FileUtils.write(botSettings, settings.toString(), "UTF-8");
 			
-			shardmgr = new DefaultShardManagerBuilder(settings.getString("token"))
+			shardmgr = DefaultShardManagerBuilder.createDefault(settings.getString("token"))
 					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
 					.addEventListeners(eventListener, lavalink)
 					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
