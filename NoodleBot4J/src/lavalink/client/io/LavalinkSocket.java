@@ -78,7 +78,7 @@ public class LavalinkSocket extends ReusableWebSocket {
     public void onMessage(String message) {
         JSONObject json = new JSONObject(message);
 
-        if (!Objects.equals(json.getString("op"), "playerUpdate")) {
+        if (!Objects.equals(json.getString("op"), "playerUpdate") && !Objects.equals(json.getString("op"), "stats")) {
             log.debug(message);
         }
 
