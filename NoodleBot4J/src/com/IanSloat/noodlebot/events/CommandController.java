@@ -49,6 +49,8 @@ public class CommandController {
 
 			for (Command c : commandList) {
 				if (c.CheckForCommandMatch(event.getMessage())) {
+					System.out.println(event.getMember().getId());
+					System.out.println(event.getMember().getGuild().getId());
 					if (c.CheckUsagePermission(event.getMember()))
 						c.execute(event);
 					else

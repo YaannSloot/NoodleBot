@@ -240,8 +240,11 @@ public class GuildLavalinkController {
 	 */
 	public boolean loadAndPlay(String target, boolean autoplay, Guild parentGuild) {
 		if (manager.getChannel() != null) {
-			if (!(target.startsWith("http://") || target.startsWith("https://")))
-				target = this.target.toString() + target;
+			if (!(target.startsWith("http://") || target.startsWith("https://"))) {
+				if(!(this.target == SearchTarget.YOUTUBE && target.toLowerCase().startsWith("scsearch") || 
+						this.target == SearchTarget.SOUNDCLOUD && target.toLowerCase().startsWith("ytsearch:")))
+					target = this.target.toString() + target;
+			}
 			List<AudioTrack> tracks = searchForTracks(target, parentGuild);
 			if (tracks.size() > 0) {
 				manager.reset();

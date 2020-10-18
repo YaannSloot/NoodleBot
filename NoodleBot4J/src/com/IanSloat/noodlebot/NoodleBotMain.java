@@ -68,6 +68,8 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class NoodleBotMain {
 
@@ -421,6 +423,9 @@ public class NoodleBotMain {
 					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
 					.addEventListeners(eventListener, lavalink)
 					.enableIntents(EnumSet.allOf(GatewayIntent.class))
+					.disableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS)
+					.setMemberCachePolicy(MemberCachePolicy.DEFAULT)
+					.enableCache(CacheFlag.VOICE_STATE)
 					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 

@@ -273,7 +273,7 @@ public class GuildPermissionsController {
 		int fallthrough = 0;
 		switch (fallthrough) {
 		case 0:
-			if (member.getGuild().getOwner().getId().equals(member.getId())) {
+			if (member.getGuild().retrieveOwner().complete().getId().equals(member.getId())) {
 				allow = true;
 				break;
 			}

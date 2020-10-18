@@ -58,5 +58,13 @@ public class YTCrawler {
 		}
 		return result;
 	}
+	
+	//public void setVideoUrl()
+	
+	public List<String> doSearch(String search) {
+		List<String> result = new ArrayList<String>();
+		
+		return result;
+	}
 
 }
