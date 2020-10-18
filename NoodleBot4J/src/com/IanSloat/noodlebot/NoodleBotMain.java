@@ -17,6 +17,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +65,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -418,6 +420,7 @@ public class NoodleBotMain {
 			shardmgr = DefaultShardManagerBuilder.createDefault(settings.getString("token"))
 					.setShardsTotal(maxShard - minShard + 1).setShards(minShard, maxShard)
 					.addEventListeners(eventListener, lavalink)
+					.enableIntents(EnumSet.allOf(GatewayIntent.class))
 					.setVoiceDispatchInterceptor(lavalink.getVoiceInterceptor()).build();
 			botOwner = shardmgr.getShards().get(0).retrieveApplicationInfo().complete().getOwner();
 
