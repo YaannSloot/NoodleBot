@@ -1,6 +1,7 @@
-# ThiccBot4Java
-OwO what's thissss
-## Info
+# NoodleBot v1.0-legacy (thiccbot)
+IMPORTANT: This is a severely outdated branch kept only for reference. Running out of the box may not even work with the current discord api
+
+## Info (outdated)
 𝙏𝙃𝙄𝘾𝘾 𝘽𝙊𝙏 is a bot that I started working on in my free time. It was first created in python but due to the fact that python is a slow memory hogging language by nature, I decided that an upgrade was needed. This version of my bot is designed to run on minimal hardware power, i.e. a raspberry pi.
 
 ### Update: due to the complexity of thiccbot and the amount of server-side services that are planned to be implemented, this repository is being moved to a private server. The information here may be updated and a standalone gui client will be added to the repository eventually, but all further updates to thiccbot will no longer be committed to this repository. Instead, drop by the thiccbot website @ [thiccbot.site](http://thiccbot.site)
