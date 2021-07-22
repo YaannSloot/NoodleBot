@@ -1,5 +1,17 @@
-# Changelog (as of beta v1.1.12):
+# Changelog (as of v2.0):
 ### Version number = (Release #).(feature version).(patch #)
+
+## Release v2.0
+
+\+ Complete rewrite of noodlebot
+
+## Beta v1.2.0
+
+\+ Added chat based logger service
+
+## Beta v1.1.13
+
+\+ Added DBL api for top.gg integration
 
 ## Beta v1.1.12
 
