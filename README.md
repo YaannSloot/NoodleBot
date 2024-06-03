@@ -1,3 +1,6 @@
+# Notice
+This project is no longer maintained and exists primarily for archival purposes. It most likely WILL NOT WORK with the latest discord API.
+
 # Say hello to NoodleBot
 
 But what is **NoodleBot** you ask?
